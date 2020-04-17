@@ -1,0 +1,39 @@
+﻿@{
+    this.ViewData["Title"] = "Homeworks";
+    var subjectName = @Context.Request.Query["subjectName"];
+}
+
+<div class="container">
+    <div class="text-center">
+        <h2 class="display-4">@this.ViewData["Title"]</h2>
+    </div>
+
+    <ul class="list-group list-group-flush mt-3">
+        @foreach (var homework in Model)
+        {
+            <li class="list-group-item">
+                <h3 class="ml-1">@homework.Title</h3>
+                <p class="ml-2">@Html.Raw(homework.SanitizedDescription)</p>
+
+                <p>Files for download:</p>
+                @foreach (var file in homework.Files)
+                {
+                    <a class="ml-5" href="@file.CloudinaryFileUri" target="_blank">@file.FileDescription</a>
+                }
+                <div class="text-center">
+                    <p class="text-center mt-2">@($"End time: {homework.Deadline}!")</p>
+
+                    <a class="btn btn-secondary m-1 w-auto" asp-controller="Homeworks" asp-action="Send" asp-route-subjectName="@subjectName" asp-route-homeworkId="@homework.Id">
+                        Send Homework
+                    </a>
+                    <a class="btn btn-secondary m-1 w-auto" asp-controller="Homeworks" asp-action="Sended" asp-route-subjectName="@subjectName" asp-route-homeworkId="@homework.Id">
+                        Sended Homeworks
+                    </a>
+                </div>
+            </li>
+        }
+    </ul>
+</div>
+<a class="btn btn-secondary m-4 w-auto" asp-controller="Homeworks" asp-action="Create" asp-route-subjectName="@subjectName">
+    Create
+</a>

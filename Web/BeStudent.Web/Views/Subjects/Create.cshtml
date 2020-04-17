@@ -1,0 +1,24 @@
+﻿@model BeStudent.Web.ViewModels.Subject.SubjectCreateInputModel
+@{
+    this.ViewData["Title"] = "New Subject";
+}
+<div class="container">
+    <h1 class="mb-2">@this.ViewData["Title"]</h1>
+
+    <form method="post" asp-action="Create">
+        <div class="form-group">
+            <label asp-for="Name"></label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <br />
+            <p>Lectors</p>
+            <label>You should fill in this field with one or more emails separate with white space.</label>
+            <input asp-for="Emails" class="form-control" />
+            <span asp-validation-for="Emails" class="text-danger"></span>
+        </div>
+
+        <input type="submit" class="btn btn-primary" />
+    </form>
+</div>

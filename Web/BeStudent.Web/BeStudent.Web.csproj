@@ -1,0 +1,66 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <configSections>
+      <section name="paypal" type="PayPal.SDKConfigHandler, PayPal" />
+    </configSections>
+    <!-- PayPal SDK settings -->
+    <paypal>
+      <settings>
+        <add name="mode" value="sandbox" />
+        <add name="connectionTimeout" value="360000" />
+        <add name="requestRetries" value="1" />
+        <add name="clientId" value="AewO0fN7c6GuMMO0fIQq_0qILiDOf4ASjy1cJTarVYmeNJPbePQ1mnV4g-HoTpvKMPShpl3q9x7hxILi" />
+        <add name="clientSecret" value="EGXduWBuSMzgSI5G7ikWf1fBUn42tOCPNzXMh1Li6yumI4AIQatBZ0NOCYrtqLD5fbm2Y8B18I-aveD7" />
+      </settings>
+    </paypal>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UserSecretsId>aspnet-BeStudent-BBB373B5-EF3F-4DBB-B8AA-7152CEC275BF</UserSecretsId>
+    <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <AssetTargetFallback>$(AssetTargetFallback);portable-net45+win8+wp8+wpa81;</AssetTargetFallback>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <CodeAnalysisRuleSet>..\..\Rules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <AdditionalFiles Include="..\..\stylecop.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AngleSharp" Version="0.14.0" />
+    <PackageReference Include="CloudinaryDotNet" Version="1.10.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.1" />
+    <PackageReference Include="BuildBundlerMinifier" Version="3.2.435" />
+    <PackageReference Include="Microsoft.Web.LibraryManager.Build" Version="2.0.96" />
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="3.1.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="3.1.2" />
+    <PackageReference Include="PayPal" Version="1.9.1" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.164" PrivateAssets="all">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Data\BeStudent.Data.Models\BeStudent.Data.Models.csproj" />
+    <ProjectReference Include="..\..\Data\BeStudent.Data\BeStudent.Data.csproj" />
+    <ProjectReference Include="..\..\Services\BeStudent.Services.Data\BeStudent.Services.Data.csproj" />
+    <ProjectReference Include="..\..\Services\BeStudent.Services.Mapping\BeStudent.Services.Mapping.csproj" />
+    <ProjectReference Include="..\..\Services\BeStudent.Services.Messaging\BeStudent.Services.Messaging.csproj" />
+    <ProjectReference Include="..\..\Services\BeStudent.Services\BeStudent.Services.csproj" />
+    <ProjectReference Include="..\BeStudent.Web.Infrastructure\BeStudent.Web.Infrastructure.csproj" />
+    <ProjectReference Include="..\BeStudent.Web.ViewModels\BeStudent.Web.ViewModels.csproj" />
+  </ItemGroup>
+  
+</Project>

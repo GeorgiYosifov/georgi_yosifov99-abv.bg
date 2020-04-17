@@ -1,0 +1,18 @@
+﻿@model BeStudent.Web.ViewModels.Administration.Dashboard.CreateSendViewModel
+@{
+    this.ViewData["Title"] = "Admin dashboard";
+}
+
+<div class="container">
+    <h1>@this.ViewData["Title"]</h1>
+
+    <form method="post" asp-action="Index">
+        <div class="form-group">
+            <label asp-for="Email"></label>
+            <input asp-for="Email" class="form-control" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Send</button>
+    </form>
+</div>

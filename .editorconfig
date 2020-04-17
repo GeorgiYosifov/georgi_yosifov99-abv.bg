@@ -1,0 +1,10 @@
+﻿[*.cs]
+
+# SA1200: Using directives should be placed correctly
+dotnet_diagnostic.SA1200.severity = none
+
+# SA1516: Elements should be separated by blank line
+dotnet_diagnostic.SA1516.severity = warning
+
+# IDE0065: Misplaced using directive
+csharp_using_directive_placement = inside_namespace:silent

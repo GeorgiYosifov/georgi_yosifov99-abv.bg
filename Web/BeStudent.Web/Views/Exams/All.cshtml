@@ -1,0 +1,33 @@
+﻿@{
+    this.ViewData["Title"] = "Exams";
+    var subjectName = @Context.Request.Query["subjectName"];
+}
+
+<div class="container">
+    <div class="text-center">
+        <h1 class="display-4">@this.ViewData["Title"]</h1>
+    </div>
+
+    <ul class="list-group list-group-flush mt-3">
+        @foreach (var exam in Model)
+        {
+            <li class="list-group-item">
+                <h3 class="ml-1">@exam.Title</h3>
+                <p class="ml-2">@Html.Raw(exam.SanitizedDescription)</p>
+                @foreach (var file in exam.Files)
+                {
+                    <a class="ml-3" href="@file.CloudinaryFileUri" target="_blank">@file.FileDescription</a>
+                }
+            </li>
+            @if (exam.Type == "OnlineTest")
+            {
+                <a class="btn btn-primary m-4 ml-5 w-25" asp-controller="Exams" asp-action="CreateOnlineTest" asp-route-subjectName="@subjectName" asp-route-examId="@exam.Id">
+                    Create Test
+                </a>
+            }
+        }
+    </ul>
+    <a class="btn btn-secondary m-4 w-auto" asp-controller="Exams" asp-action="Create" asp-route-subjectName="@subjectName">
+        Create New Exam
+    </a>
+</div>

@@ -1,0 +1,27 @@
+﻿@{
+    var count = 0;
+    var semesterId = 0;
+}
+
+<table class="table">
+    <thead class="thead-dark">
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Name</th>
+            <th scope="col">Lectors</th>
+        </tr>
+    </thead>
+    @foreach (var subject in Model)
+    {count++; semesterId = subject.SemesterId;
+        <tbody>
+            <tr>
+                <th scope="row">@count</th>
+                <td>@subject.Name</td>
+                <td>@string.Join(", ", subject.Lectors)</td>
+            </tr>
+        </tbody>
+    }
+</table>
+<a href="~/Subjects/Create/@semesterId" class="btn btn-secondary m-4 w-auto">
+    Create
+</a>

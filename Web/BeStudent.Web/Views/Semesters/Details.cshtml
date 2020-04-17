@@ -1,0 +1,86 @@
+﻿@using BeStudent.Web.ViewModels.Semester
+@model SemesterDetailsViewModel
+<script src="~/js/site.js"></script>
+
+@{
+    this.ViewData["Title"] = $"Semester {Model.SemesterType}";
+}
+
+<div class="text-center">
+    <h1 class="display-4">@($"{Model.CourseName} {Model.SemesterType} {Model.Number}")</h1>
+</div>
+
+<div class="d-flex flex-wrap bd-highlight">
+    <div class="container-lg">
+        <div class="p-2 w-25 flex-shrink-1 flex-fill bd-highlight">
+            <ul class="list-group pull-left">
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <button id="StudentsTableLink" type="button" class="btn btn-link text-center">
+                        Students
+                    </button>
+                    <span class="badge badge-primary badge-pill">@Model.StudentSemesters.Where(s => s.Student.Role == "User").Count()</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <button id="LectorsTableLink" type="button" class="btn btn-link">
+                        Lectors
+                    </button>
+                    <span class="badge badge-primary badge-pill">@Model.StudentSemesters.Where(l => l.Student.Role == "Lector").Count()</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <button id="SubjectsTableLink" type="button" class="btn btn-link">
+                        Subjects
+                    </button>
+                    <span class="badge badge-primary badge-pill">@Model.SubjectsCount</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div id="Partials" class="d-none p-2 flex-grow-1 w-100 flex-fill bd-highlight">
+        <div id="StudentsTable">
+            <partial name="~/Views/Students/TableWithStudents.cshtml" model="@Model.StudentSemesters.Where(s => s.Student.Role == "User").ToList()" />
+        </div>
+        <div id="LectorsTable">
+            <partial name="~/Views/Lectors/TableWithLectors.cshtml" model="@Model.StudentSemesters.Where(l => l.Student.Role == "Lector").ToList()" />
+        </div>
+        <div id="SubjectsTable">
+            <partial name="~/Views/Subjects/TableWithSubjects.cshtml" model="@Model.Subjects.ToList()" />
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script>
+        $('button').addClass('text-decoration-none');
+        $(document).ready(function () {
+            function hideAll() {
+                $('#StudentsTable').hide();
+                $('#SubjectsTable').hide();
+                $('#LectorsTable').hide();
+
+                $('li').removeClass('active');
+                $('button').removeClass('text-white');
+            };
+            hideAll();
+            $('#Partials').addClass("d-block");
+            $('#StudentsTableLink').click(function () {
+                hideAll();
+                $(this).parent().addClass('active');
+                $(this).addClass('text-white');
+                $('#StudentsTable').show();
+            });
+            $('#LectorsTableLink').click(function () {
+                hideAll();
+                $(this).parent().addClass('active');
+                $(this).addClass('text-white');
+                $('#LectorsTable').show();
+            });
+            $('#SubjectsTableLink').click(function () {
+                hideAll();
+                $(this).parent().addClass('active');
+                $(this).addClass('text-white');
+                $('#SubjectsTable').show();
+            });
+        });
+    </script>
+}

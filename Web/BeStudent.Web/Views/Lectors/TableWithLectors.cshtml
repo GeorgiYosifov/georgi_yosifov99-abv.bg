@@ -1,0 +1,29 @@
+﻿@{
+    var count = 0;
+}
+
+<table class="table">
+    <thead class="thead-dark">
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">First</th>
+            <th scope="col">Last</th>
+            <th scope="col">Email</th>
+            <th scope="col">Subjects</th>
+        </tr>
+    </thead>
+    @foreach (var student in Model)
+    { count++;
+        <tbody>
+            <tr>
+                <th scope="row">@count</th>
+                <td>@student.Student.FirstName</td>
+                <td>@student.Student.LastName</td>
+                <td>@student.Student.Email</td>
+                <td>
+                    @string.Join(", ", student.Student.Subjects)
+                </td>
+            </tr>
+        </tbody>
+    }
+</table>

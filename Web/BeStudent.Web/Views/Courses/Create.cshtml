@@ -1,0 +1,17 @@
+﻿@model BeStudent.Web.ViewModels.Course.CourseCreateInputModel
+@{
+    this.ViewData["Title"] = "New Course";
+}
+<div class="container">
+    <h1 class="mb-2">@this.ViewData["Title"]</h1>
+
+    <form method="post" asp-action="Create">
+        <div class="form-group">
+            <label asp-for="Name"></label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+
+        <input type="submit" class="btn btn-primary" />
+    </form>
+</div>

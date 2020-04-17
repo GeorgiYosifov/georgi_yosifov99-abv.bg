@@ -1,0 +1,39 @@
+﻿@namespace BeStudent.Web.ViewModels.Exam
+@model AnswersListCreateInputModel
+@{
+    this.ViewData["Title"] = "Fill Answers";
+    var numberOfAnswers = int.Parse(Context.Request.Query["numberOfAnswers"]);
+}
+
+<div class="container">
+    <h1 class="mb-2 text-center">@this.ViewData["Title"]</h1>
+
+    <form method="post" asp-action="CreateAnswers">
+        @for (int i = 'A'; i < 'A' + numberOfAnswers; i++)
+        {
+            var index = (int)i - 65;
+            <h3 class="mb-2 ml-4">Answer @((char)i)</h3>
+
+            <div class="form-group">
+                <label asp-for="AnswerCreateInputs[index].Text"></label>
+                <input asp-for="AnswerCreateInputs[index].Text" class="form-control" />
+                <span asp-validation-for="AnswerCreateInputs[index].Text" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="AnswerCreateInputs[index].Points"></label>
+                <input asp-for="AnswerCreateInputs[index].Points" class="form-control" />
+                <span asp-validation-for="AnswerCreateInputs[index].Points" class="text-danger"></span>
+            </div>
+        }
+
+        <input type="submit" class="btn btn-primary" value="Create next question" />
+
+        <a class="btn btn-secondary m-4 w-auto" asp-controller="Exams" asp-action="FinishCreating" asp-route-onlineTestId="@Model.OnlineTestId">
+            Finish test
+        </a>
+
+        <a class="btn btn-secondary m-4 w-auto" asp-controller="Exams" asp-action="EditQuestion" asp-route-questionId="@Model.QuestionId">
+            Back
+        </a>
+    </form>
+</div>

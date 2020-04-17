@@ -1,0 +1,46 @@
+﻿@model BeStudent.Web.ViewModels.Exam.OnlineTestCreateInputModel
+@{
+    this.ViewData["Title"] = "Create Online Test";
+}
+<div class="container">
+    <h1 class="mb-2 text-center">@this.ViewData["Title"]</h1>
+
+    <form method="post" asp-action="CreateOnlineTest">
+        <div class="form-group">
+            <label asp-for="StartTime"></label>
+            <input asp-for="StartTime" class="form-control" />
+            <span asp-validation-for="StartTime" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="EndTime"></label>
+            <input asp-for="EndTime" class="form-control" />
+            <span asp-validation-for="EndTime" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Duration"></label>
+            <input asp-for="Duration" class="form-control" />
+            <span asp-validation-for="Duration" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="MinPointsFor3"></label>
+            <input asp-for="MinPointsFor3" class="form-control" />
+            <span asp-validation-for="MinPointsFor3" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Range"></label>
+            <input asp-for="Range" class="form-control" />
+            <span asp-validation-for="Range" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="MaxPoints"></label>
+            <input asp-for="MaxPoints" class="form-control" />
+            <span asp-validation-for="MaxPoints" class="text-danger"></span>
+        </div>
+
+        <input type="submit" class="btn btn-primary" />
+
+        <a class="btn btn-secondary m-4 w-auto" asp-controller="Subjects" asp-action="Themes" asp-route-subjectName="@Model.SubjectName">
+            Back
+        </a>
+    </form>
+</div>

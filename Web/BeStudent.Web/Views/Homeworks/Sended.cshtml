@@ -1,0 +1,28 @@
+﻿@model BeStudent.Web.ViewModels.SendFile.SendFilesListViewModel
+@{
+    this.ViewData["Title"] = "Sended homeworks";
+}
+
+<div class="container">
+    <div class="text-center">
+        <h1 class="display-4">@this.ViewData["Title"]</h1>
+    </div>
+
+    <ul class="list-group list-group-flush mt-3">
+        @foreach (var sendFile in Model.SendFiles)
+        {
+            <li class="list-group-item">
+                <a class="m-2" href="@sendFile.CloudinaryFileUri">@sendFile.FileDescription</a>
+                <p>@($"Name: {sendFile.Student.FirstName} {sendFile.Student.LastName}")</p>
+                @if (sendFile.Grade != null)
+                {
+                    <p>@($"Grade: {sendFile.Grade.Mark}")</p>
+                    <p>@($"Description: {sendFile.Grade.Description}")</p>
+                }
+            </li>
+        }
+    </ul>
+    <a class="btn btn-secondary m-4 w-auto" asp-controller="Subjects" asp-action="Themes" asp-route-subjectName="@Model.SubjectName">
+        Back
+    </a>
+</div>

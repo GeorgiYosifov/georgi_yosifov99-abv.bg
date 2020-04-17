@@ -1,0 +1,73 @@
+﻿@model BeStudent.Web.ViewModels.Exam.QuestionAnswerViewModel
+@{
+    this.ViewData["Title"] = "Create Question";
+}
+
+<div class="container">
+    <h1 class="mb-2 text-center">@this.ViewData["Title"]</h1>
+
+    <form method="post" asp-action="CreateQuestion">
+        <div class="form-group">
+            <label asp-for="QuestionCreate.Condition"></label>
+            <input asp-for="QuestionCreate.Condition" class="form-control" />
+            <span asp-validation-for="QuestionCreate.Condition" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="QuestionCreate.Image"></label>
+            <input type="file" class="form-control-file" asp-for="QuestionCreate.Image">
+        </div>
+        <br />
+        <div class="form-group">
+            <label asp-for="AnswerCreate.Type"></label>
+            <select id="dropDownId" asp-for="AnswerCreate.Type" asp-items="Model.AnswerCreate.AnswerTypes"></select>
+            <span asp-validation-for="AnswerCreate.Type" class="text-danger"></span>
+        </div>
+        <div id="numberOfAnswers" class="form-group">
+            <label asp-for="QuestionCreate.NumberOfAnswers"></label>
+            <input asp-for="QuestionCreate.NumberOfAnswers" min="1" class="form-control" required />
+            <span asp-validation-for="QuestionCreate.NumberOfAnswers" class="text-danger"></span>
+        </div>
+        <div id="pointsOfAnswer" class="form-group">
+            <label asp-for="AnswerCreate.Points"></label>
+            <input asp-for="AnswerCreate.Points" class="form-control" />
+            <span asp-validation-for="AnswerCreate.Points" class="text-danger"></span>
+        </div>
+
+        <input type="submit" class="btn btn-primary" value="Create next question" />
+
+        <a class="btn btn-secondary m-4 w-auto" asp-controller="Exams" asp-action="FinishCreating" asp-route-onlineTestId="@Model.QuestionCreate.OnlineTestId">
+            Finish test
+        </a>
+    </form>
+</div>
+
+@section Scripts {
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#numberOfAnswers').show();
+            $('#pointsOfAnswer').hide();
+            $('#dropDownId').on('change', function () {
+                let value = $('#dropDownId').val();
+                if (value == "RadioButtons") {
+                    $('#numberOfAnswers').show();
+                    $('#pointsOfAnswer').hide();
+                }
+                else {
+                    $('#numberOfAnswers').hide();
+                    $('#pointsOfAnswer').show();
+                }
+            });
+        });
+    </script>
+}
+
+@*<nav aria-label="Questions">
+        <ul class="pagination pagination-lg">
+            <li class="page-item disabled">
+                <a class="page-link" href="#" tabindex="-1">1</a>
+            </li>
+            <li class="page-item"><a class="page-link" href="#">2</a></li>
+            <li class="page-item"><a class="page-link" href="#">3</a></li>
+        </ul>
+    </nav>*@

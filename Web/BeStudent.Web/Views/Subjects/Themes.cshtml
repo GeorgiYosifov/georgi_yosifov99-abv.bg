@@ -1,0 +1,82 @@
+﻿@using BeStudent.Web.ViewModels.Subject
+@model SubjectGetThemesViewModel
+
+@{
+    this.ViewData["Title"] = $"{Model.Name}";
+}
+
+<div class="container">
+    <div class="text-center">
+        <h1 class="display-4">@($"{Model.Name}")</h1>
+        @foreach (var lector in Model.StudentSubjects.Where(s => s.Student.Role == "Lector"))
+        {
+            <h4>@($"{lector.Student.FirstName} {lector.Student.LastName}   {lector.Student.Email}")</h4>
+        }
+    </div>
+
+    <ul class="list-group list-group-horizontal">
+        <li class="list-group-item">
+            <button id="ThemesLink" type="button" class="btn btn-link text-center">
+                Themes
+            </button>
+        </li>
+        <li class="list-group-item">
+            <button id="HomeworksLink" type="button" class="btn btn-link text-center">
+                Homeworks
+            </button>
+        </li>
+        <li class="list-group-item">
+            <button id="ExamsLink" type="button" class="btn btn-link text-center">
+                Exams
+            </button>
+        </li>
+    </ul>
+
+    <div id="Partials" class="d-none p-2 flex-grow-1 w-100 flex-fill bd-highlight">
+        <div id="Themes">
+            <partial name="~/Views/Themes/All.cshtml" model="@Model.Themes.ToList()" />
+        </div>
+        <div id="Homeworks">
+            <partial name="~/Views/Homeworks/All.cshtml" model="@Model.Homeworks.ToList()" />
+        </div>
+        <div id="Exams">
+            <partial name="~/Views/Exams/All.cshtml" model="@Model.Exams.ToList()" />
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script>
+        $('button').addClass('text-decoration-none');
+        $(document).ready(function () {
+            function hideAll() {
+                $('#Themes').hide();
+                $('#Homeworks').hide();
+                $('#Exams').hide();
+                $('li').removeClass('active');
+                $('button').removeClass('text-white');
+            };
+            hideAll();
+            $('#Partials').addClass("d-block");
+            $('#ThemesLink').click(function () {
+                hideAll();
+                $(this).parent().addClass('active');
+                $(this).addClass('text-white');
+                $('#Themes').show();
+            });
+            $('#HomeworksLink').click(function () {
+                hideAll();
+                $(this).parent().addClass('active');
+                $(this).addClass('text-white');
+                $('#Homeworks').show();
+            });
+            $('#ExamsLink').click(function () {
+                hideAll();
+                $(this).parent().addClass('active');
+                $(this).addClass('text-white');
+                $('#Exams').show();
+            });
+        });
+    </script>
+}

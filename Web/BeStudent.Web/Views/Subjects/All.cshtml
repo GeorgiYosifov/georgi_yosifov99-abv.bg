@@ -1,0 +1,21 @@
+﻿@using BeStudent.Web.ViewModels.Subject
+@model SubjectsListViewModel
+@{
+    this.ViewData["Title"] = "List of all subjects";
+}
+
+<div class="container">
+    <div class="text-center">
+        <h1 class="display-4">@this.ViewData["Title"]</h1>
+    </div>
+
+    <ul class="list-group list-group-flush mt-3">
+        @foreach (var subject in Model.Subjects)
+        {
+            <li class="list-group-item">
+                <i class="fas fa-university"></i>
+                <a class="m-2" asp-controller="Subjects" asp-action="Themes" asp-route-subjectName="@subject.Name">@subject.Name</a>
+            </li>
+        }
+    </ul>
+</div>

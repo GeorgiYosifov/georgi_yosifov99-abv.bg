@@ -1,0 +1,62 @@
+﻿@model BeStudent.Web.ViewModels.Exam.ExamCreateInputModel
+@{
+    this.ViewData["Title"] = "New Exam";
+}
+
+<script src="/lib/tinymce/tinymce.min.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+    tinymce.init({
+        selector: "textarea",
+        plugins: [
+            "image paste table link code media"
+        ]
+    });
+</script>
+
+<div class="container">
+    <h1 class="mb-2 text-center">@this.ViewData["Title"]</h1>
+
+    <form method="post" asp-action="Create" enctype="multipart/form-data">
+        <div class="form-group">
+            <label asp-for="Title"></label>
+            <input asp-for="Title" class="form-control" />
+            <span asp-validation-for="Title" class="text-danger"></span>
+        </div>
+        <div>
+            <label asp-for="ExamType"></label>
+            <select asp-for="ExamType" asp-items="Model.ExamTypes"></select>
+            <span asp-validation-for="ExamType" class="text-danger"></span>
+        </div>
+        <br />
+        <div>
+            <label asp-for="File"></label>
+            <input type="file" class="form-control-file" asp-for="File">
+        </div>
+        <br />
+        <div id="fileName" class="form-group">
+            <label asp-for="FileDescription">File Description</label>
+            <input asp-for="FileDescription" class="form-control" />
+            <span asp-validation-for="FileDescription" class="text-danger"></span>
+        </div>
+
+        <div>
+            <label asp-for="Description"></label>
+            <textarea asp-for="Description" class="form-control"></textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+        <br />
+        <input type="submit" class="btn btn-primary" />
+    </form>
+</div>
+@section Scripts {
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#fileName').hide();
+            $('input[type="file"]').on('change', function () {
+                $('#fileName').show();
+            });
+        });
+    </script>
+}
