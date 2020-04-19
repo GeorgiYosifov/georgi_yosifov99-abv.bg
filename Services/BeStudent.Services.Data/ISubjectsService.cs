@@ -10,5 +10,7 @@
         IEnumerable<T> GetAll<T>(string lectorId);
 
         T GetThemes<T>(string name);
+
+        T FillCalendar<T>(string name);
     }
 }

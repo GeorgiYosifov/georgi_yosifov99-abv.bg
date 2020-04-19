@@ -3,7 +3,6 @@
     <configSections>
       <section name="paypal" type="PayPal.SDKConfigHandler, PayPal" />
     </configSections>
-    <!-- PayPal SDK settings -->
     <paypal>
       <settings>
         <add name="mode" value="sandbox" />
@@ -46,6 +45,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="3.1.2" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="3.1.2" />
     <PackageReference Include="PayPal" Version="1.9.1" />
+    <PackageReference Include="PayPalCoreSDK" Version="1.7.1" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.164" PrivateAssets="all">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
@@ -62,5 +62,5 @@
     <ProjectReference Include="..\BeStudent.Web.Infrastructure\BeStudent.Web.Infrastructure.csproj" />
     <ProjectReference Include="..\BeStudent.Web.ViewModels\BeStudent.Web.ViewModels.csproj" />
   </ItemGroup>
-  
+
 </Project>

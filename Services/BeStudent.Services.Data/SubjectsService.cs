@@ -43,6 +43,15 @@
             await this.subjectRepository.SaveChangesAsync();
         }
 
+        public T FillCalendar<T>(string name)
+        {
+            return this.subjectRepository
+                 .All()
+                 .Where(s => s.Name == name)
+                 .To<T>()
+                 .FirstOrDefault();
+        }
+
         public IEnumerable<T> GetAll<T>(string lectorId)
         {
             return this.subjectRepository

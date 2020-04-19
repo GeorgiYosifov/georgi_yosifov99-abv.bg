@@ -25,5 +25,7 @@
         public virtual ICollection<File> Files { get; set; }
 
         public virtual ICollection<SendFile> SendFiles { get; set; }
+
+        public virtual ICollection<OnlineTest> OnlineTests { get; set; }
     }
 }

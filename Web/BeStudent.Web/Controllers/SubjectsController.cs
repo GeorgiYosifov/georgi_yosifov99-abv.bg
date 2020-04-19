@@ -5,6 +5,7 @@
 
     using BeStudent.Data.Models;
     using BeStudent.Services.Data;
+    using BeStudent.Web.ViewModels.Calendar;
     using BeStudent.Web.ViewModels.Subject;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Identity;
@@ -67,6 +68,19 @@
             }
 
             return this.View(subjectViewModel);
+        }
+
+        [Authorize(Roles = "User, Lector")]
+        [HttpGet("Subjects/{subjectName}/Calendar")]
+        public IActionResult Calendar(string subjectName)
+        {
+            var calendarViewModel = this.subjectsService.FillCalendar<CalendarViewModel>(subjectName);
+            if (calendarViewModel == null)
+            {
+                return this.NotFound();
+            }
+
+            return this.View(calendarViewModel);
         }
     }
 }

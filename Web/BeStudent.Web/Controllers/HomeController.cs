@@ -148,16 +148,16 @@
 
                     if (executedPayment.state.ToLower() != "approved")
                     {
-                        return this.Json("ne stava vutre");
+                        return Json("FailureView inner");
                     }
                 }
             }
             catch (Exception ex)
             {
-                return this.Json(ex.Message);
+                return Json("FailureView");
             }
 
-            return this.Json("gotovo");
+            return Json("SuccessView");
         }
 
         private Payment payment;
@@ -212,7 +212,7 @@
             var amount = new Amount()
             {
                 currency = "USD",
-                total = "3", // Total must be equal to sum of tax, shipping and subtotal.  
+                total = "5", // Total must be equal to sum of tax, shipping and subtotal.  
                 details = details
             };
             var transactionList = new List<Transaction>();

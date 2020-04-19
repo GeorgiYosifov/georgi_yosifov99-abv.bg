@@ -2,10 +2,10 @@
 {
     using System.Collections.Generic;
 
-    using Ganss.XSS;
     using BeStudent.Data.Models;
     using BeStudent.Services.Mapping;
     using BeStudent.Web.ViewModels.File;
+    using Ganss.XSS;
 
     public class ThemeViewModel : IMapFrom<Theme>
     {

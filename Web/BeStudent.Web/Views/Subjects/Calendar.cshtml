@@ -1,0 +1,134 @@
+﻿@{
+    var year = 2020;
+    var startingDay = 2;
+    var months = new string[] { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
+    var currentMonth = DateTime.Now.Month.ToString();
+    var days = 0;
+}
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<link rel="stylesheet" type="text/css" href="~/css/calendar.css">
+
+<div class="container py-5">
+
+    <!-- For Demo Purpose -->
+    <header class="text-center text-white mb-5">
+        <h1 class="display-4">Bootstrap Calendar</h1>
+        <p class="font-italic mb-0">A nicely-designed Bootstrap calendar widget. This calendar is just a for design purpose, you can make it work.</p>
+        <p class="font-italic">
+            Snippet By <a href="https://bootstrapious.com" class="text-white">
+                <u>Bootstrapious</u>
+            </a>
+        </p>
+    </header>
+
+    <nav aria-label="Months">
+        <ul class="pagination pagination-lg">
+            <li class="page-item"><a class="page-link" href="#">1</a></li>
+            <li class="page-item"><a class="page-link" href="#">2</a></li>
+            <li class="page-item"><a class="page-link" href="#">3</a></li>
+        </ul>
+    </nav>
+
+    <!-- Calendar -->
+    <div class="calendar shadow bg-white p-5">
+        @for (int m = 0; m < 12; m++)
+        {
+            @switch (days)
+            {
+                case 29:
+                    startingDay = (startingDay + 1) % 7;
+                    break;
+                case 30:
+                    startingDay = (startingDay + 2) % 7;
+                    break;
+                case 31:
+                    startingDay = (startingDay + 3) % 7;
+                    break;
+            }
+
+            currentMonth = months[m];
+
+            if (m > 6)
+            {
+                if (m % 2 != 0) days = 31;
+                else days = 30;
+            }
+            else if (currentMonth == "February")
+            {
+                if (year % 4 == 0) days = 29;
+                else days = 28;
+            }
+            else
+            {
+                if (m % 2 == 0) days = 31;
+                else days = 30;
+            }
+
+            <div class="d-flex align-items-center">
+                <i class="fa fa-calendar fa-3x mr-3"></i>
+                <h2 class="month font-weight-bold mb-0 text-uppercase">@($"{currentMonth} {year}")</h2>
+            </div>
+            <p class="font-italic text-muted mb-5">No events for this day.</p>
+
+            <ol class="day-names list-unstyled">
+                <li class="font-weight-bold text-uppercase">Mon</li>
+                <li class="font-weight-bold text-uppercase">Tue</li>
+                <li class="font-weight-bold text-uppercase">Wed</li>
+                <li class="font-weight-bold text-uppercase">Thu</li>
+                <li class="font-weight-bold text-uppercase">Fri</li>
+                <li class="font-weight-bold text-uppercase">Sat</li>
+                <li class="font-weight-bold text-uppercase">Sun</li>
+            </ol>
+
+            <ol class="days list-unstyled">
+                @for (int i = 0; i < startingDay; i++)
+                {
+                    <li>
+                        <div class="date"></div>
+                    </li>
+                }
+                @for (int d = 1; d <= days; d++)
+                {
+                    <li>
+                        <div id="@d" class="date">@d</div>
+                    </li>
+                }
+                @for (int i = startingDay + days; i < 35; i++)
+                {
+                    <li>
+                        <div class="date"></div>
+                    </li>
+                }
+            </ol>
+        }
+        @*<li>
+            <div class="date">1</div>
+            <div class="event bg-success">Event with Long Name</div>
+        </li>
+
+        <li>
+            <div class="date">13</div>
+            <div class="event all-day begin span-2 bg-warning">Event Name</div>
+        </li>
+        <li>
+            <div class="date">14</div>
+        </li>
+        <li>
+            <div class="date">15</div>
+            <div class="event all-day end bg-success">Event Name</div>
+        </li>
+
+        <li>
+            <div class="date">20</div>
+        </li>
+        <li>
+            <div class="date">21</div>
+            <div class="event bg-primary">Event Name</div>
+            <div class="event bg-success">Event Name</div>
+        </li>
+        <li>
+            <div class="date">22</div>
+            <div class="event bg-info">Event with Longer Name</div>
+        </li>*@
+    </div>
+</div>
