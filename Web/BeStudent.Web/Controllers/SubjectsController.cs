@@ -1,11 +1,13 @@
 ﻿namespace BeStudent.Web.Controllers
 {
+    using System.Linq;
     using System.Security.Claims;
     using System.Threading.Tasks;
 
     using BeStudent.Data.Models;
     using BeStudent.Services.Data;
     using BeStudent.Web.ViewModels.Calendar;
+    using BeStudent.Web.ViewModels.Exam;
     using BeStudent.Web.ViewModels.Subject;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Identity;
@@ -72,7 +74,7 @@
 
         [Authorize(Roles = "User, Lector")]
         [HttpGet("Subjects/{subjectName}/Calendar")]
-        public IActionResult Calendar(string subjectName)
+        public IActionResult Calendar(string subjectName, [FromQuery] int month)
         {
             var calendarViewModel = this.subjectsService.FillCalendar<CalendarViewModel>(subjectName);
             if (calendarViewModel == null)
@@ -80,7 +82,18 @@
                 return this.NotFound();
             }
 
-            return this.View(calendarViewModel);
+            var model = new CalendarViewModel
+            {
+                Name = calendarViewModel.Name,
+                Homeworks = calendarViewModel.Homeworks.Where(h => h.CreatedOn.Month == month).ToList(),
+                Exams = calendarViewModel.Exams
+                        .Select(e => new ExamForCalendarViewModel {
+                            Title = e.Title,
+                            OnlineTests = e.OnlineTests.Where(t => t.StartTime.Month == month).ToList(),
+                        }).ToList(),
+            };
+
+            return this.View(model);
         }
     }
 }

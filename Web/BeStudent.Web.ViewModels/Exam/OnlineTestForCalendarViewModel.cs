@@ -7,8 +7,8 @@
 
     public class OnlineTestForCalendarViewModel : IMapFrom<OnlineTest>
     {
-        public DateTime CreatedOn { get; set; }
+        public DateTime StartTime { get; set; }
 
-        public DateTime DeadLine { get; set; }
+        public DateTime EndTime { get; set; }
     }
 }

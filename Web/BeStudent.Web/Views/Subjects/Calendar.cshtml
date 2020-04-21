@@ -1,74 +1,104 @@
-﻿@{
+﻿@using BeStudent.Web.ViewModels.Calendar;
+@model CalendarViewModel;
+
+@{
+    this.ViewData["Title"] = $"{Model.Name}";
+
     var year = 2020;
-    var startingDay = 2;
+    var startingDay = 3;
+    var days = 31;
     var months = new string[] { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
-    var currentMonth = DateTime.Now.Month.ToString();
-    var days = 0;
+    var monthIndex = int.Parse(Context.Request.Query["month"]);
+    var month = months[monthIndex - 1];
+    var nextMonth = monthIndex + 1;
+    var prevMonth = monthIndex - 1;
+
+    for (int i = 0; i < monthIndex - 1; i++)
+    {
+        var currMonth = months[i];
+        if (i > 6)
+        {
+            if (i % 2 != 0) days = 31;
+            else days = 30;
+        }
+        else if (currMonth == "February")
+        {
+            if (year % 4 == 0) days = 29;
+            else days = 28;
+        }
+        else
+        {
+            if (i % 2 == 0) days = 31;
+            else days = 30;
+        }
+
+        switch (days)
+        {
+            case 29:
+                startingDay++;
+                break;
+            case 30:
+                startingDay += 2;
+                break;
+            case 31:
+                startingDay += 3;
+                break;
+        }
+
+        if (startingDay > 7)
+        {
+            startingDay %= 7;
+        }
+    }
+    if ((monthIndex - 1) > 6)
+    {
+        if ((monthIndex - 1) % 2 != 0) days = 31;
+        else days = 30;
+    }
+    else if (month == "February")
+    {
+        if (year % 4 == 0) days = 29;
+        else days = 28;
+    }
+    else
+    {
+        if ((monthIndex - 1) % 2 == 0) days = 31;
+        else days = 30;
+    }
 }
-<script src="~/lib/jquery/dist/jquery.min.js"></script>
-<link rel="stylesheet" type="text/css" href="~/css/calendar.css">
+
+<head>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="~/css/calendar.css">
+</head>
 
 <div class="container py-5">
-
-    <!-- For Demo Purpose -->
     <header class="text-center text-white mb-5">
-        <h1 class="display-4">Bootstrap Calendar</h1>
-        <p class="font-italic mb-0">A nicely-designed Bootstrap calendar widget. This calendar is just a for design purpose, you can make it work.</p>
-        <p class="font-italic">
-            Snippet By <a href="https://bootstrapious.com" class="text-white">
-                <u>Bootstrapious</u>
-            </a>
-        </p>
+        <h1 class="display-4">Calendar of @Model.Name</h1>
     </header>
 
     <nav aria-label="Months">
         <ul class="pagination pagination-lg">
-            <li class="page-item"><a class="page-link" href="#">1</a></li>
-            <li class="page-item"><a class="page-link" href="#">2</a></li>
-            <li class="page-item"><a class="page-link" href="#">3</a></li>
+            <li class="page-item">
+                <a class="page-link" asp-action="Calendar" asp-route-subjectName="@Model.Name" asp-route-month="@prevMonth">previous</a>
+            </li>
+            <li class="page-item active">
+                <a class="page-link">@month</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" asp-action="Calendar" asp-route-subjectName="@Model.Name" asp-route-month="@nextMonth">next</a>
+            </li>
         </ul>
     </nav>
 
     <!-- Calendar -->
     <div class="calendar shadow bg-white p-5">
-        @for (int m = 0; m < 12; m++)
-        {
-            @switch (days)
-            {
-                case 29:
-                    startingDay = (startingDay + 1) % 7;
-                    break;
-                case 30:
-                    startingDay = (startingDay + 2) % 7;
-                    break;
-                case 31:
-                    startingDay = (startingDay + 3) % 7;
-                    break;
-            }
-
-            currentMonth = months[m];
-
-            if (m > 6)
-            {
-                if (m % 2 != 0) days = 31;
-                else days = 30;
-            }
-            else if (currentMonth == "February")
-            {
-                if (year % 4 == 0) days = 29;
-                else days = 28;
-            }
-            else
-            {
-                if (m % 2 == 0) days = 31;
-                else days = 30;
-            }
-
+        @{
             <div class="d-flex align-items-center">
                 <i class="fa fa-calendar fa-3x mr-3"></i>
-                <h2 class="month font-weight-bold mb-0 text-uppercase">@($"{currentMonth} {year}")</h2>
+                <h2 class="month font-weight-bold mb-0 text-uppercase">@($"{month} {year}")</h2>
             </div>
-            <p class="font-italic text-muted mb-5">No events for this day.</p>
+            @*<p class="font-italic text-muted mb-5">No events for this day.</p>*@
 
             <ol class="day-names list-unstyled">
                 <li class="font-weight-bold text-uppercase">Mon</li>
@@ -81,54 +111,60 @@
             </ol>
 
             <ol class="days list-unstyled">
-                @for (int i = 0; i < startingDay; i++)
+                @for (int i = 1; i < startingDay; i++)
                 {
                     <li>
                         <div class="date"></div>
                     </li>
                 }
+
                 @for (int d = 1; d <= days; d++)
                 {
                     <li>
-                        <div id="@d" class="date">@d</div>
-                    </li>
-                }
-                @for (int i = startingDay + days; i < 35; i++)
-                {
-                    <li>
-                        <div class="date"></div>
+                        <div class="date">@d</div>
+                        @foreach (var homework in Model.Homeworks)
+                        {
+                            var diff = Math.Abs(homework.DeadLine.Day - homework.CreatedOn.Day - 1);
+                            var width = diff * 100 + 100;
+                            if (d == homework.CreatedOn.Day && d == homework.DeadLine.Day)
+                            {
+                                <div class="event bg-warning">@homework.Title</div>
+                            }
+                            else if (d == homework.CreatedOn.Day)
+                            {
+                                <div style='width: @(width)%' class="event all-day begin bg-warning">
+                                    @homework.Title
+                                </div>
+                            }
+                            else if (d == homework.DeadLine.Day)
+                            {
+                                <div class="event all-day end bg-warning"></div>
+                            }
+                        }
+                        @foreach (var exam in Model.Exams)
+                        {
+                            foreach (var test in exam.OnlineTests)
+                            {
+                                var diff = Math.Abs(test.EndTime.Day - test.StartTime.Day - 1);
+                                var width = diff * 100 + 100;
+                                if (d == test.StartTime.Day && d == test.EndTime.Day)
+                                {
+                                    <div class="event bg-warning">@exam.Title</div>
+                                }
+                                else if (d == test.StartTime.Day)
+                                {
+                                    <div style='width: @(width)%' class="event all-day begin bg-warning">@exam.Title</div>
+                                }
+                                else if (d == test.EndTime.Day)
+                                {
+                                    <div class="event all-day end bg-warning"></div>
+                                }
+                            }
+
+                        }
                     </li>
                 }
             </ol>
         }
-        @*<li>
-            <div class="date">1</div>
-            <div class="event bg-success">Event with Long Name</div>
-        </li>
-
-        <li>
-            <div class="date">13</div>
-            <div class="event all-day begin span-2 bg-warning">Event Name</div>
-        </li>
-        <li>
-            <div class="date">14</div>
-        </li>
-        <li>
-            <div class="date">15</div>
-            <div class="event all-day end bg-success">Event Name</div>
-        </li>
-
-        <li>
-            <div class="date">20</div>
-        </li>
-        <li>
-            <div class="date">21</div>
-            <div class="event bg-primary">Event Name</div>
-            <div class="event bg-success">Event Name</div>
-        </li>
-        <li>
-            <div class="date">22</div>
-            <div class="event bg-info">Event with Longer Name</div>
-        </li>*@
     </div>
 </div>

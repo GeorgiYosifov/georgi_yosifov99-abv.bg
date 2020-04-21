@@ -31,7 +31,7 @@
             </button>
         </li>
         <li class="list-group-item">
-            <a asp-controller="Subjects" asp-action="Calendar" asp-route-subjectName="@Model.Name" class="btn btn-link text-center">
+            <a asp-controller="Subjects" asp-action="Calendar" asp-route-subjectName="@Model.Name" asp-route-month="@DateTime.UtcNow.Month.ToString()" class="btn btn-link text-center">
                 Calendar
             </a>
         </li>
