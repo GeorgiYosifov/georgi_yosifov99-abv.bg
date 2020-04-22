@@ -69,6 +69,10 @@
 
 <head>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
     <link rel="stylesheet" type="text/css" href="~/css/calendar.css">
 </head>
 
@@ -79,15 +83,33 @@
 
     <nav aria-label="Months">
         <ul class="pagination pagination-lg">
-            <li class="page-item">
-                <a class="page-link" asp-action="Calendar" asp-route-subjectName="@Model.Name" asp-route-month="@prevMonth">previous</a>
-            </li>
+            @if (monthIndex == 1)
+            {
+                <li class="page-item disabled">
+                    <a class="page-link" asp-action="Calendar" asp-route-subjectName="@Model.Name" asp-route-month="@prevMonth">previous</a>
+                </li>
+            }
+            else
+            {
+                <li class="page-item">
+                    <a class="page-link" asp-action="Calendar" asp-route-subjectName="@Model.Name" asp-route-month="@prevMonth">previous</a>
+                </li>
+            }
             <li class="page-item active">
                 <a class="page-link">@month</a>
             </li>
-            <li class="page-item">
-                <a class="page-link" asp-action="Calendar" asp-route-subjectName="@Model.Name" asp-route-month="@nextMonth">next</a>
-            </li>
+            @if (monthIndex == 12)
+            {
+                <li class="page-item disabled">
+                    <a class="page-link" asp-action="Calendar" asp-route-subjectName="@Model.Name" asp-route-month="@nextMonth">next</a>
+                </li>
+            }
+            else
+            {
+                <li class="page-item ">
+                    <a class="page-link" asp-action="Calendar" asp-route-subjectName="@Model.Name" asp-route-month="@nextMonth">next</a>
+                </li>
+            }
         </ul>
     </nav>
 
@@ -132,13 +154,13 @@
                             }
                             else if (d == homework.CreatedOn.Day)
                             {
-                                <div style='width: @(width)%' class="event all-day begin bg-warning">
+                                <div style='width: @(width)%' class="event all-day begin bg-warning" data-toggle="popover" title="Homework" data-content="@($"Closing time in {homework.DeadLine.Hour}:{homework.DeadLine.Minute}")">
                                     @homework.Title
                                 </div>
                             }
                             else if (d == homework.DeadLine.Day)
                             {
-                                <div class="event all-day end bg-warning"></div>
+                                <div class="event all-day end bg-warning" data-toggle="popover" title="Homework" data-content="@($"Closing time in {homework.DeadLine.Hour}:{homework.DeadLine.Minute}")"></div>
                             }
                         }
                         @foreach (var exam in Model.Exams)
@@ -165,6 +187,15 @@
                     </li>
                 }
             </ol>
+
+            <script>
+                $(document).ready(function () {
+                    $('[data-toggle="popover"]').popover({
+                        trigger: 'hover',
+                        placement: 'bottom'
+                    });
+                });
+            </script>
         }
     </div>
 </div>
