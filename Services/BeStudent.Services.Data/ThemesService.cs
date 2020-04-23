@@ -37,12 +37,15 @@
                 Subject = subject,
             };
 
-            theme.Files.Add(new BeStudent.Data.Models.File()
+            if (fileUri != string.Empty)
             {
-                CloudinaryFileUri = fileUri,
-                FileDescription = fileDescription,
-                Theme = theme,
-            });
+                theme.Files.Add(new BeStudent.Data.Models.File()
+                {
+                    CloudinaryFileUri = fileUri,
+                    FileDescription = fileDescription,
+                    Theme = theme,
+                });
+            }
 
             await this.themeRepository.AddAsync(theme);
             await this.themeRepository.SaveChangesAsync();

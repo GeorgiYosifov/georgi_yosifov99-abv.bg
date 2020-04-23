@@ -7,6 +7,11 @@
 
     <form method="post" asp-action="CreateOnlineTest">
         <div class="form-group">
+            <label asp-for="QuestionsCount"></label>
+            <input asp-for="QuestionsCount" class="form-control" />
+            <span asp-validation-for="QuestionsCount" class="text-danger"></span>
+        </div>
+        <div class="form-group">
             <label asp-for="StartTime"></label>
             <input asp-for="StartTime" class="form-control" />
             <span asp-validation-for="StartTime" class="text-danger"></span>

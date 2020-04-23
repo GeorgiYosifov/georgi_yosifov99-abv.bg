@@ -28,10 +28,6 @@
 
         <input type="submit" class="btn btn-primary" value="Create next question" />
 
-        <a class="btn btn-secondary m-4 w-auto" asp-controller="Exams" asp-action="FinishCreating" asp-route-onlineTestId="@Model.OnlineTestId">
-            Finish test
-        </a>
-
         <a class="btn btn-secondary m-4 w-auto" asp-controller="Exams" asp-action="EditQuestion" asp-route-questionId="@Model.QuestionId">
             Back
         </a>

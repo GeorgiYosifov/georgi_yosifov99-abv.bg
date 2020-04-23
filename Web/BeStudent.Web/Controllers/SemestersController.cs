@@ -1,9 +1,9 @@
 ﻿namespace BeStudent.Web.Controllers
 {
-    using Microsoft.AspNetCore.Authorization;
-    using Microsoft.AspNetCore.Mvc;
     using BeStudent.Services.Data;
     using BeStudent.Web.ViewModels.Semester;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
 
     public class SemestersController : BaseController
     {

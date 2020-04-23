@@ -8,6 +8,11 @@
         public string SubjectName { get; set; }
 
         [Required]
+        [Range(1, int.MaxValue)]
+        [Display(Name = "How many questions do you want to make?")]
+        public int QuestionsCount { get; set; }
+
+        [Required]
         [Display(Name = "Minimum points for grade 3")]
         public double MinPointsFor3 { get; set; }
 

@@ -40,12 +40,15 @@
                 Deadline = deadline,
             };
 
-            homework.Files.Add(new BeStudent.Data.Models.File()
+            if (fileUri != string.Empty)
             {
-                CloudinaryFileUri = fileUri,
-                FileDescription = fileDescription,
-                Homework = homework,
-            });
+                homework.Files.Add(new BeStudent.Data.Models.File()
+                {
+                    CloudinaryFileUri = fileUri,
+                    FileDescription = fileDescription,
+                    Homework = homework,
+                });
+            }
 
             await this.homeworkRepository.AddAsync(homework);
             await this.homeworkRepository.SaveChangesAsync();

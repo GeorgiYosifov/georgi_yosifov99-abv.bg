@@ -24,6 +24,12 @@
                 <a class="btn btn-primary m-4 ml-5 w-25" asp-controller="Exams" asp-action="CreateOnlineTest" asp-route-subjectName="@subjectName" asp-route-examId="@exam.Id">
                     Create Test
                 </a>
+                foreach (var test in exam.OnlineTests)
+                {
+                    <a class="btn btn-primary ml-5 w-25" asp-controller="Exams" asp-action="StartTest" asp-route-onlineTestId="@test.Id">
+                        Start Test
+                    </a>
+                }
             }
         }
     </ul>

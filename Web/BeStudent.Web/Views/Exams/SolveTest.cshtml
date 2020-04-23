@@ -1,0 +1,59 @@
+﻿@model BeStudent.Web.ViewModels.Exam.QuestionViewModel
+@{
+    this.ViewData["Title"] = "Question ";
+    var firstAnswer = Model.Answers.FirstOrDefault();
+    var isRadioButtons = firstAnswer.Type.ToString() == "RadioButtons";
+}
+
+<script src="/lib/tinymce/tinymce.min.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+    tinymce.init({
+        selector: "textarea",
+        plugins: [
+            "image paste table link code media"
+        ]
+    });
+</script>
+
+<div class="container">
+    <div class="text-center">
+        <h3>Question <span>&#8470;</span></h3>
+    </div>
+    <h5>@Model.Condition</h5>
+    @if (Model.File != null)
+    {
+        <img src="@Model.File.CloudinaryFileUri" alt="@Model.File.FileDescription">
+    }
+
+    <form method="post" asp-action="SolveTest" asp-route-onlineTestId="@Model.OnlineTestId" asp-route-questionNumber="@Model.QuestionNumber" enctype="multipart/form-data">
+        @if (isRadioButtons == true)
+        {
+            foreach (var answer in Model.Answers)
+            {
+
+            }
+        }
+        else if (firstAnswer.Type.ToString() == "InputFieldUp20Chars")
+        {
+            <div class="form-group">
+                <label asp-for="ShortContent"></label>
+                <input asp-for="ShortContent" class="form-control" />
+                <span asp-validation-for="ShortContent" class="text-danger"></span>
+            </div>
+        }
+        else if (firstAnswer.Type.ToString() == "InputFieldTiny")
+        {
+            <div>
+                <label asp-for="LargeContent"></label>
+                <textarea asp-for="LargeContent" class="form-control"></textarea>
+                <span asp-validation-for="LargeContent" class="text-danger"></span>
+            </div>
+        }
+        <input type="submit" class="btn btn-primary" />
+    </form>
+
+    @*<a class="btn btn-primary ml-5 w-25" asp-controller="Exams" asp-action="SolveTest" asp-route-onlineTestId="@Model">
+            Solve Test
+        </a>*@
+</div>

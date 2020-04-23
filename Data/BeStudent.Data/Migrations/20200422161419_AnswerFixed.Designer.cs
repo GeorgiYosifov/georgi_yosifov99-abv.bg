@@ -4,14 +4,16 @@ using BeStudent.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BeStudent.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200422161419_AnswerFixed")]
+    partial class AnswerFixed
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -108,9 +110,6 @@ namespace BeStudent.Data.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
-                    b.Property<int?>("AnswerId")
-                        .HasColumnType("int");
-
                     b.Property<string>("CodeForRegister")
                         .HasColumnType("nvarchar(max)");
 
@@ -186,8 +185,6 @@ namespace BeStudent.Data.Migrations
                         .HasMaxLength(256);
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AnswerId");
 
                     b.HasIndex("IsDeleted");
 
@@ -466,9 +463,6 @@ namespace BeStudent.Data.Migrations
 
                     b.Property<DateTime?>("ModifiedOn")
                         .HasColumnType("datetime2");
-
-                    b.Property<int>("QuestionsCount")
-                        .HasColumnType("int");
 
                     b.Property<double>("Range")
                         .HasColumnType("float");
@@ -895,13 +889,6 @@ namespace BeStudent.Data.Migrations
                         .HasForeignKey("QuestionId");
                 });
 
-            modelBuilder.Entity("BeStudent.Data.Models.ApplicationUser", b =>
-                {
-                    b.HasOne("BeStudent.Data.Models.Answer", null)
-                        .WithMany("Students")
-                        .HasForeignKey("AnswerId");
-                });
-
             modelBuilder.Entity("BeStudent.Data.Models.Exam", b =>
                 {
                     b.HasOne("BeStudent.Data.Models.Subject", "Subject")
@@ -966,7 +953,7 @@ namespace BeStudent.Data.Migrations
             modelBuilder.Entity("BeStudent.Data.Models.Question", b =>
                 {
                     b.HasOne("BeStudent.Data.Models.File", "File")
-                        .WithMany("Questions")
+                        .WithMany()
                         .HasForeignKey("FileId");
 
                     b.HasOne("BeStudent.Data.Models.OnlineTest", "OnlineTest")

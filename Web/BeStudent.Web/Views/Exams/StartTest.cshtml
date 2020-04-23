@@ -1,0 +1,18 @@
+﻿@model BeStudent.Web.ViewModels.Exam.OnlineTestViewModel
+@{
+    this.ViewData["Title"] = "Start Test";
+}
+
+<div class="container">
+    <div class="text-center">
+        <h2 class="display-4">@this.ViewData["Title"]</h2>
+        <br />
+        <p>Open: @Model.StartTime</p>
+        <p>Close: @Model.EndTime</p>
+        <p>Duration: @Model.Duration</p>
+        <p>Questions: @Model.QuestionsCount</p>
+        <a class="btn btn-primary ml-5 w-25" asp-controller="Exams" asp-action="SolveTest" asp-route-onlineTestId="@Model.Id" asp-route-questionId="@Model.QuestionId">
+            Solve Test
+        </a>
+    </div>
+</div>

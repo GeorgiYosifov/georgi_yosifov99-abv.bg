@@ -14,28 +14,30 @@
         }
     </div>
 
-    <ul class="list-group list-group-horizontal">
-        <li class="list-group-item">
-            <button id="ThemesLink" type="button" class="btn btn-link text-center">
-                Themes
-            </button>
-        </li>
-        <li class="list-group-item">
-            <button id="HomeworksLink" type="button" class="btn btn-link text-center">
-                Homeworks
-            </button>
-        </li>
-        <li class="list-group-item">
-            <button id="ExamsLink" type="button" class="btn btn-link text-center">
-                Exams
-            </button>
-        </li>
-        <li class="list-group-item">
-            <a asp-controller="Subjects" asp-action="Calendar" asp-route-subjectName="@Model.Name" asp-route-month="@DateTime.UtcNow.Month.ToString()" class="btn btn-link text-center">
-                Calendar
-            </a>
-        </li>
-    </ul>
+    <div class="d-flex">
+        <ul class="list-group list-group-horizontal list-inline mx-auto justify-content-center">
+            <li class="list-inline-item list-group-item">
+                <button id="ThemesLink" type="button" class="btn btn-link text-center">
+                    Themes
+                </button>
+            </li>
+            <li class="list-inline-item list-group-item">
+                <button id="HomeworksLink" type="button" class="btn btn-link text-center">
+                    Homeworks
+                </button>
+            </li>
+            <li class="list-inline-item list-group-item">
+                <button id="ExamsLink" type="button" class="btn btn-link text-center">
+                    Exams
+                </button>
+            </li>
+            <li class="list-inline-item list-group-item">
+                <a asp-controller="Subjects" asp-action="Calendar" asp-route-subjectName="@Model.Name" asp-route-month="@DateTime.UtcNow.Month.ToString()" class="btn btn-link text-center">
+                    Calendar
+                </a>
+            </li>
+        </ul>
+    </div>
 
     <div id="Partials" class="d-none p-2 flex-grow-1 w-100 flex-fill bd-highlight">
         <div id="Themes">

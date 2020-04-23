@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
+
     using BeStudent.Data.Models;
     using BeStudent.Services.Data;
     using BeStudent.Web.ViewModels.Exam;
@@ -76,30 +77,32 @@
                 return this.View(input);
             }
 
-            var onlineTestId = await this.examsService.CreateOnlineTestAsync(examId, input.MinPointsFor3, input.Range, input.MaxPoints, input.StartTime, input.EndTime, input.Duration);
+            var onlineTestId = await this.examsService.CreateOnlineTestAsync(examId, input.MinPointsFor3, input.Range, input.MaxPoints, input.StartTime, input.EndTime, input.Duration, input.QuestionsCount);
 
-            return this.RedirectToAction("CreateQuestion", "Exams", new { onlineTestId });
+            var currQuestion = 0;
+            return this.RedirectToAction("CreateQuestion", "Exams", new { onlineTestId, currQuestion });
         }
 
         [Authorize(Roles = "Lector")]
-        [HttpGet("Exams/{onlineTestId}/CreateQuestion")]
-        public IActionResult CreateQuestion(int onlineTestId)
+        [HttpGet("Exams/{onlineTestId}/CreateQuestion/{currQuestion}")]
+        public IActionResult CreateQuestion(int onlineTestId, int currQuestion)
         {
-            var model = new QuestionAnswerViewModel
+            var numbers = this.examsService.FindQuestionsCount(onlineTestId);
+            if (currQuestion == numbers)
             {
-                QuestionCreate = new QuestionCreateInputModel
-                {
-                    OnlineTestId = onlineTestId,
-                },
-                AnswerCreate = new AnswerCreateInputModel(),
-            };
+                return this.RedirectToAction("StartTest", "Exams", new { onlineTestId });
+            }
 
+            var model = new QuestionCreateInputModel
+            {
+                OnlineTestId = onlineTestId,
+            };
             return this.View(model);
         }
 
         [Authorize(Roles = "Lector")]
-        [HttpPost("Exams/{onlineTestId}/CreateQuestion")]
-        public async Task<IActionResult> CreateQuestion(int onlineTestId, QuestionAnswerViewModel input)
+        [HttpPost("Exams/{onlineTestId}/CreateQuestion/{currQuestion}")]
+        public async Task<IActionResult> CreateQuestion(int onlineTestId, int currQuestion, QuestionCreateInputModel input)
         {
             if (!this.ModelState.IsValid)
             {
@@ -107,44 +110,50 @@
             }
 
             var imageUri = string.Empty;
-            if (input.QuestionCreate.Image != null)
+            if (input.Image != null)
             {
                 imageUri = this.themesService
-                    .UploadFileToCloudinary(input.QuestionCreate.Image.FileName, input.QuestionCreate.Image.OpenReadStream());
+                    .UploadFileToCloudinary(input.Image.FileName, input.Image.OpenReadStream());
             }
 
-            var answerType = input.AnswerCreate.Type.ToString("g");
+            var answerType = input.Type.ToString("g");
+            currQuestion++;
+
             if (answerType == "RadioButtons")
             {
-                var questionId = await this.examsService.CreateQuestionAsync(onlineTestId, input.QuestionCreate.Condition, imageUri);
-                var numberOfAnswers = input.QuestionCreate.NumberOfAnswers;
-                return this.RedirectToAction("CreateAnswers", "Exams", new { onlineTestId, questionId, numberOfAnswers });
+                var questionId = await this.examsService.CreateQuestionAsync(onlineTestId, input.Condition, imageUri);
+                var numberOfAnswers = input.NumberOfAnswers;
+                return this.RedirectToAction("CreateAnswers", "Exams", new { onlineTestId, questionId, numberOfAnswers, currQuestion });
             }
             else
             {
-                await this.examsService.CreateQuestionWithAnswerAsync(onlineTestId, input.QuestionCreate.Condition, imageUri, input.AnswerCreate.Type, input.AnswerCreate.Points);
-                return this.RedirectToAction("CreateQuestion", "Exams", new { onlineTestId });
+                await this.examsService.CreateQuestionWithAnswerAsync(onlineTestId, input.Condition, imageUri, input.Type);
+                return this.RedirectToAction("CreateQuestion", "Exams", new { onlineTestId, currQuestion });
             }
         }
 
         [Authorize(Roles = "Lector")]
-        [HttpGet("Exams/{onlineTestId}/CreateQuestion/{questionId}/CreateAnswers")]
+        [HttpGet("Exams/{onlineTestId}/CreateQuestion/{questionId}/CreateAnswers/{currQuestion}")]
         public IActionResult CreateAnswers(int onlineTestId, string questionId, [FromQuery] int numberOfAnswers)
         {
             var model = new AnswersListCreateInputModel
             {
-                NumberOfAnswers = numberOfAnswers,
                 OnlineTestId = onlineTestId,
                 QuestionId = questionId,
                 AnswerCreateInputs = new List<AnswerCreateInputModel>(),
             };
+            for (int i = 0; i < numberOfAnswers; i++)
+            {
+                model.AnswerCreateInputs.Add(new AnswerCreateInputModel());
+            }
 
             return this.View(model);
         }
 
         [Authorize(Roles = "Lector")]
-        [HttpPost("Exams/{onlineTestId}/CreateQuestion/{questionId}/CreateAnswers")]
-        public async Task<IActionResult> CreateAnswers(int onlineTestId, string questionId, AnswersListCreateInputModel input)
+        [HttpPost("Exams/{onlineTestId}/CreateQuestion/{questionId}/CreateAnswers/{currQuestion}")]
+        public async Task<IActionResult> CreateAnswers
+            (int onlineTestId, string questionId, int currQuestion, AnswersListCreateInputModel input)
         {
             if (!this.ModelState.IsValid)
             {
@@ -157,7 +166,53 @@
                 await this.examsService.CreateAnswerAsync(questionId, answerType, answerInput.Text, answerInput.Points);
             }
 
-            return this.RedirectToAction("CreateQuestion", "Exams", new { onlineTestId });
+            return this.RedirectToAction("CreateQuestion", "Exams", new { onlineTestId, currQuestion });
+        }
+
+        [Authorize(Roles = "Lector, User")]
+        [HttpGet("Exams/{onlineTestId}/StartTest")]
+        public IActionResult StartTest(int onlineTestId)
+        {
+            var onlineTestModel = this.examsService.GetTest<OnlineTestViewModel>(onlineTestId);
+            if (onlineTestModel == null)
+            {
+                return this.NotFound();
+            }
+
+            var questionNumber = 0;
+            var test = this.examsService.GetTest<OnlineTestSolveViewModel>(onlineTestId);
+            onlineTestModel.QuestionId = test.Questions[questionNumber].Id;
+
+            return this.View(onlineTestModel);
+        }
+
+        [Authorize(Roles = "Lector, User")]
+        [HttpGet("Exams/{onlineTestId}/SolveTest/{questionId}")]
+        public IActionResult SolveTest(int onlineTestId, string questionId, [FromQuery] int questionNumber)
+        {
+            var onlineTestModel = this.examsService.GetQuestion<QuestionViewModel>(questionId);
+            if (onlineTestModel == null)
+            {
+                return this.NotFound();
+            }
+
+            return this.View(onlineTestModel);
+        }
+
+        [Authorize(Roles = "Lector, User")]
+        [HttpPost("Exams/{onlineTestId}/SolveTest/{questionId}")]
+        public async Task<IActionResult> SolveTest
+            (int onlineTestId, string questionId, [FromQuery] int questionNumber, QuestionViewModel input)
+        {
+            if (!this.ModelState.IsValid)
+            {
+                return this.View(input);
+            }
+
+            var test = this.examsService.GetTest<OnlineTestSolveViewModel>(onlineTestId);
+            onlineTestModel.QuestionId = test.Questions[questionNumber].Id;
+
+            return this.RedirectToAction("CreateQuestion", "Exams", new { onlineTestId, currQuestion });
         }
     }
 }

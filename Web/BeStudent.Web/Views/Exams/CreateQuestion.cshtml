@@ -1,4 +1,4 @@
-﻿@model BeStudent.Web.ViewModels.Exam.QuestionAnswerViewModel
+﻿@model BeStudent.Web.ViewModels.Exam.QuestionCreateInputModel
 @{
     this.ViewData["Title"] = "Create Question";
 }
@@ -8,36 +8,28 @@
 
     <form method="post" asp-action="CreateQuestion">
         <div class="form-group">
-            <label asp-for="QuestionCreate.Condition"></label>
-            <input asp-for="QuestionCreate.Condition" class="form-control" />
-            <span asp-validation-for="QuestionCreate.Condition" class="text-danger"></span>
+            <label asp-for="Condition"></label>
+            <input asp-for="Condition" class="form-control" />
+            <span asp-validation-for="Condition" class="text-danger"></span>
         </div>
         <div class="form-group">
-            <label asp-for="QuestionCreate.Image"></label>
-            <input type="file" class="form-control-file" asp-for="QuestionCreate.Image">
+            <label asp-for="Image"></label>
+            <input type="file" class="form-control-file" asp-for="Image">
         </div>
         <br />
         <div class="form-group">
-            <label asp-for="AnswerCreate.Type"></label>
-            <select id="dropDownId" asp-for="AnswerCreate.Type" asp-items="Model.AnswerCreate.AnswerTypes"></select>
-            <span asp-validation-for="AnswerCreate.Type" class="text-danger"></span>
+            <label asp-for="Type"></label>
+            <select id="dropDownId" asp-for="Type" asp-items="Model.AnswerTypes"></select>
+            <span asp-validation-for="Type" class="text-danger"></span>
         </div>
         <div id="numberOfAnswers" class="form-group">
-            <label asp-for="QuestionCreate.NumberOfAnswers"></label>
-            <input asp-for="QuestionCreate.NumberOfAnswers" min="1" class="form-control" required />
-            <span asp-validation-for="QuestionCreate.NumberOfAnswers" class="text-danger"></span>
-        </div>
-        <div id="pointsOfAnswer" class="form-group">
-            <label asp-for="AnswerCreate.Points"></label>
-            <input asp-for="AnswerCreate.Points" class="form-control" />
-            <span asp-validation-for="AnswerCreate.Points" class="text-danger"></span>
+            <label asp-for="NumberOfAnswers"></label>
+            <input asp-for="NumberOfAnswers" min="1" class="form-control" required />
+            <span asp-validation-for="NumberOfAnswers" class="text-danger"></span>
         </div>
 
-        <input type="submit" class="btn btn-primary" value="Create next question" />
-
-        <a class="btn btn-secondary m-4 w-auto" asp-controller="Exams" asp-action="FinishCreating" asp-route-onlineTestId="@Model.QuestionCreate.OnlineTestId">
-            Finish test
-        </a>
+        <input id="CreateAnswers" type="submit" class="btn btn-primary" value="Create answers" />
+        <input id="CreateNewQuestion" type="submit" class="btn btn-primary" value="Create new question" />
     </form>
 </div>
 
@@ -46,16 +38,19 @@
     <script>
         $(document).ready(function () {
             $('#numberOfAnswers').show();
-            $('#pointsOfAnswer').hide();
+            $('#CreateAnswers').show();
+            $('#CreateNewQuestion').hide();
             $('#dropDownId').on('change', function () {
                 let value = $('#dropDownId').val();
                 if (value == "RadioButtons") {
                     $('#numberOfAnswers').show();
-                    $('#pointsOfAnswer').hide();
+                    $('#CreateAnswers').show();
+                    $('#CreateNewQuestion').hide();
                 }
                 else {
                     $('#numberOfAnswers').hide();
-                    $('#pointsOfAnswer').show();
+                    $('#CreateAnswers').hide();
+                    $('#CreateNewQuestion').show();
                 }
             });
         });

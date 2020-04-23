@@ -6,6 +6,7 @@
 
     using BeStudent.Data.Common.Repositories;
     using BeStudent.Data.Models;
+    using BeStudent.Services.Mapping;
 
     public class ExamsService : IExamsService
     {
@@ -41,22 +42,26 @@
                 Description = description,
             };
 
-            exam.Files.Add(new File
+            if (fileUri != string.Empty)
             {
-                CloudinaryFileUri = fileUri,
-                FileDescription = fileDescription,
-            });
+                exam.Files.Add(new File
+                {
+                    CloudinaryFileUri = fileUri,
+                    FileDescription = fileDescription,
+                });
+            }
 
             await this.examRepository.AddAsync(exam);
             await this.examRepository.SaveChangesAsync();
         }
 
-        public async Task<int> CreateOnlineTestAsync(int examId, double minFor3, double range, double maxPoints, DateTime start, DateTime end, int duration)
+        public async Task<int> CreateOnlineTestAsync(int examId, double minFor3, double range, double maxPoints, DateTime start, DateTime end, int duration, int count)
         {
             var exam = this.examRepository.All().FirstOrDefault(e => e.Id == examId);
 
             var onlineTest = new OnlineTest
             {
+                QuestionsCount = count,
                 StartTime = start,
                 EndTime = end,
                 Duration = duration,
@@ -79,13 +84,17 @@
             var question = new Question
             {
                 Condition = condition,
-                File = new File
+                OnlineTest = onlineTest,
+            };
+
+            if (imageUri != string.Empty)
+            {
+                question.File = new File
                 {
                     CloudinaryFileUri = imageUri,
                     FileDescription = "Image",
-                },
-                OnlineTest = onlineTest,
-            };
+                };
+            }
 
             await this.questionRepository.AddAsync(question);
             await this.questionRepository.SaveChangesAsync();
@@ -93,25 +102,28 @@
             return question.Id;
         }
 
-        public async Task CreateQuestionWithAnswerAsync(int onlineTestId, string condition, string imageUri, AnswerType type, double points)
+        public async Task CreateQuestionWithAnswerAsync(int onlineTestId, string condition, string imageUri, AnswerType type)
         {
             var onlineTest = this.onlineTestRepository.All().FirstOrDefault(t => t.Id == onlineTestId);
 
             var question = new Question
             {
                 Condition = condition,
-                File = new File
+                OnlineTest = onlineTest,
+            };
+
+            if (imageUri != string.Empty)
+            {
+                question.File = new File
                 {
                     CloudinaryFileUri = imageUri,
                     FileDescription = "Image",
-                },
-                OnlineTest = onlineTest,
-            };
+                };
+            }
 
             question.Answers.Add(new Answer
             {
                 Question = question,
-                Points = points,
                 Type = type,
             });
 
@@ -133,6 +145,29 @@
 
             await this.answerRepository.AddAsync(answer);
             await this.answerRepository.SaveChangesAsync();
+        }
+
+        public int FindQuestionsCount(int onlineTestId)
+        {
+            return this.onlineTestRepository.All().FirstOrDefault(t => t.Id == onlineTestId).QuestionsCount;
+        }
+
+        public T GetTest<T>(int onlineTestId)
+        {
+            return this.onlineTestRepository
+                .All()
+                .Where(s => s.Id == onlineTestId)
+                .To<T>()
+                .FirstOrDefault();
+        }
+
+        public T GetQuestion<T>(string questionId)
+        {
+            return this.questionRepository
+                .All()
+                .Where(q => q.Id == questionId)
+                .To<T>()
+                .FirstOrDefault();
         }
     }
 }

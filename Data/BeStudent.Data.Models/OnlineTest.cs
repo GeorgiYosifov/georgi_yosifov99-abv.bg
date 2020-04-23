@@ -13,6 +13,8 @@
             this.Grades = new HashSet<Grade>();
         }
 
+        public int QuestionsCount { get; set; }
+
         public double MinPointsFor3 { get; set; }
 
         public double Range { get; set; }
