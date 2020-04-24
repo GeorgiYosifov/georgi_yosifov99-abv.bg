@@ -21,7 +21,6 @@
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
-    //using PayPal.Api;
 
     using PayPal.Core;
     using PayPal.v1.Payments;

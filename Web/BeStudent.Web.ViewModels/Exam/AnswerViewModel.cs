@@ -5,6 +5,8 @@
 
     public class AnswerViewModel : IMapFrom<Answer>
     {
+        public int Id { get; set; }
+
         public string Text { get; set; }
 
         public double Points { get; set; }

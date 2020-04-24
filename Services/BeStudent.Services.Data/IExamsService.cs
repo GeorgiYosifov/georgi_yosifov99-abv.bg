@@ -17,10 +17,20 @@
 
         Task CreateAnswerAsync(string questionId, AnswerType type, string text, double points);
 
+        Task CreateDecisionAsync(string questionId, string studentId, int answerId, string content);
+
         int FindQuestionsCount(int onlineTestId);
 
         T GetQuestion<T>(string questionId);
 
         T GetTest<T>(int onlineTestId);
+
+        Task AddStudentInTest(int onlineTestId, string studentId);
+
+        bool CheckTest(int onlineTestId);
+
+        double GetPoints(int onlineTestId, string studentId);
+
+        Task<double> CalculateGradeAsync(int onlineTestId, string studentId, double points);
     }
 }

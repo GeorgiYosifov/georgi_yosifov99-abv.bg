@@ -25,6 +25,6 @@
 
         public IEnumerable<SendFileViewModel> SendFiles { get; set; }
 
-        public IEnumerable<OnlineTestViewModel> OnlineTests { get; set; }
+        public IEnumerable<OnlineTestStartViewModel> OnlineTests { get; set; }
     }
 }

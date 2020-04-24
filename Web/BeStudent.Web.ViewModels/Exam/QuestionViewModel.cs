@@ -17,14 +17,8 @@
 
         public IList<AnswerViewModel> Answers { get; set; }
 
-        public int QuestionNumber { get; set; }
-
         public int OnlineTestId { get; set; }
 
-        [Display(Name = "Field")]
-        public string ShortContent { get; set; }
-
-        [Display(Name = "Field")]
-        public string LargeContent { get; set; }
+        public string Value { get; set; }
     }
 }

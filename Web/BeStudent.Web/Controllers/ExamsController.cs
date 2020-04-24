@@ -1,6 +1,8 @@
 ﻿namespace BeStudent.Web.Controllers
 {
     using System.Collections.Generic;
+    using System.Linq;
+    using System.Security.Claims;
     using System.Threading.Tasks;
 
     using BeStudent.Data.Models;
@@ -171,25 +173,34 @@
 
         [Authorize(Roles = "Lector, User")]
         [HttpGet("Exams/{onlineTestId}/StartTest")]
-        public IActionResult StartTest(int onlineTestId)
+        public async Task<IActionResult> StartTest(int onlineTestId)
         {
-            var onlineTestModel = this.examsService.GetTest<OnlineTestViewModel>(onlineTestId);
+            var onlineTestModel = this.examsService.GetTest<OnlineTestStartViewModel>(onlineTestId);
             if (onlineTestModel == null)
             {
                 return this.NotFound();
             }
 
+            var studentId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            await this.examsService.AddStudentInTest(onlineTestId, studentId);
+
             var questionNumber = 0;
             var test = this.examsService.GetTest<OnlineTestSolveViewModel>(onlineTestId);
             onlineTestModel.QuestionId = test.Questions[questionNumber].Id;
-
+            onlineTestModel.QuestionNumber = questionNumber;
             return this.View(onlineTestModel);
         }
 
         [Authorize(Roles = "Lector, User")]
-        [HttpGet("Exams/{onlineTestId}/SolveTest/{questionId}")]
-        public IActionResult SolveTest(int onlineTestId, string questionId, [FromQuery] int questionNumber)
+        [HttpGet("Exams/{onlineTestId}/SolveQuestion/{questionId}/{questionNumber}")]
+        public IActionResult SolveQuestion(int onlineTestId, string questionId, int questionNumber)
         {
+            //var count = this.examsService.FindQuestionsCount(onlineTestId);
+            //if (questionNumber == count)
+            //{
+            //    return this.RedirectToAction("FinishTest", "Exams", new { onlineTestId });
+            //}
+
             var onlineTestModel = this.examsService.GetQuestion<QuestionViewModel>(questionId);
             if (onlineTestModel == null)
             {
@@ -200,19 +211,59 @@
         }
 
         [Authorize(Roles = "Lector, User")]
-        [HttpPost("Exams/{onlineTestId}/SolveTest/{questionId}")]
-        public async Task<IActionResult> SolveTest
-            (int onlineTestId, string questionId, [FromQuery] int questionNumber, QuestionViewModel input)
+        [HttpPost("Exams/{onlineTestId}/SolveQuestion/{questionId}/{questionNumber}")]
+        public async Task<IActionResult> SolveQuestion
+            (int onlineTestId, string questionId, QuestionViewModel input, int questionNumber, [FromQuery] string type, int answerId)
         {
             if (!this.ModelState.IsValid)
             {
                 return this.View(input);
             }
 
-            var test = this.examsService.GetTest<OnlineTestSolveViewModel>(onlineTestId);
-            onlineTestModel.QuestionId = test.Questions[questionNumber].Id;
+            if (type == "RadioButtons")
+            {
+                var onlineTestModel = this.examsService.GetQuestion<QuestionViewModel>(questionId);
+                answerId = onlineTestModel.Answers.FirstOrDefault(a => a.Text == input.Value).Id;
+            }
 
-            return this.RedirectToAction("CreateQuestion", "Exams", new { onlineTestId, currQuestion });
+            var studentId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            await this.examsService.CreateDecisionAsync(questionId, studentId, answerId, input.Value);
+
+            questionNumber++;
+            var count = this.examsService.FindQuestionsCount(onlineTestId);
+            if (questionNumber == count)
+            {
+                return this.RedirectToAction("FinishTest", "Exams", new { onlineTestId });
+            }
+
+            var test = this.examsService.GetTest<OnlineTestSolveViewModel>(onlineTestId);
+            questionId = test.Questions[questionNumber].Id;
+
+            return this.RedirectToAction("SolveQuestion", "Exams", new { onlineTestId, questionId, questionNumber });
+        }
+
+        [Authorize(Roles = "Lector, User")]
+        [HttpGet("Exams/{onlineTestId}/FinishTest")]
+        public async Task<IActionResult> FinishTest(int onlineTestId)
+        {
+            var onlineTestModel = this.examsService.GetTest<OnlineTestFinishViewModel>(onlineTestId);
+            if (onlineTestModel == null)
+            {
+                return this.NotFound();
+            }
+
+            var isTest = this.examsService.CheckTest(onlineTestId);
+
+            var studentId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var points = this.examsService.GetPoints(onlineTestId, studentId);
+            if (isTest == true)
+            {
+                onlineTestModel.Mark = await this.examsService.CalculateGradeAsync(onlineTestId, studentId, points);
+            }
+
+            onlineTestModel.Points = points;
+
+            return this.View(onlineTestModel);
         }
     }
 }

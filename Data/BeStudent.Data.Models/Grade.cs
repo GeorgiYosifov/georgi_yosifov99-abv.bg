@@ -6,10 +6,6 @@
     {
         public double Mark { get; set; }
 
-        public double? SumOfPoints { get; set; }
-
-        public int? TrueAnswers { get; set; }
-
         public string Description { get; set; }
 
         public string StudentId { get; set; }

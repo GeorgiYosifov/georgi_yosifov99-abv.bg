@@ -15,19 +15,28 @@
         private readonly IDeletableEntityRepository<OnlineTest> onlineTestRepository;
         private readonly IDeletableEntityRepository<Question> questionRepository;
         private readonly IDeletableEntityRepository<Answer> answerRepository;
+        private readonly IDeletableEntityRepository<ApplicationUser> studentRepository;
+        private readonly IDeletableEntityRepository<Decision> decisionRepository;
+        private readonly IDeletableEntityRepository<Grade> gradeRepository;
 
         public ExamsService(
             IDeletableEntityRepository<Subject> subjectRepository,
             IDeletableEntityRepository<Exam> examRepository,
             IDeletableEntityRepository<OnlineTest> onlineTestRepository,
             IDeletableEntityRepository<Question> questionRepository,
-            IDeletableEntityRepository<Answer> answerRepository)
+            IDeletableEntityRepository<Answer> answerRepository,
+            IDeletableEntityRepository<ApplicationUser> studentRepository,
+            IDeletableEntityRepository<Decision> decisionRepository,
+            IDeletableEntityRepository<Grade> gradeRepository)
         {
             this.subjectRepository = subjectRepository;
             this.examRepository = examRepository;
             this.onlineTestRepository = onlineTestRepository;
             this.questionRepository = questionRepository;
             this.answerRepository = answerRepository;
+            this.studentRepository = studentRepository;
+            this.decisionRepository = decisionRepository;
+            this.gradeRepository = gradeRepository;
         }
 
         public async Task CreateAsync(string subjectName, string title, string description, string fileUri, string fileDescription, ExamType type)
@@ -168,6 +177,98 @@
                 .Where(q => q.Id == questionId)
                 .To<T>()
                 .FirstOrDefault();
+        }
+
+        public async Task CreateDecisionAsync(string questionId, string studentId, int answerId, string content)
+        {
+            var question = this.questionRepository.All().FirstOrDefault(q => q.Id == questionId);
+            var student = this.studentRepository.All().FirstOrDefault(s => s.Id == studentId);
+            var answer = this.answerRepository.All().FirstOrDefault(a => a.Id == answerId);
+
+            var decision = new Decision
+            {
+                Content = content,
+                Points = answer.Points,
+                Question = question,
+                Student = student,
+            };
+
+            await this.decisionRepository.AddAsync(decision);
+            await this.decisionRepository.SaveChangesAsync();
+        }
+
+        public async Task AddStudentInTest(int onlineTestId, string studentId)
+        {
+            var test = this.onlineTestRepository.All().FirstOrDefault(t => t.Id == onlineTestId);
+            var student = this.studentRepository.All().FirstOrDefault(s => s.Id == studentId);
+            test.Students.Add(student);
+
+            await this.onlineTestRepository.SaveChangesAsync();
+        }
+
+        public bool CheckTest(int onlineTestId)
+        {
+            var test = this.onlineTestRepository.All().FirstOrDefault(t => t.Id == onlineTestId);
+            foreach (var question in test.Questions)
+            {
+                var answerType = question.Answers.FirstOrDefault().Type.ToString();
+                if (answerType == "InputFieldUp20Chars" || answerType == "InputFieldTiny")
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public double GetPoints(int onlineTestId, string studentId)
+        {
+            var test = this.onlineTestRepository.All().FirstOrDefault(t => t.Id == onlineTestId);
+            var result = 0.0;
+            foreach (var question in test.Questions)
+            {
+                var decision = question.Decisions.FirstOrDefault(d => d.StudentId == studentId);
+                result += decision.Points ?? 0;
+            }
+
+            return result;
+        }
+
+        public async Task<double> CalculateGradeAsync(int onlineTestId, string studentId, double points)
+        {
+            var test = this.onlineTestRepository.All().FirstOrDefault(t => t.Id == onlineTestId);
+            var student = this.studentRepository.All().FirstOrDefault(s => s.Id == studentId);
+
+            var mark = 0.0;
+            if (points < test.MinPointsFor3)
+            {
+                mark = 2.00;
+            }
+
+            var diff = points - test.MinPointsFor3;
+            var digit = diff / test.Range;
+            var percentage = 100 / test.Range * (diff % test.Range) / 100;
+            if (mark == 0.0)
+            {
+                mark += digit;
+                mark += percentage;
+                if (points == test.MaxPoints)
+                {
+                    mark = 6.00;
+                }
+            }
+
+            var grade = new Grade
+            {
+                Mark = mark,
+                Student = student,
+                OnlineTest = test,
+            };
+
+            await this.gradeRepository.AddAsync(grade);
+            await this.gradeRepository.SaveChangesAsync();
+
+            return mark;
         }
     }
 }

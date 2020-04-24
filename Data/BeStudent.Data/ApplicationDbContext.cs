@@ -35,6 +35,8 @@
 
         public DbSet<Answer> Answers { get; set; }
 
+        public DbSet<Decision> Decisions { get; set; }
+
         public DbSet<Grade> Grades { get; set; }
 
         public DbSet<Course> Courses { get; set; }

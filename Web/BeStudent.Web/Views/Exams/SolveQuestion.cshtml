@@ -1,0 +1,60 @@
+﻿@model BeStudent.Web.ViewModels.Exam.QuestionViewModel
+@{
+    this.ViewData["Title"] = "Question ";
+    var number = Context.Request.Query["questionNumber"];
+    var firstAnswer = Model.Answers.FirstOrDefault();
+    var type = firstAnswer.Type.ToString();
+    var isRadioButtons = type == "RadioButtons";
+    var answerId = firstAnswer.Id;
+}
+
+<script src="/lib/tinymce/tinymce.min.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+    tinymce.init({
+        selector: "textarea",
+        plugins: [
+            "image paste table link code media"
+        ]
+    });
+</script>
+
+<div class="container">
+    <div class="text-center">
+        <h3>Question <span>&#8470;</span>@number</h3>
+    </div>
+    <br />
+    <h5>@Model.Condition</h5>
+    <br />
+    @if (Model.File != null)
+    {
+        <img src="@Model.File.CloudinaryFileUri" alt="@Model.File.FileDescription" style="width:500px;height:200px;">
+        <br />
+    }
+
+    <form method="post" asp-action="SolveQuestion" asp-route-onlineTestId="@Model.OnlineTestId" asp-route-type="@type" asp-route-answerId="@answerId" enctype="multipart/form-data">
+        @if (isRadioButtons == true)
+        {
+            foreach (var answer in Model.Answers)
+            {
+                <input type="radio" asp-for="Value" value="@answer.Text" /> @answer.Text<br />
+            }
+        }
+        else if (type == "InputFieldUp20Chars")
+        {
+            <div>
+                <input asp-for="Value" class="form-control" />
+                <span asp-validation-for="Value" class="text-danger"></span>
+            </div>
+        }
+        else if (type == "InputFieldTiny")
+        {
+            <div>
+                <textarea asp-for="Value" class="form-control"></textarea>
+                <span asp-validation-for="Value" class="text-danger"></span>
+            </div>
+        }
+
+        <input type="submit" class="btn btn-primary mt-4" value="Next" />
+    </form>
+</div>

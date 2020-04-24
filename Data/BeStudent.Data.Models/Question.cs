@@ -11,6 +11,7 @@
         {
             this.Id = Guid.NewGuid().ToString();
             this.Answers = new HashSet<Answer>();
+            this.Decisions = new HashSet<Decision>();
         }
 
         public string Condition { get; set; }
@@ -24,5 +25,7 @@
         public virtual OnlineTest OnlineTest { get; set; }
 
         public virtual ICollection<Answer> Answers { get; set; }
+
+        public virtual ICollection<Decision> Decisions { get; set; }
     }
 }

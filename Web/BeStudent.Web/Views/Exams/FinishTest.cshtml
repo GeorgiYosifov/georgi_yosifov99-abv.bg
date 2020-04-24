@@ -1,0 +1,18 @@
+﻿@model BeStudent.Web.ViewModels.Exam.OnlineTestFinishViewModel
+@{
+    this.ViewData["Title"] = "Finish Test";
+}
+
+<div class="container">
+    <div class="text-center">
+        <h2 class="display-4">@this.ViewData["Title"]</h2>
+        <br />
+        <p>Earn points: @Model.Points/@Model.MaxPoints</p>
+        <p>Grade: @Model.Mark</p>
+        @*<p>Duration: @Model.Send</p>
+        <p>Questions: @Model.EndTime</p>*@
+        <a class="btn btn-primary ml-5 w-25" asp-controller="Exams" asp-action="ReviewTest" asp-route-onlineTestId="@Model.Id">
+            Review
+        </a>
+    </div>
+</div>

@@ -4,14 +4,16 @@ using BeStudent.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BeStudent.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200424122658_CreateDecisions")]
+    partial class CreateDecisions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -163,9 +165,6 @@ namespace BeStudent.Data.Migrations
                         .HasColumnType("nvarchar(256)")
                         .HasMaxLength(256);
 
-                    b.Property<int?>("OnlineTestId")
-                        .HasColumnType("int");
-
                     b.Property<string>("PasswordHash")
                         .HasColumnType("nvarchar(max)");
 
@@ -201,8 +200,6 @@ namespace BeStudent.Data.Migrations
                         .IsUnique()
                         .HasName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
-
-                    b.HasIndex("OnlineTestId");
 
                     b.ToTable("AspNetUsers");
                 });
@@ -268,6 +265,9 @@ namespace BeStudent.Data.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<int>("AnswerId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Content")
                         .HasColumnType("nvarchar(max)");
 
@@ -283,20 +283,14 @@ namespace BeStudent.Data.Migrations
                     b.Property<DateTime?>("ModifiedOn")
                         .HasColumnType("datetime2");
 
-                    b.Property<double?>("Points")
-                        .HasColumnType("float");
-
-                    b.Property<string>("QuestionId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("StudentId")
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("IsDeleted");
+                    b.HasIndex("AnswerId");
 
-                    b.HasIndex("QuestionId");
+                    b.HasIndex("IsDeleted");
 
                     b.HasIndex("StudentId");
 
@@ -420,6 +414,12 @@ namespace BeStudent.Data.Migrations
 
                     b.Property<string>("StudentId")
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<double?>("SumOfPoints")
+                        .HasColumnType("float");
+
+                    b.Property<int?>("TrueAnswers")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -941,17 +941,15 @@ namespace BeStudent.Data.Migrations
                     b.HasOne("BeStudent.Data.Models.Answer", null)
                         .WithMany("Students")
                         .HasForeignKey("AnswerId");
-
-                    b.HasOne("BeStudent.Data.Models.OnlineTest", null)
-                        .WithMany("Students")
-                        .HasForeignKey("OnlineTestId");
                 });
 
             modelBuilder.Entity("BeStudent.Data.Models.Decision", b =>
                 {
-                    b.HasOne("BeStudent.Data.Models.Question", "Question")
+                    b.HasOne("BeStudent.Data.Models.Answer", "Answer")
                         .WithMany("Decisions")
-                        .HasForeignKey("QuestionId");
+                        .HasForeignKey("AnswerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("BeStudent.Data.Models.ApplicationUser", "Student")
                         .WithMany()
