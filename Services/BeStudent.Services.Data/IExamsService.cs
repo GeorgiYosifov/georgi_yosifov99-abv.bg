@@ -1,6 +1,7 @@
 ﻿namespace BeStudent.Services.Data
 {
     using System;
+    using System.Linq;
     using System.Threading.Tasks;
 
     using BeStudent.Data.Models;
@@ -17,7 +18,7 @@
 
         Task CreateAnswerAsync(string questionId, AnswerType type, string text, double points);
 
-        Task CreateDecisionAsync(string questionId, string studentId, int answerId, string content);
+        Task CreateDecisionAsync(string questionId, string studentId, int answerId, string content, string type);
 
         int FindQuestionsCount(int onlineTestId);
 
@@ -26,10 +27,6 @@
         T GetTest<T>(int onlineTestId);
 
         Task AddStudentInTest(int onlineTestId, string studentId);
-
-        bool CheckTest(int onlineTestId);
-
-        double GetPoints(int onlineTestId, string studentId);
 
         Task<double> CalculateGradeAsync(int onlineTestId, string studentId, double points);
     }

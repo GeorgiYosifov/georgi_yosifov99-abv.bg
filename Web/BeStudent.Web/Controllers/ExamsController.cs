@@ -182,6 +182,11 @@
             }
 
             var studentId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (onlineTestModel.Students.FirstOrDefault(s => s.Id == studentId) != null)
+            {
+                return this.RedirectToAction("FinishTest", "Exams", new { onlineTestId });
+            }
+
             await this.examsService.AddStudentInTest(onlineTestId, studentId);
 
             var questionNumber = 0;
@@ -195,12 +200,6 @@
         [HttpGet("Exams/{onlineTestId}/SolveQuestion/{questionId}/{questionNumber}")]
         public IActionResult SolveQuestion(int onlineTestId, string questionId, int questionNumber)
         {
-            //var count = this.examsService.FindQuestionsCount(onlineTestId);
-            //if (questionNumber == count)
-            //{
-            //    return this.RedirectToAction("FinishTest", "Exams", new { onlineTestId });
-            //}
-
             var onlineTestModel = this.examsService.GetQuestion<QuestionViewModel>(questionId);
             if (onlineTestModel == null)
             {
@@ -227,7 +226,7 @@
             }
 
             var studentId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            await this.examsService.CreateDecisionAsync(questionId, studentId, answerId, input.Value);
+            await this.examsService.CreateDecisionAsync(questionId, studentId, answerId, input.Value, type);
 
             questionNumber++;
             var count = this.examsService.FindQuestionsCount(onlineTestId);
@@ -252,17 +251,46 @@
                 return this.NotFound();
             }
 
-            var isTest = this.examsService.CheckTest(onlineTestId);
+            var isTest = true;
+            foreach (var question in onlineTestModel.Questions)
+            {
+                var answerType = question.Answers.FirstOrDefault().Type.ToString();
+                if (answerType == "InputFieldUp20Chars" || answerType == "InputFieldTiny")
+                {
+                    isTest = false;
+                    break;
+                }
+            }
 
             var studentId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var points = this.examsService.GetPoints(onlineTestId, studentId);
+            var points = 0.0;
+            foreach (var question in onlineTestModel.Questions)
+            {
+                var decision = question.Decisions.FirstOrDefault(d => d.StudentId == studentId);
+                points += decision.Points;
+            }
+
             if (isTest == true)
             {
                 onlineTestModel.Mark = await this.examsService.CalculateGradeAsync(onlineTestId, studentId, points);
             }
 
             onlineTestModel.Points = points;
+            onlineTestModel.StudentId = studentId;
+            return this.View(onlineTestModel);
+        }
 
+        [Authorize(Roles = "Lector, User")]
+        [HttpGet("Exams/{onlineTestId}/ReviewTest/{studentId}")]
+        public IActionResult ReviewTest(int onlineTestId, string studentId)
+        {
+            var onlineTestModel = this.examsService.GetTest<OnlineTestReviewViewModel>(onlineTestId);
+            if (onlineTestModel == null)
+            {
+                return this.NotFound();
+            }
+
+            onlineTestModel.StudentId = studentId;
             return this.View(onlineTestModel);
         }
     }

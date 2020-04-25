@@ -1,7 +1,6 @@
 ﻿namespace BeStudent.Web.ViewModels.Exam
 {
     using System.Collections.Generic;
-    using System.ComponentModel.DataAnnotations;
 
     using BeStudent.Data.Models;
     using BeStudent.Services.Mapping;
@@ -15,7 +14,9 @@
 
         public FileViewModel File { get; set; }
 
-        public IList<AnswerViewModel> Answers { get; set; }
+        public IEnumerable<AnswerViewModel> Answers { get; set; }
+
+        public IEnumerable<DecisionViewModel> Decisions { get; set; }
 
         public int OnlineTestId { get; set; }
 

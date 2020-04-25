@@ -11,7 +11,7 @@
         <p>Grade: @Model.Mark</p>
         @*<p>Duration: @Model.Send</p>
         <p>Questions: @Model.EndTime</p>*@
-        <a class="btn btn-primary ml-5 w-25" asp-controller="Exams" asp-action="ReviewTest" asp-route-onlineTestId="@Model.Id">
+        <a class="btn btn-primary ml-5 w-25" asp-controller="Exams" asp-action="ReviewTest" asp-route-onlineTestId="@Model.Id" asp-route-studentId="@Model.StudentId">
             Review
         </a>
     </div>

@@ -1,6 +1,8 @@
 ﻿namespace BeStudent.Services.Data
 {
     using System;
+    using System.Collections;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
 
@@ -179,7 +181,7 @@
                 .FirstOrDefault();
         }
 
-        public async Task CreateDecisionAsync(string questionId, string studentId, int answerId, string content)
+        public async Task CreateDecisionAsync(string questionId, string studentId, int answerId, string content, string type)
         {
             var question = this.questionRepository.All().FirstOrDefault(q => q.Id == questionId);
             var student = this.studentRepository.All().FirstOrDefault(s => s.Id == studentId);
@@ -189,6 +191,7 @@
             {
                 Content = content,
                 Points = answer.Points,
+                Type = type,
                 Question = question,
                 Student = student,
             };
@@ -204,34 +207,6 @@
             test.Students.Add(student);
 
             await this.onlineTestRepository.SaveChangesAsync();
-        }
-
-        public bool CheckTest(int onlineTestId)
-        {
-            var test = this.onlineTestRepository.All().FirstOrDefault(t => t.Id == onlineTestId);
-            foreach (var question in test.Questions)
-            {
-                var answerType = question.Answers.FirstOrDefault().Type.ToString();
-                if (answerType == "InputFieldUp20Chars" || answerType == "InputFieldTiny")
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        public double GetPoints(int onlineTestId, string studentId)
-        {
-            var test = this.onlineTestRepository.All().FirstOrDefault(t => t.Id == onlineTestId);
-            var result = 0.0;
-            foreach (var question in test.Questions)
-            {
-                var decision = question.Decisions.FirstOrDefault(d => d.StudentId == studentId);
-                result += decision.Points ?? 0;
-            }
-
-            return result;
         }
 
         public async Task<double> CalculateGradeAsync(int onlineTestId, string studentId, double points)

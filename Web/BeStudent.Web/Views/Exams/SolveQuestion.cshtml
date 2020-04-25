@@ -1,7 +1,7 @@
 ﻿@model BeStudent.Web.ViewModels.Exam.QuestionViewModel
 @{
     this.ViewData["Title"] = "Question ";
-    var number = Context.Request.Query["questionNumber"];
+    var number = int.Parse(Context.Request.Path.Value.Split("/").LastOrDefault()) + 1;
     var firstAnswer = Model.Answers.FirstOrDefault();
     var type = firstAnswer.Type.ToString();
     var isRadioButtons = type == "RadioButtons";
@@ -18,43 +18,47 @@
         ]
     });
 </script>
-
+@*<span>&#8470;</span>*@
 <div class="container">
     <div class="text-center">
-        <h3>Question <span>&#8470;</span>@number</h3>
+        <h3>Question @number</h3>
     </div>
     <br />
-    <h5>@Model.Condition</h5>
-    <br />
-    @if (Model.File != null)
-    {
-        <img src="@Model.File.CloudinaryFileUri" alt="@Model.File.FileDescription" style="width:500px;height:200px;">
-        <br />
-    }
-
-    <form method="post" asp-action="SolveQuestion" asp-route-onlineTestId="@Model.OnlineTestId" asp-route-type="@type" asp-route-answerId="@answerId" enctype="multipart/form-data">
-        @if (isRadioButtons == true)
-        {
-            foreach (var answer in Model.Answers)
+    <div class="card mb-3">
+        <div class="card-body text-white bg-secondary">
+            <h5 class="card-title content">@Model.Condition</h5>
+            @if (Model.File != null)
             {
-                <input type="radio" asp-for="Value" value="@answer.Text" /> @answer.Text<br />
+                <img src="@Model.File.CloudinaryFileUri" alt="@Model.File.FileDescription" style="width:500px;height:200px;">
+                <br />
             }
-        }
-        else if (type == "InputFieldUp20Chars")
-        {
-            <div>
-                <input asp-for="Value" class="form-control" />
-                <span asp-validation-for="Value" class="text-danger"></span>
-            </div>
-        }
-        else if (type == "InputFieldTiny")
-        {
-            <div>
-                <textarea asp-for="Value" class="form-control"></textarea>
-                <span asp-validation-for="Value" class="text-danger"></span>
-            </div>
-        }
+            <form method="post" asp-action="SolveQuestion" asp-route-onlineTestId="@Model.OnlineTestId" asp-route-type="@type" asp-route-answerId="@answerId" enctype="multipart/form-data">
+                @if (isRadioButtons == true)
+                {
+                    <div class="content">
+                        @foreach (var answer in Model.Answers)
+                        {
+                            <input type="radio" asp-for="Value" value="@answer.Text" /> @answer.Text<br />
+                        }
+                    </div>
+                }
+                else if (type == "InputFieldUp20Chars")
+                {
+                    <div>
+                        <input asp-for="Value" class="form-control" />
+                        <span asp-validation-for="Value" class="text-danger"></span>
+                    </div>
+                }
+                else if (type == "InputFieldTiny")
+                {
+                    <div>
+                        <textarea asp-for="Value" class="form-control"></textarea>
+                        <span asp-validation-for="Value" class="text-danger"></span>
+                    </div>
+                }
 
-        <input type="submit" class="btn btn-primary mt-4" value="Next" />
-    </form>
+                <input type="submit" class="btn btn-primary mt-4" value="Next" />
+            </form>
+        </div>
+    </div>
 </div>

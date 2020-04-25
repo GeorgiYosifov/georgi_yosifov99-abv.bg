@@ -3,12 +3,12 @@
     using System.Linq;
     using System.Threading.Tasks;
 
-    using Microsoft.AspNetCore.Authorization;
-    using Microsoft.AspNetCore.Mvc;
     using BeStudent.Services.Data;
     using BeStudent.Web.ViewModels.Course;
     using BeStudent.Web.ViewModels.Home;
     using BeStudent.Web.ViewModels.Semester;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
 
     public class CoursesController : BaseController
     {

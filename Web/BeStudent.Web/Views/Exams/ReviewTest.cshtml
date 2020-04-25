@@ -1,0 +1,84 @@
+﻿@model BeStudent.Web.ViewModels.Exam.OnlineTestReviewViewModel
+@{
+    this.ViewData["Title"] = "Review";
+}
+
+<div class="container">
+    <div class="text-center">
+        <h2 class="display-4">@this.ViewData["Title"]</h2>
+    </div>
+    @foreach (var question in Model.Questions)
+    {
+        var decision = question.Decisions.FirstOrDefault(d => d.StudentId == Model.StudentId);
+        var color = "secondary";
+        if (decision.Type == "RadioButtons")
+        {
+            if (decision.Points > 0) color = "success";
+            else color = "danger";
+        }
+
+        <div class="card mb-3">
+            <div class="card-body text-white bg-@color">
+                <h5 class="card-title">@question.Condition</h5>
+                @if (question.File != null)
+                {
+                    <img src="@question.File.CloudinaryFileUri" alt="@question.File.FileDescription" style="width:500px;height:200px;">
+                    <br />
+                }
+
+                @if (question.Answers.FirstOrDefault().Type.ToString() == "RadioButtons")
+                {
+                    var correctAnswerContent = "";
+                    var correctAnswerPoints = 0.0;
+                    foreach (var answer in question.Answers)
+                    {
+                        if (answer.Points > 0)
+                        {
+                            correctAnswerContent = answer.Text;
+                            correctAnswerPoints = answer.Points;
+                        }
+                        if (answer.Text == decision.Content)
+                        {
+                            <input type="radio" value="@answer.Text" checked>@answer.Text
+                            if (answer.Points > 0)
+                            {
+                                <span style="font-size: 1em; color: orangered;">
+                                    <i class="fas fa-check"></i>
+                                </span>
+                            }
+                            else
+                            {
+                                <span style="font-size: 1em; color: orangered;">
+                                    <i class="fas fa-times"></i>
+                                </span>
+                            }
+                            <br />
+                        }
+                        else
+                        {
+                            <input type="radio" class="disabled" value="@answer.Text" />@answer.Text<br />
+                        }
+                    }
+                    <br />
+                    <div class="alert alert-success" role="alert">
+                        Correct answer: @correctAnswerContent
+                        <p class="mb-0">Gives @correctAnswerPoints points</p>
+                    </div>
+                }
+                else
+                {
+                    <p>@decision.SanitizedContent</p>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $(':radio:not(:checked)').attr('disabled', true);
+        });
+    </script>
+}
