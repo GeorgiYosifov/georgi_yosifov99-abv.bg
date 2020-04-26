@@ -1,5 +1,6 @@
 ﻿namespace BeStudent.Web.Controllers
 {
+    using System;
     using System.Security.Claims;
     using System.Threading.Tasks;
 
@@ -24,8 +25,15 @@
 
         [Authorize(Roles = "User, Lector")]
         [HttpGet("Subjects/{subjectName}/Homeworks/{homeworkId}/Send")]
-        public IActionResult Send()
+        public IActionResult Send(string subjectName, [FromQuery] DateTime deadline)
         {
+            var now = DateTime.Now;
+            if (deadline < now)
+            {
+                this.TempData["message"] = "The time to send file for this homework has expired!";
+                return this.RedirectToAction("Themes", "Subjects", new { subjectName });
+            }
+
             return this.View();
         }
 
@@ -57,6 +65,7 @@
         {
             var viewModel = new SendFilesListViewModel
             {
+                HomeworkId = homeworkId,
                 SubjectName = subjectName,
                 SendFiles = this.homeworksService.GetAllSendedFiles<SendFileViewModel>(homeworkId),
             };

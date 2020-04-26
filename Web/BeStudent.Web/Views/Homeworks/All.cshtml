@@ -23,7 +23,7 @@
                 <div class="text-center">
                     <p class="text-center mt-2">@($"End time: {homework.Deadline}!")</p>
 
-                    <a class="btn btn-secondary m-1 w-auto" asp-controller="Homeworks" asp-action="Send" asp-route-subjectName="@subjectName" asp-route-homeworkId="@homework.Id">
+                    <a class="btn btn-secondary m-1 w-auto" asp-controller="Homeworks" asp-action="Send" asp-route-subjectName="@subjectName" asp-route-homeworkId="@homework.Id" asp-route-deadline="@homework.Deadline">
                         Send Homework
                     </a>
                     <a class="btn btn-secondary m-1 w-auto" asp-controller="Homeworks" asp-action="Sended" asp-route-subjectName="@subjectName" asp-route-homeworkId="@homework.Id">

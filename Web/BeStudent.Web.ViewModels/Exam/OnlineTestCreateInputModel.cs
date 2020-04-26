@@ -24,11 +24,11 @@
         [Display(Name = "Max points")]
         public double MaxPoints { get; set; }
 
-        //[Required]
+        [Required]
         [Display(Name = "Start time")]
         public DateTime StartTime { get; set; }
 
-        //[Required]
+        [Required]
         [Display(Name = "End time")]
         public DateTime EndTime { get; set; }
 

@@ -1,6 +1,8 @@
 ﻿@model BeStudent.Web.ViewModels.Exam.QuestionViewModel
 @{
     this.ViewData["Title"] = "Question ";
+    var portocol = Context.Request.Scheme;
+    var path = $"{portocol}://{Context.Request.Host}/Exams/{Model.OnlineTestId}/FinishTest";
     var number = int.Parse(Context.Request.Path.Value.Split("/").LastOrDefault()) + 1;
     var firstAnswer = Model.Answers.FirstOrDefault();
     var type = firstAnswer.Type.ToString();
@@ -23,6 +25,10 @@
     <div class="text-center">
         <h3>Question @number</h3>
     </div>
+    <input type="hidden" id="seconds" value="@Model.RemainSeconds">
+    <input type="hidden" id="path" value="@path">
+    <p class="Timer"></p>
+
     <br />
     <div class="card mb-3">
         <div class="card-body text-white bg-secondary">
@@ -62,3 +68,34 @@
         </div>
     </div>
 </div>
+@section Scripts {
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            let now = $('#seconds').val();
+            let start = new Date($.now());
+            let isEnd = false;
+            setInterval(function () {
+                let mins = Math.ceil((now - Math.ceil((new Date($.now()) - start) / 1000)) / 60);
+                let sec = (now - Math.ceil((new Date - start) / 1000)) % 60;
+                if (mins == 0) {
+                    sec += 59;
+                }
+                if (mins == 0 && sec == 0) {
+                    isEnd = true;
+                }
+                if (isEnd) {
+                    $('.Timer').text("Remaining time: " + "0:00");
+                    let path = $('#path').val();
+                    window.location.replace(path);
+                } else {
+                    if (sec < 10) {
+                        $('.Timer').text("Remaining time: " + mins + ":0" + sec);
+                    } else {
+                        $('.Timer').text("Remaining time: " + mins + ":" + sec);
+                    }
+                }
+            }, 1000);
+        });
+    </script>
+}

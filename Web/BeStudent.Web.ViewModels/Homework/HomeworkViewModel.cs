@@ -6,6 +6,7 @@
     using BeStudent.Data.Models;
     using BeStudent.Services.Mapping;
     using BeStudent.Web.ViewModels.File;
+    using BeStudent.Web.ViewModels.SendFile;
     using Ganss.XSS;
 
     public class HomeworkViewModel : IMapFrom<Homework>

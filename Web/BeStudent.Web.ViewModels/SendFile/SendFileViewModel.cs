@@ -7,6 +7,8 @@
 
     public class SendFileViewModel : IMapFrom<SendFile>
     {
+        public int Id { get; set; }
+
         public string CloudinaryFileUri { get; set; }
 
         public string FileDescription { get; set; }

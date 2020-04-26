@@ -1,5 +1,6 @@
 ﻿namespace BeStudent.Web.Controllers
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Security.Claims;
@@ -182,10 +183,10 @@
             }
 
             var studentId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (onlineTestModel.Students.FirstOrDefault(s => s.Id == studentId) != null)
-            {
-                return this.RedirectToAction("FinishTest", "Exams", new { onlineTestId });
-            }
+            //if (onlineTestModel.Students.FirstOrDefault(s => s.Id == studentId) != null)
+            //{
+            //    return this.RedirectToAction("FinishTest", "Exams", new { onlineTestId });
+            //}
 
             await this.examsService.AddStudentInTest(onlineTestId, studentId);
 
@@ -200,13 +201,32 @@
         [HttpGet("Exams/{onlineTestId}/SolveQuestion/{questionId}/{questionNumber}")]
         public IActionResult SolveQuestion(int onlineTestId, string questionId, int questionNumber)
         {
-            var onlineTestModel = this.examsService.GetQuestion<QuestionViewModel>(questionId);
-            if (onlineTestModel == null)
+            var questionModel = this.examsService.GetQuestion<QuestionViewModel>(questionId);
+            var onlineTestModel = this.examsService.GetTest<OnlineTestStartViewModel>(onlineTestId);
+            if (questionModel == null || onlineTestModel == null)
             {
                 return this.NotFound();
             }
 
-            return this.View(onlineTestModel);
+            var now = DateTime.Now;
+            var theDate = questionModel.OnlineTestEndTime;
+            var remain = theDate.Subtract(now);
+            var remainSeconds = (int)remain.TotalMinutes * 60;
+
+            if (onlineTestModel.StartTime > now)
+            {
+                this.TempData["message"] = "You should wait until the test became open!";
+                return this.RedirectToAction("StartTest", "Exams", new { onlineTestId });
+            }
+
+            if (onlineTestModel.EndTime < now)
+            {
+                this.TempData["message"] = "The test has already closed!";
+                return this.RedirectToAction("StartTest", "Exams", new { onlineTestId });
+            }
+
+            questionModel.RemainSeconds = remainSeconds;
+            return this.View(questionModel);
         }
 
         [Authorize(Roles = "Lector, User")]
@@ -222,7 +242,11 @@
             if (type == "RadioButtons")
             {
                 var onlineTestModel = this.examsService.GetQuestion<QuestionViewModel>(questionId);
-                answerId = onlineTestModel.Answers.FirstOrDefault(a => a.Text == input.Value).Id;
+                var answer = onlineTestModel.Answers.FirstOrDefault(a => a.Text == input.Value);
+                if (answer != null)
+                {
+                    answerId = answer.Id;
+                }
             }
 
             var studentId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -267,7 +291,10 @@
             foreach (var question in onlineTestModel.Questions)
             {
                 var decision = question.Decisions.FirstOrDefault(d => d.StudentId == studentId);
-                points += decision.Points;
+                if (decision != null)
+                {
+                    points += decision.Points;
+                }
             }
 
             if (isTest == true)
@@ -290,7 +317,8 @@
                 return this.NotFound();
             }
 
-            onlineTestModel.StudentId = studentId;
+            var student = onlineTestModel.Students.FirstOrDefault(s => s.Id == studentId);
+            onlineTestModel.Student = student;
             return this.View(onlineTestModel);
         }
     }

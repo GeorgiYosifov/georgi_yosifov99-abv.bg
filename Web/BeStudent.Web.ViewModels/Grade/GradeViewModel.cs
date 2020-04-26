@@ -5,7 +5,7 @@
 
     public class GradeViewModel : IMapFrom<Grade>
     {
-        public int Mark { get; set; }
+        public double Mark { get; set; }
 
         public string Description { get; set; }
     }

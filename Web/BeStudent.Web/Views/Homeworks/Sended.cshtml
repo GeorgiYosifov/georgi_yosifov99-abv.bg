@@ -11,15 +11,21 @@
     <ul class="list-group list-group-flush mt-3">
         @foreach (var sendFile in Model.SendFiles)
         {
-            <li class="list-group-item">
-                <a class="m-2" href="@sendFile.CloudinaryFileUri">@sendFile.FileDescription</a>
-                <p>@($"Name: {sendFile.Student.FirstName} {sendFile.Student.LastName}")</p>
-                @if (sendFile.Grade != null)
-                {
-                    <p>@($"Grade: {sendFile.Grade.Mark}")</p>
-                    <p>@($"Description: {sendFile.Grade.Description}")</p>
-                }
-            </li>
+        <li class="list-group-item">
+            <a class="m-2" href="@sendFile.CloudinaryFileUri">@sendFile.FileDescription</a>
+            <p>@($"Name: {sendFile.Student.FirstName} {sendFile.Student.LastName}")</p>
+            @if (sendFile.Grade != null)
+            {
+                <p>@($"Grade: {sendFile.Grade.Mark}")</p>
+                <p>@($"Description: {sendFile.Grade.Description}")</p>
+            }
+            else
+            {
+                <a class="btn btn-secondary w-auto" asp-controller="Homeworks" asp-action="SetGrade" asp-route-studentId="@sendFile.Student.Id" asp-route-sendFileId="@sendFile.Id" asp-route-homeworkId="@Model.HomeworkId">
+                    Set grade
+                </a>
+            }
+        </li>
         }
     </ul>
     <a class="btn btn-secondary m-4 w-auto" asp-controller="Subjects" asp-action="Themes" asp-route-subjectName="@Model.SubjectName">

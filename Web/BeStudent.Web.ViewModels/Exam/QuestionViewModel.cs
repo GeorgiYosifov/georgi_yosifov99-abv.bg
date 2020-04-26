@@ -1,5 +1,6 @@
 ﻿namespace BeStudent.Web.ViewModels.Exam
 {
+    using System;
     using System.Collections.Generic;
 
     using BeStudent.Data.Models;
@@ -20,6 +21,10 @@
 
         public int OnlineTestId { get; set; }
 
+        public DateTime OnlineTestEndTime { get; set; }
+
         public string Value { get; set; }
+
+        public int RemainSeconds { get; set; }
     }
 }
