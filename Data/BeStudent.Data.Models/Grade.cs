@@ -12,9 +12,9 @@
 
         public virtual ApplicationUser Student { get; set; }
 
-        public int? OnlineTestId { get; set; }
+        public int? ExamId { get; set; }
 
-        public virtual OnlineTest OnlineTest { get; set; }
+        public virtual Exam Exam { get; set; }
 
         public int? HomeworkId { get; set; }
 

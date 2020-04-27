@@ -10,7 +10,6 @@
         public OnlineTest()
         {
             this.Questions = new HashSet<Question>();
-            this.Grades = new HashSet<Grade>();
             this.Students = new HashSet<ApplicationUser>();
         }
 
@@ -33,8 +32,6 @@
         public virtual Exam Exam { get; set; }
 
         public virtual ICollection<Question> Questions { get; set; }
-
-        public virtual ICollection<Grade> Grades { get; set; }
 
         public virtual ICollection<ApplicationUser> Students { get; set; }
     }

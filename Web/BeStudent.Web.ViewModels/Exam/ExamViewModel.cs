@@ -1,5 +1,6 @@
 ﻿namespace BeStudent.Web.ViewModels.Exam
 {
+    using System;
     using System.Collections.Generic;
 
     using BeStudent.Data.Models;
@@ -21,6 +22,10 @@
         public string Description { get; set; }
 
         public string SanitizedDescription => new HtmlSanitizer().Sanitize(this.Description);
+
+        public DateTime? Open { get; set; }
+
+        public DateTime? Close { get; set; }
 
         public IEnumerable<FileViewModel> Files { get; set; }
 

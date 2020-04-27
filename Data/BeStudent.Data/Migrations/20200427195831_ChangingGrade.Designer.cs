@@ -4,14 +4,16 @@ using BeStudent.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BeStudent.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200427195831_ChangingGrade")]
+    partial class ChangingGrade
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -427,6 +429,9 @@ namespace BeStudent.Data.Migrations
                     b.Property<DateTime?>("ModifiedOn")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("OnlineTestId")
+                        .HasColumnType("int");
+
                     b.Property<string>("StudentId")
                         .HasColumnType("nvarchar(450)");
 
@@ -437,6 +442,8 @@ namespace BeStudent.Data.Migrations
                     b.HasIndex("HomeworkId");
 
                     b.HasIndex("IsDeleted");
+
+                    b.HasIndex("OnlineTestId");
 
                     b.HasIndex("StudentId");
 
@@ -998,12 +1005,16 @@ namespace BeStudent.Data.Migrations
             modelBuilder.Entity("BeStudent.Data.Models.Grade", b =>
                 {
                     b.HasOne("BeStudent.Data.Models.Exam", "Exam")
-                        .WithMany("Grades")
+                        .WithMany()
                         .HasForeignKey("ExamId");
 
                     b.HasOne("BeStudent.Data.Models.Homework", "Homework")
                         .WithMany("Grades")
                         .HasForeignKey("HomeworkId");
+
+                    b.HasOne("BeStudent.Data.Models.OnlineTest", null)
+                        .WithMany("Grades")
+                        .HasForeignKey("OnlineTestId");
 
                     b.HasOne("BeStudent.Data.Models.ApplicationUser", "Student")
                         .WithMany()

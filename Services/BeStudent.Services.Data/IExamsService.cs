@@ -1,14 +1,14 @@
 ﻿namespace BeStudent.Services.Data
 {
     using System;
-    using System.Linq;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
 
     using BeStudent.Data.Models;
 
     public interface IExamsService
     {
-        Task CreateAsync(string subjectName, string title, string description, string fileUri, string fileDescription, ExamType type);
+        Task CreateAsync(string subjectName, string title, string description, string fileUri, string fileDescription, ExamType type, DateTime? open, DateTime? close);
 
         Task<int> CreateOnlineTestAsync(int examId, double minFor3, double range, double maxPoints, DateTime start, DateTime end, int duration, int count);
 
@@ -26,8 +26,16 @@
 
         T GetTest<T>(int onlineTestId);
 
+        T GetExam<T>(int examId);
+
         Task AddStudentInTest(int onlineTestId, string studentId);
 
         Task<double> CalculateGradeAsync(int onlineTestId, string studentId, double points);
+
+        IEnumerable<T> GetAllSendedSolutions<T>(int examId);
+
+        Task SendSolutionAsync(string studentId, int examId, string fileUri, string fileDescription);
+
+        Task SetGradeAsync(double mark, string description, int examId, string studentId, int sendFileId);
     }
 }

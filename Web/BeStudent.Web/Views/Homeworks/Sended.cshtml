@@ -17,11 +17,11 @@
             @if (sendFile.Grade != null)
             {
                 <p>@($"Grade: {sendFile.Grade.Mark}")</p>
-                <p>@($"Description: {sendFile.Grade.Description}")</p>
+                @Html.Raw(sendFile.Grade.SanitizedDescription)
             }
             else
             {
-                <a class="btn btn-secondary w-auto" asp-controller="Homeworks" asp-action="SetGrade" asp-route-studentId="@sendFile.Student.Id" asp-route-sendFileId="@sendFile.Id" asp-route-homeworkId="@Model.HomeworkId">
+                <a class="btn btn-secondary w-auto" asp-action="SetGrade" asp-route-subjectName="@Model.SubjectName" asp-route-studentId="@sendFile.Student.Id" asp-route-sendFileId="@sendFile.Id" asp-route-homeworkId="@Model.HomeworkId">
                     Set grade
                 </a>
             }

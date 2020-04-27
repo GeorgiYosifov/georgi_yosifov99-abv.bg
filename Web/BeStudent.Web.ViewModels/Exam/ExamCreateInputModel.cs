@@ -1,5 +1,6 @@
 ﻿namespace BeStudent.Web.ViewModels.Exam
 {
+    using System;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
 
@@ -15,6 +16,12 @@
 
         [Display(Name = "Description")]
         public string Description { get; set; }
+
+        [Display(Name = "Open")]
+        public DateTime? OpenTime { get; set; }
+
+        [Display(Name = "Close")]
+        public DateTime? CloseTime { get; set; }
 
         [Display(Name = "File")]
         public IFormFile File { get; set; }

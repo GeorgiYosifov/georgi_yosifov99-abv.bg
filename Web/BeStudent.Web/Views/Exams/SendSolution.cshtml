@@ -1,0 +1,23 @@
+﻿@model BeStudent.Web.ViewModels.Exam.ExamSendSolutionInputModel
+@{
+    this.ViewData["Title"] = "Send Solution";
+}
+
+<div class="container">
+    <h1 class="mb-2">@this.ViewData["Title"]</h1>
+
+    <form method="post" asp-controller="Exams" asp-action="SendSolution" asp-route-subjectName="@Model.SubjectName" asp-route-examId="@Model.ExamId" enctype="multipart/form-data">
+        <div>
+            <label asp-for="File"></label>
+            <input type="file" class="form-control-file" asp-for="File">
+        </div>
+        <br />
+        <div id="fileName" class="form-group">
+            <label asp-for="FileDescription"></label>
+            <input asp-for="FileDescription" class="form-control" />
+            <span asp-validation-for="FileDescription" class="text-danger"></span>
+        </div>
+
+        <input type="submit" class="btn btn-primary" />
+    </form>
+</div>

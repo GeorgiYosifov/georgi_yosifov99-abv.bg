@@ -25,8 +25,18 @@
         </div>
         <div>
             <label asp-for="ExamType"></label>
-            <select asp-for="ExamType" asp-items="Model.ExamTypes"></select>
+            <select id="type" asp-for="ExamType" asp-items="Model.ExamTypes"></select>
             <span asp-validation-for="ExamType" class="text-danger"></span>
+        </div>
+        <div id="openInput">
+            <label asp-for="OpenTime"></label>
+            <input asp-for="OpenTime" class="form-control" />
+            <span asp-validation-for="OpenTime" class="text-danger"></span>
+        </div>
+        <div id="closeInput">
+            <label asp-for="CloseTime"></label>
+            <input asp-for="CloseTime" class="form-control" />
+            <span asp-validation-for="CloseTime" class="text-danger"></span>
         </div>
         <br />
         <div>
@@ -54,8 +64,19 @@
     <script>
         $(document).ready(function () {
             $('#fileName').hide();
+            $('#openInput').hide();
+            $('#closeInput').hide();
             $('input[type="file"]').on('change', function () {
                 $('#fileName').show();
+            });
+            $('#type').on('change', function () {
+                if ($('#type').val() == "OnlineExam") {
+                    $('#openInput').show();
+                    $('#closeInput').show();
+                } else {
+                    $('#openInput').hide();
+                    $('#closeInput').hide();
+                }
             });
         });
     </script>

@@ -9,6 +9,8 @@
     using BeStudent.Data.Models;
     using BeStudent.Services.Data;
     using BeStudent.Web.ViewModels.Exam;
+    using BeStudent.Web.ViewModels.Grade;
+    using BeStudent.Web.ViewModels.SendFile;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
 
@@ -54,7 +56,7 @@
                 }
             }
 
-            await this.examsService.CreateAsync(subjectName, input.Title, input.Description, fileUri, input.FileDescription, input.ExamType);
+            await this.examsService.CreateAsync(subjectName, input.Title, input.Description, fileUri, input.FileDescription, input.ExamType, input.OpenTime, input.CloseTime);
 
             return this.RedirectToAction("Themes", "Subjects", new { subjectName });
         }
@@ -324,6 +326,99 @@
             var student = onlineTestModel.Students.FirstOrDefault(s => s.Id == studentId);
             onlineTestModel.Student = student;
             return this.View(onlineTestModel);
+        }
+
+        [Authorize(Roles = "User, Lector")]
+        [HttpGet("Subjects/{subjectName}/Exams/{examId}/SendSolution")]
+        public IActionResult SendSolution(string subjectName, int examId)
+        {
+            var examModel = this.examsService.GetExam<ExamViewModel>(examId);
+
+            var now = DateTime.Now;
+            if (examModel.Open > now)
+            {
+                this.TempData["message"] = "You should wait until the exam became open!";
+                return this.RedirectToAction("Themes", "Subjects", new { subjectName });
+            }
+
+            if (examModel.Close < now)
+            {
+                this.TempData["message"] = "The exam has already closed!";
+                return this.RedirectToAction("Themes", "Subjects", new { subjectName });
+            }
+
+            var sendSolutionModel = new ExamSendSolutionInputModel
+            {
+                SubjectName = subjectName,
+                ExamId = examId,
+            };
+
+            return this.View(sendSolutionModel);
+        }
+
+        [Authorize(Roles = "User, Lector")]
+        [HttpPost("Subjects/{subjectName}/Exams/{examId}/SendSolution")]
+        public async Task<IActionResult> SendSolution(string subjectName, int examId, ExamSendSolutionInputModel input)
+        {
+            if (!this.ModelState.IsValid)
+            {
+                return this.View(input);
+            }
+
+            var fileUri = string.Empty;
+            if (input.File != null)
+            {
+                fileUri = this.themesService
+                    .UploadFileToCloudinary(input.File.FileName, input.File.OpenReadStream());
+            }
+
+            var studentId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            await this.examsService.SendSolutionAsync(studentId, examId, fileUri, input.FileDescription);
+
+            return this.RedirectToAction("Themes", "Subjects", new { subjectName });
+        }
+
+        [Authorize(Roles = "Lector")]
+        [HttpGet("Subjects/{subjectName}/Exams/{examId}/SendedSolutions")]
+        public IActionResult SendedSolutions(string subjectName, int examId)
+        {
+            var viewModel = new SendFilesListViewModel
+            {
+                ExamId = examId,
+                SubjectName = subjectName,
+                SendFiles = this.examsService.GetAllSendedSolutions<SendFileViewModel>(examId),
+            };
+
+            return this.View(viewModel);
+        }
+
+        [Authorize(Roles = "Lector")]
+        [HttpGet("Subjects/{subjectName}/Exams/{examId}/SetGrade")]
+        public IActionResult SetGrade(string subjectName, int examId, [FromQuery] string studentId, int sendFileId)
+        {
+            var gradeModel = new GradeSetInputModel
+            {
+                StudentId = studentId,
+                ExamId = examId,
+                SendFileId = sendFileId,
+                SubjectName = subjectName,
+            };
+
+            return this.View(gradeModel);
+        }
+
+        [Authorize(Roles = "Lector")]
+        [HttpPost("Subjects/{subjectName}/Exams/{examId}/SetGrade")]
+        public async Task<IActionResult> SetGrade(string subjectName, int examId, string studentId, int sendFileId, GradeSetInputModel input)
+        {
+            if (!this.ModelState.IsValid)
+            {
+                return this.View(input);
+            }
+
+            await this.examsService.SetGradeAsync(input.Mark, input.Description, examId, studentId, sendFileId);
+
+            return this.RedirectToAction("SendedSolutions", "Exams", new { subjectName, examId });
         }
     }
 }

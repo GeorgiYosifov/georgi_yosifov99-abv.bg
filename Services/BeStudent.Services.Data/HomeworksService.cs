@@ -15,17 +15,20 @@
         private readonly IDeletableEntityRepository<Homework> homeworkRepository;
         private readonly IDeletableEntityRepository<ApplicationUser> userRepository;
         private readonly IRepository<SendFile> sendFileRepository;
+        private readonly IDeletableEntityRepository<Grade> gradeRepository;
 
         public HomeworksService(
             IDeletableEntityRepository<Subject> subjectRepository,
             IDeletableEntityRepository<Homework> homeworkRepository,
             IDeletableEntityRepository<ApplicationUser> userRepository,
-            IRepository<SendFile> sendFileRepository)
+            IRepository<SendFile> sendFileRepository,
+            IDeletableEntityRepository<Grade> gradeRepository)
         {
             this.subjectRepository = subjectRepository;
             this.homeworkRepository = homeworkRepository;
             this.userRepository = userRepository;
             this.sendFileRepository = sendFileRepository;
+            this.gradeRepository = gradeRepository;
         }
 
         public async Task CreateAsync(string subjectName, string title, string description, string fileUri, string fileDescription, DateTime deadline)
@@ -78,6 +81,23 @@
             homework.SendFiles.Add(sendFile);
 
             await this.homeworkRepository.SaveChangesAsync();
+        }
+
+        public async Task SetGradeAsync(double mark, string description, int homeworkId, string studentId, int sendFileId)
+        {
+            var grade = new Grade
+            {
+                Mark = mark,
+                Description = description,
+                HomeworkId = homeworkId,
+                StudentId = studentId,
+            };
+
+            await this.gradeRepository.AddAsync(grade);
+            await this.gradeRepository.SaveChangesAsync();
+
+            this.sendFileRepository.All().FirstOrDefault(f => f.Id == sendFileId).Grade = grade;
+            await this.sendFileRepository.SaveChangesAsync();
         }
     }
 }

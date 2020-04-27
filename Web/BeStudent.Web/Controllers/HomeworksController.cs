@@ -5,6 +5,7 @@
     using System.Threading.Tasks;
 
     using BeStudent.Services.Data;
+    using BeStudent.Web.ViewModels.Grade;
     using BeStudent.Web.ViewModels.Homework;
     using BeStudent.Web.ViewModels.SendFile;
     using Microsoft.AspNetCore.Authorization;
@@ -103,6 +104,35 @@
             await this.homeworksService.CreateAsync(subjectName, input.Title, input.Description, fileUri, input.FileDescription, input.Deadline);
 
             return this.RedirectToAction("Themes", "Subjects", new { subjectName });
+        }
+
+        [Authorize(Roles = "Lector")]
+        [HttpGet("Subjects/{subjectName}/Homeworks/{homeworkId}/SetGrade")]
+        public IActionResult SetGrade(string subjectName, int homeworkId, [FromQuery] string studentId, int sendFileId)
+        {
+            var gradeModel = new GradeSetInputModel
+            {
+                StudentId = studentId,
+                HomeworkId = homeworkId,
+                SendFileId = sendFileId,
+                SubjectName = subjectName,
+            };
+
+            return this.View(gradeModel);
+        }
+
+        [Authorize(Roles = "Lector")]
+        [HttpPost("Subjects/{subjectName}/Homeworks/{homeworkId}/SetGrade")]
+        public async Task<IActionResult> SetGrade(string subjectName, int homeworkId, string studentId, int sendFileId, GradeSetInputModel input)
+        {
+            if (!this.ModelState.IsValid)
+            {
+                return this.View(input);
+            }
+
+            await this.homeworksService.SetGradeAsync(input.Mark, input.Description, homeworkId, studentId, sendFileId);
+
+            return this.RedirectToAction("Sended", "Homeworks", new { subjectName, homeworkId });
         }
     }
 }

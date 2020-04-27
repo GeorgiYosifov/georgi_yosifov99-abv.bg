@@ -20,6 +20,7 @@
         private readonly IDeletableEntityRepository<ApplicationUser> studentRepository;
         private readonly IDeletableEntityRepository<Decision> decisionRepository;
         private readonly IDeletableEntityRepository<Grade> gradeRepository;
+        private readonly IRepository<SendFile> sendFileRepository;
 
         public ExamsService(
             IDeletableEntityRepository<Subject> subjectRepository,
@@ -29,7 +30,8 @@
             IDeletableEntityRepository<Answer> answerRepository,
             IDeletableEntityRepository<ApplicationUser> studentRepository,
             IDeletableEntityRepository<Decision> decisionRepository,
-            IDeletableEntityRepository<Grade> gradeRepository)
+            IDeletableEntityRepository<Grade> gradeRepository,
+            IRepository<SendFile> sendFileRepository)
         {
             this.subjectRepository = subjectRepository;
             this.examRepository = examRepository;
@@ -39,9 +41,10 @@
             this.studentRepository = studentRepository;
             this.decisionRepository = decisionRepository;
             this.gradeRepository = gradeRepository;
+            this.sendFileRepository = sendFileRepository;
         }
 
-        public async Task CreateAsync(string subjectName, string title, string description, string fileUri, string fileDescription, ExamType type)
+        public async Task CreateAsync(string subjectName, string title, string description, string fileUri, string fileDescription, ExamType type, DateTime? open, DateTime? close)
         {
             var subject = this.subjectRepository.All().FirstOrDefault(s => s.Name == subjectName);
 
@@ -51,6 +54,8 @@
                 Subject = subject,
                 Title = title,
                 Description = description,
+                Open = open,
+                Close = close,
             };
 
             if (fileUri != string.Empty)
@@ -217,6 +222,7 @@
         public async Task<double> CalculateGradeAsync(int onlineTestId, string studentId, double points)
         {
             var test = this.onlineTestRepository.All().FirstOrDefault(t => t.Id == onlineTestId);
+            var exam = test.Exam;
             var student = this.studentRepository.All().FirstOrDefault(s => s.Id == studentId);
 
             var mark = 0.0;
@@ -240,13 +246,65 @@
             {
                 Mark = mark,
                 Student = student,
-                OnlineTest = test,
+                Exam = exam,
             };
 
             await this.gradeRepository.AddAsync(grade);
             await this.gradeRepository.SaveChangesAsync();
 
             return mark;
+        }
+
+        public IEnumerable<T> GetAllSendedSolutions<T>(int examId)
+        {
+            return this.sendFileRepository
+                .All()
+                .Where(s => s.ExamId == examId)
+                .To<T>()
+                .ToList();
+        }
+
+        public T GetExam<T>(int examId)
+        {
+            return this.examRepository
+                .All()
+                .Where(e => e.Id == examId)
+                .To<T>()
+                .FirstOrDefault();
+        }
+
+        public async Task SendSolutionAsync(string studentId, int examId, string fileUri, string fileDescription)
+        {
+            var exam = this.examRepository.All().FirstOrDefault(e => e.Id == examId);
+            var student = this.studentRepository.All().FirstOrDefault(s => s.Id == studentId);
+
+            var sendFile = new SendFile
+            {
+                CloudinaryFileUri = fileUri,
+                FileDescription = fileDescription,
+                Exam = exam,
+                Student = student,
+            };
+            exam.SendFiles.Add(sendFile);
+
+            await this.examRepository.SaveChangesAsync();
+        }
+
+        public async Task SetGradeAsync(double mark, string description, int examId, string studentId, int sendFileId)
+        {
+            var grade = new Grade
+            {
+                Mark = mark,
+                Description = description,
+                ExamId = examId,
+                StudentId = studentId,
+            };
+
+            await this.gradeRepository.AddAsync(grade);
+            await this.gradeRepository.SaveChangesAsync();
+
+            this.sendFileRepository.All().FirstOrDefault(f => f.Id == sendFileId).Grade = grade;
+            await this.sendFileRepository.SaveChangesAsync();
         }
     }
 }
