@@ -247,6 +247,10 @@
                 {
                     answerId = answer.Id;
                 }
+                else
+                {
+                    answerId = 0;
+                }
             }
 
             var studentId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);

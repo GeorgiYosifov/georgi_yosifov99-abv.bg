@@ -186,11 +186,16 @@
             var question = this.questionRepository.All().FirstOrDefault(q => q.Id == questionId);
             var student = this.studentRepository.All().FirstOrDefault(s => s.Id == studentId);
             var answer = this.answerRepository.All().FirstOrDefault(a => a.Id == answerId);
+            var points = 0.0;
+            if (answer != null)
+            {
+                points = answer.Points ?? 0;
+            }
 
             var decision = new Decision
             {
                 Content = content,
-                Points = answer.Points,
+                Points = points,
                 Type = type,
                 Question = question,
                 Student = student,
@@ -217,19 +222,17 @@
             var mark = 0.0;
             if (points < test.MinPointsFor3)
             {
-                mark = 2.00;
+                mark = 2.0;
             }
 
             var diff = points - test.MinPointsFor3;
             var digit = diff / test.Range;
-            var percentage = 100 / test.Range * (diff % test.Range) / 100;
             if (mark == 0.0)
             {
-                mark += digit;
-                mark += percentage;
+                mark += digit + 3.0;
                 if (points == test.MaxPoints)
                 {
-                    mark = 6.00;
+                    mark = 6.0;
                 }
             }
 
