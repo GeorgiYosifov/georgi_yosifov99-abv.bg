@@ -1,7 +1,6 @@
 ﻿namespace BeStudent.Services.Data
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
@@ -222,8 +221,7 @@
         public async Task<double> CalculateGradeAsync(int onlineTestId, string studentId, double points)
         {
             var test = this.onlineTestRepository.All().FirstOrDefault(t => t.Id == onlineTestId);
-            var exam = test.Exam;
-            var student = this.studentRepository.All().FirstOrDefault(s => s.Id == studentId);
+            var examId = test.ExamId;
 
             var mark = 0.0;
             if (points < test.MinPointsFor3)
@@ -245,13 +243,12 @@
             var grade = new Grade
             {
                 Mark = mark,
-                Student = student,
-                Exam = exam,
+                StudentId = studentId,
+                ExamId = examId,
             };
 
             await this.gradeRepository.AddAsync(grade);
             await this.gradeRepository.SaveChangesAsync();
-
             return mark;
         }
 

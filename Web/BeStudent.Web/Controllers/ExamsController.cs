@@ -11,6 +11,7 @@
     using BeStudent.Web.ViewModels.Exam;
     using BeStudent.Web.ViewModels.Grade;
     using BeStudent.Web.ViewModels.SendFile;
+    using BeStudent.Web.ViewModels.Student;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
 
@@ -315,7 +316,7 @@
 
         [Authorize(Roles = "Lector, User")]
         [HttpGet("Exams/{onlineTestId}/ReviewTest/{studentId}")]
-        public IActionResult ReviewTest(int onlineTestId, string studentId)
+        public IActionResult ReviewTest(int onlineTestId, string studentId, [FromQuery] string role)
         {
             var onlineTestModel = this.examsService.GetTest<OnlineTestReviewViewModel>(onlineTestId);
             if (onlineTestModel == null)
@@ -323,9 +324,41 @@
                 return this.NotFound();
             }
 
+            onlineTestModel.HasOpenAnswers = false;
+            if (role == "Lector")
+            {
+                var count = onlineTestModel
+                    .Questions
+                    .Where(q => q.Answers.Any(a => a.Type.ToString() != "RadioButtons"))
+                    .Count();
+                if (count != 0)
+                {
+                    onlineTestModel.HasOpenAnswers = true;
+                    onlineTestModel.SetPoints = new List<SetPointsInputModel>();
+                    for (int i = 0; i < count; i++)
+                    {
+                        onlineTestModel.SetPoints.Add(new SetPointsInputModel());
+                    }
+                }
+            }
+
             var student = onlineTestModel.Students.FirstOrDefault(s => s.Id == studentId);
             onlineTestModel.Student = student;
             return this.View(onlineTestModel);
+        }
+
+        [Authorize(Roles = "Lector")]
+        [HttpPost("Exams/{onlineTestId}/ReviewTest/{studentId}")]
+        public async Task<IActionResult> ReviewTest(int onlineTestId, string studentId, OnlineTestReviewViewModel input)
+        {
+            if (!this.ModelState.IsValid)
+            {
+                return this.View(input);
+            }
+
+            var points = input.SetPoints.Sum(f => f.Points);
+            await this.examsService.CalculateGradeAsync(onlineTestId, studentId, points);
+            return this.RedirectToAction("SendedTests", "Exams", new { onlineTestId });
         }
 
         [Authorize(Roles = "User, Lector")]
@@ -419,6 +452,15 @@
             await this.examsService.SetGradeAsync(input.Mark, input.Description, examId, studentId, sendFileId);
 
             return this.RedirectToAction("SendedSolutions", "Exams", new { subjectName, examId });
+        }
+
+        [Authorize(Roles = "Lector")]
+        [HttpGet("Exams/{onlineTestId}/SendedTests")]
+        public IActionResult SendedTests(int onlineTestId)
+        {
+            var viewModel = this.examsService.GetTest<OnlineTestSendedTestsViewModel>(onlineTestId);
+
+            return this.View(viewModel);
         }
     }
 }

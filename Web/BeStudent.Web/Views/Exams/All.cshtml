@@ -38,6 +38,9 @@
                     <a class="btn btn-primary mb-2 ml-5 w-25" asp-controller="Exams" asp-action="StartTest" asp-route-onlineTestId="@test.Id">
                         Start Test
                     </a>
+                    <a class="btn btn-primary m-4 ml-5 w-25" asp-controller="Exams" asp-action="SendedTests" asp-route-onlineTestId="@test.Id">
+                        Sended Tests
+                    </a>
                 }
             }
             else if (exam.Type == "OnlineExam")

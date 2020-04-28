@@ -1,7 +1,9 @@
 ﻿@model BeStudent.Web.ViewModels.Exam.OnlineTestReviewViewModel
 @{
     this.ViewData["Title"] = "Review";
+    var role = Context.Request.Query["role"];
     var counter = 1;
+    var counterForPointsField = 0;
 }
 
 <div class="container">
@@ -11,74 +13,91 @@
         <h5>@($"{Model.Student.Email}")</h5>
         <br />
     </div>
-    @foreach (var question in Model.Questions)
-    {
-        var decision = question.Decisions.FirstOrDefault(d => d.StudentId == Model.Student.Id);
-        var color = "secondary";
-        if (decision.Type == "RadioButtons")
+
+    <form method="post" asp-controller="Exams" asp-action="ReviewTest" asp-route-onlineTestId="@Model.Id" asp-route-studentId="@Model.Student.Id">
+        @foreach (var question in Model.Questions)
         {
-            if (decision.Points > 0) color = "success";
-            else color = "danger";
-        }
+            var decision = question.Decisions.FirstOrDefault(d => d.StudentId == Model.Student.Id);
+            var color = "secondary";
+            if (decision.Type == "RadioButtons")
+            {
+                if (decision.Points > 0) color = "success";
+                else color = "danger";
+            }
 
-        <div class="card mb-3">
-            <div class="card-body text-white bg-@color">
-                <h5 class="card-title">@($"Question {counter}: {question.Condition}")</h5>
-                @{
-                    counter++;
-                }
-                @if (question.File != null)
-                {
-                    <img src="@question.File.CloudinaryFileUri" alt="@question.File.FileDescription" style="width:500px;height:200px;">
-                    <br />
-                }
-
-                @if (question.Answers.FirstOrDefault().Type.ToString() == "RadioButtons")
-                {
-                    var correctAnswerContent = "";
-                    var correctAnswerPoints = 0.0;
-                    foreach (var answer in question.Answers)
+            <div class="card mb-3">
+                <div class="card-body text-white bg-@color">
+                    <h5 class="card-title">@($"Question {counter}: {question.Condition}")</h5>
+                    @{
+                        counter++;
+                    }
+                    @if (question.File != null)
                     {
-                        if (answer.Points > 0)
+                        <img src="@question.File.CloudinaryFileUri" alt="@question.File.FileDescription" style="width:500px;height:200px;">
+                        <br />
+                    }
+
+                    @if (question.Answers.FirstOrDefault().Type.ToString() == "RadioButtons")
+                    {
+                        var correctAnswerContent = "";
+                        var correctAnswerPoints = 0.0;
+                        foreach (var answer in question.Answers)
                         {
-                            correctAnswerContent = answer.Text;
-                            correctAnswerPoints = answer.Points;
-                        }
-                        if (answer.Text == decision.Content)
-                        {
-                            <input type="radio" value="@answer.Text" checked>@answer.Text
                             if (answer.Points > 0)
                             {
-                                <span style="font-size: 1em; color: orangered;">
-                                    <i class="fas fa-check"></i>
-                                </span>
+                                correctAnswerContent = answer.Text;
+                                correctAnswerPoints = answer.Points;
+                            }
+                            if (answer.Text == decision.Content)
+                            {
+                                <input type="radio" value="@answer.Text" checked>@answer.Text
+                                if (answer.Points > 0)
+                                {
+                                    <span style="font-size: 1em; color: orangered;">
+                                        <i class="fas fa-check"></i>
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span style="font-size: 1em; color: orangered;">
+                                        <i class="fas fa-times"></i>
+                                    </span>
+                                }
+                                <br />
                             }
                             else
                             {
-                                <span style="font-size: 1em; color: orangered;">
-                                    <i class="fas fa-times"></i>
-                                </span>
+                                <input type="radio" class="disabled" value="@answer.Text" />@answer.Text<br />
                             }
-                            <br />
                         }
-                        else
+                        <br />
+                        <div class="alert alert-success" role="alert">
+                            Correct answer: @correctAnswerContent
+                            <p class="mb-0">Gives @correctAnswerPoints points</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <p>@Html.Raw(decision.SanitizedContent)</p>
+                        @if (role == "Lector" && Model.HasOpenAnswers == true)
                         {
-                            <input type="radio" class="disabled" value="@answer.Text" />@answer.Text<br />
+                            <div class="form-group">
+                                <label asp-for="SetPoints[counterForPointsField].Points"></label>
+                                <input asp-for="SetPoints[counterForPointsField].Points" class="form-control" />
+                                <span asp-validation-for="SetPoints[counterForPointsField].Points" class="text-danger"></span>
+                            </div>
+                            counterForPointsField++;
                         }
                     }
-                    <br />
-                    <div class="alert alert-success" role="alert">
-                        Correct answer: @correctAnswerContent
-                        <p class="mb-0">Gives @correctAnswerPoints points</p>
-                    </div>
-                }
-                else
-                {
-                    <p>@Html.Raw(decision.SanitizedContent)</p>
-                }
+                </div>
             </div>
-        </div>
-    }
+        }
+
+        @if (role == "Lector" && Model.HasOpenAnswers == true)
+        {
+            <input type="submit" class="btn btn-primary" value="Create grade" />
+        }
+    </form>
 </div>
 
 @section Scripts {
