@@ -1,0 +1,68 @@
+﻿@model BeStudent.Web.ViewModels.Semester.SemesterForGradesViewModel
+@{
+    this.ViewData["Title"] = "Grades";
+}
+
+<div class="container">
+    <div class="text-center">
+        <h1 class="display-4">@this.ViewData["Title"]</h1>
+    </div>
+</div>
+
+<table class="table table-sm table-dark">
+    <thead>
+        <tr>
+            <th scope="col">Subject</th>
+            <th scope="col">Homeworks</th>
+            <th scope="col">Exams</th>
+        </tr>
+    </thead>
+    @foreach (var subject in Model.Subjects)
+    {
+        <tbody>
+            <tr>
+                <td>@subject.Name</td>
+                <td>
+                    <table class="table table-sm table-dark">
+                        <tbody>
+                            @foreach (var homework in subject.Homeworks)
+                            {
+                                <tr>
+                                    <td>@homework.Title</td>
+                                    @{
+                                        var grade = homework.Grades
+                                            .FirstOrDefault(g => g.StudentId == Model.StudentId && g.HomeworkId == homework.Id);
+                                        if (grade != null)
+                                        {
+                                            <td>@grade.Mark</td>
+                                        }
+                                    }
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </td>
+                <td>
+                    <table class="table table-sm table-dark">
+                        <tbody>
+                            @foreach (var exam in subject.Exams)
+                            {
+                                <tr>
+                                    <td>@exam.Type.ToString()</td>
+                                    @{
+                                        var grade = exam.Grades
+                                            .FirstOrDefault(g => g.StudentId == Model.StudentId && g.ExamId == exam.Id);
+                                        if (grade != null)
+                                        {
+                                            <td>@grade.Mark</td>
+                                        }
+                                    }
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+        </tbody>
+    }
+</table>
