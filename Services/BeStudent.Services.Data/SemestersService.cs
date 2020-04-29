@@ -11,10 +11,42 @@
     public class SemestersService : ISemestersService
     {
         private readonly IDeletableEntityRepository<Semester> semesterRepository;
+        private readonly IDeletableEntityRepository<ApplicationUser> userRepository;
+        private readonly IDeletableEntityRepository<StudentSubject> userSubjectRepository;
+        private readonly IDeletableEntityRepository<StudentSemester> userSemesterRepository;
 
-        public SemestersService(IDeletableEntityRepository<Semester> semesterRepository)
+        public SemestersService(
+            IDeletableEntityRepository<Semester> semesterRepository,
+            IDeletableEntityRepository<ApplicationUser> userRepository,
+            IDeletableEntityRepository<StudentSubject> userSubjectRepository,
+            IDeletableEntityRepository<StudentSemester> userSemesterRepository)
         {
             this.semesterRepository = semesterRepository;
+            this.userRepository = userRepository;
+            this.userSubjectRepository = userSubjectRepository;
+            this.userSemesterRepository = userSemesterRepository;
+        }
+
+        public async Task AddLectorAsync(int subjectId, int semesterId, string email)
+        {
+            var lector = this.userRepository.All().FirstOrDefault(u => u.Email == email);
+            var userSubject = new StudentSubject
+            {
+                StudentId = lector.Id,
+                SubjectId = subjectId,
+            };
+
+            await this.userSubjectRepository.AddAsync(userSubject);
+            await this.userSubjectRepository.SaveChangesAsync();
+
+            var userSemester = new StudentSemester
+            {
+                StudentId = lector.Id,
+                SemesterId = semesterId,
+            };
+
+            await this.userSemesterRepository.AddAsync(userSemester);
+            await this.userSemesterRepository.SaveChangesAsync();
         }
 
         public async Task CreateAsync(int number, int year, string courseName, int courseId)

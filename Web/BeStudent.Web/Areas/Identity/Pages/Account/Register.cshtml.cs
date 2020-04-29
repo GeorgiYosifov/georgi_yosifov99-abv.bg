@@ -8,6 +8,8 @@
     using System.Text.Encodings.Web;
     using System.Threading.Tasks;
 
+    using BeStudent.Data;
+    using BeStudent.Data.Models;
     using Microsoft.AspNetCore.Authentication;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Identity;
@@ -16,8 +18,6 @@
     using Microsoft.AspNetCore.Mvc.RazorPages;
     using Microsoft.AspNetCore.WebUtilities;
     using Microsoft.Extensions.Logging;
-    using BeStudent.Data;
-    using BeStudent.Data.Models;
 
     [AllowAnonymous]
     public class RegisterModel : PageModel
@@ -136,6 +136,7 @@
 
                         code.IsUsed = true;
                         user.Role = "Lector";
+                        user.CodeForRegister = this.Input.Code;
                     }
                     else
                     {

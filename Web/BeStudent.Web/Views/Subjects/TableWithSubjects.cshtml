@@ -17,7 +17,12 @@
             <tr>
                 <th scope="row">@count</th>
                 <td>@subject.Name</td>
-                <td>@string.Join(", ", subject.Lectors)</td>
+                <td>
+                    @string.Join(", ", subject.Lectors)
+                    <a class="ml-2" asp-controller="Semesters" asp-action="AddLector" asp-route-subjectId="@subject.Id" asp-route-semesterId="@semesterId" style="font-size: 1.5em;">
+                        <i class="fas fa-plus"></i>
+                    </a>
+                </td>
             </tr>
         </tbody>
     }

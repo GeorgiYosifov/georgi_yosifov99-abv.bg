@@ -13,7 +13,9 @@
         {
             var remain = (semester.Year % 100) + 1;
             <li class="list-group-item">
-                <a class="m-2" href="~/Semesters/Details/@semester.Id">@($"{semester.Year} / {remain} {semester.SemesterType} semester {semester.Number}")</a>
+                <a class="m-2" asp-controller="Semesters"  asp-action="Details" asp-route-semesterId="@semester.Id">
+                    @($"{semester.Year} / {remain} {semester.SemesterType} semester {semester.Number}")
+                </a>
             </li>
         }
         <a class="btn btn-secondary m-4 w-25" asp-controller="Semesters" asp-action="Create" asp-route-courseName="@Model.Name" asp-route-courseId="@Model.Id">

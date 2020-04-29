@@ -4,6 +4,7 @@
 
     using BeStudent.Services.Data;
     using BeStudent.Web.ViewModels.Semester;
+    using BeStudent.Web.ViewModels.Subject;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
 
@@ -43,15 +44,43 @@
         }
 
         [Authorize(Roles = "Administrator")]
-        public IActionResult Details(int id)
+        [HttpGet("Semesters/{semesterId}/Details")]
+        public IActionResult Details(int semesterId)
         {
-            var semesterViewModel = this.semestersService.GetDetails<SemesterDetailsViewModel>(id);
+            var semesterViewModel = this.semestersService.GetDetails<SemesterDetailsViewModel>(semesterId);
             if (semesterViewModel == null)
             {
                 return this.NotFound();
             }
 
             return this.View(semesterViewModel);
+        }
+
+        [Authorize(Roles = "Administrator")]
+        [HttpGet("Subjects/{subjectId}/AddLector")]
+        public IActionResult AddLector(int subjectId, [FromQuery] int semesterId)
+        {
+            var model = new SubjectAddLectorInputModel
+            {
+                SemesterId = semesterId,
+                SubjectId = subjectId,
+            };
+
+            return this.View(model);
+        }
+
+        [Authorize(Roles = "Administrator")]
+        [HttpPost("Subjects/{subjectId}/AddLector")]
+        public async Task<IActionResult> AddLector(int subjectId, [FromQuery] int semesterId, SubjectAddLectorInputModel input)
+        {
+            if (!this.ModelState.IsValid)
+            {
+                return this.View(input);
+            }
+
+            await this.semestersService.AddLectorAsync(subjectId, semesterId, input.Email);
+
+            return this.RedirectToAction("Details", "Semesters", new { semesterId });
         }
     }
 }
