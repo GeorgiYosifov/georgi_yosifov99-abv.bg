@@ -16,6 +16,8 @@
 
         public string Name { get; set; }
 
+        public decimal Price { get; set; }
+
         public int SemesterId { get; set; }
 
         public virtual Semester Semester { get; set; }

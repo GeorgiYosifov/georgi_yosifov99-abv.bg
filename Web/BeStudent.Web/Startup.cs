@@ -82,6 +82,7 @@
             services.AddTransient<IHomeworksService, HomeworksService>();
             services.AddTransient<IExamsService, ExamsService>();
             services.AddTransient<IGradesService, GradesService>();
+            services.AddTransient<IPaymentsService, PaymentsService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

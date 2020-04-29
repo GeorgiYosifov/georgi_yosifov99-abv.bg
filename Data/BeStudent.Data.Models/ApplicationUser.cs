@@ -30,6 +30,8 @@ namespace BeStudent.Data.Models
 
         public string CourseName { get; set; }
 
+        public bool HasPayment { get; set; }
+
         public string Role { get; set; }
 
         public virtual ICollection<StudentSemester> StudentSemesters { get; set; }

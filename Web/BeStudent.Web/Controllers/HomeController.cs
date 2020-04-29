@@ -14,16 +14,12 @@
     using BeStudent.Services.Data;
     using BeStudent.Services.Messaging;
     using BeStudent.Web.ViewModels;
-    using BeStudent.Web.ViewModels.Home;
     using CloudinaryDotNet;
     using CloudinaryDotNet.Actions;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
-
-    using PayPal.Core;
-    using PayPal.v1.Payments;
 
     public class HomeController : BaseController
     {
@@ -115,98 +111,6 @@
             return this.Ok("Tam sa");
         }
 
-        public async Task<ActionResult> Pay()
-        {
-            var environment = new SandboxEnvironment("AewO0fN7c6GuMMO0fIQq_0qILiDOf4ASjy1cJTarVYmeNJPbePQ1mnV4g-HoTpvKMPShpl3q9x7hxILi", "EGXduWBuSMzgSI5G7ikWf1fBUn42tOCPNzXMh1Li6yumI4AIQatBZ0NOCYrtqLD5fbm2Y8B18I-aveD7");
-            var client = new PayPalHttpClient(environment);
-
-            var payment = new PayPal.v1.Payments.Payment()
-            {
-                Intent = "sale",
-                Transactions = new List<Transaction>()
-                {
-                    new Transaction()
-                    {
-                        Amount = new Amount()
-                        {
-                            Total = "10",
-                            Currency = "USD",
-                        },
-                    },
-                },
-                RedirectUrls = new RedirectUrls()
-                {
-                    ReturnUrl = "https://localhost:44319/Home/Execute",
-                    CancelUrl = "https://localhost:44319/Home/Privacy",
-                },
-                Payer = new Payer()
-                {
-                    PaymentMethod = "paypal",
-                },
-            };
-
-            PaymentCreateRequest request = new PaymentCreateRequest();
-            request.RequestBody(payment);
-
-            System.Net.HttpStatusCode statusCode;
-
-            try
-            {
-                BraintreeHttp.HttpResponse response = await client.Execute(request);
-                statusCode = response.StatusCode;
-                Payment result = response.Result<Payment>();
-
-                string redirectUrl = null;
-                foreach (LinkDescriptionObject link in result.Links)
-                {
-                    if (link.Rel.Equals("approval_url"))
-                    {
-                        redirectUrl = link.Href;
-                    }
-                }
-
-                if (redirectUrl == null)
-                {
-                    // Didn't find an approval_url in response.Links
-                    return this.Json("Failed to find an approval_url in the response!");
-                }
-                else
-                {
-                    var model = new PayModel()
-                    {
-                        Url = redirectUrl,
-                    };
-
-                    return this.View(model);
-                }
-            }
-            catch (BraintreeHttp.HttpException ex)
-            {
-                statusCode = ex.StatusCode;
-                var debugId = ex.Headers.GetValues("PayPal-Debug-Id").FirstOrDefault();
-                return this.Json("Request failed!  HTTP response code was " + statusCode + ", debug ID was " + debugId);
-            }
-        }
-
-        public async Task<IActionResult> Execute(string PayerID, string paymentId)
-        {
-            var environment = new SandboxEnvironment("AewO0fN7c6GuMMO0fIQq_0qILiDOf4ASjy1cJTarVYmeNJPbePQ1mnV4g-HoTpvKMPShpl3q9x7hxILi", "EGXduWBuSMzgSI5G7ikWf1fBUn42tOCPNzXMh1Li6yumI4AIQatBZ0NOCYrtqLD5fbm2Y8B18I-aveD7");
-            var client = new PayPalHttpClient(environment);
-
-            PaymentExecuteRequest request = new PaymentExecuteRequest(paymentId);
-            request.RequestBody(new PaymentExecution()
-            {
-                PayerId = PayerID,
-            });
-
-            var response = await client.Execute<PaymentExecuteRequest>(request);
-            var statusCode = response.StatusCode;
-            var result = response.Result<Payment>();
-
-            return this.Json($"gotovo {statusCode}");
-        }
-
-        //[Authorize(Roles = "Administrator")]
         public IActionResult Index()
         {
             return this.View();

@@ -186,10 +186,10 @@
             }
 
             var studentId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            //if (onlineTestModel.Students.FirstOrDefault(s => s.Id == studentId) != null)
-            //{
-            //    return this.RedirectToAction("FinishTest", "Exams", new { onlineTestId });
-            //}
+            if (onlineTestModel.Students.FirstOrDefault(s => s.Id == studentId) != null)
+            {
+                return this.RedirectToAction("FinishTest", "Exams", new { onlineTestId });
+            }
 
             await this.examsService.AddStudentInTest(onlineTestId, studentId);
 

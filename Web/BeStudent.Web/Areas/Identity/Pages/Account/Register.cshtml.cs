@@ -67,9 +67,6 @@
             [Display(Name = "Course Name")]
             public string CourseName { get; set; }
 
-            [Display(Name = "Semester Number")]
-            public int? SemesterNumber { get; set; }
-
             [Display(Name = "Code for lector")]
             public string Code { get; set; }
 
@@ -97,6 +94,11 @@
             this.ExternalLogins = (await this._signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
             if (this.ModelState.IsValid)
             {
+                if (this.Input.CourseName == null && this.Input.Code == null)
+                {
+                    return this.BadRequest("You did not fill in all fields!");
+                }
+
                 var user = new ApplicationUser
                 {
                     FirstName = this.Input.FirstName,
@@ -104,17 +106,11 @@
                     UserName = this.Input.Email,
                     Email = this.Input.Email,
                 };
-                if (this.Input.CourseName != null && this.Input.SemesterNumber != null)
+                if (this.Input.CourseName != null)
                 {
                     user.CourseName = this.Input.CourseName;
                     user.Role = "User";
-                    var semester = this.dbContext.Semesters
-                        .FirstOrDefault(s => s.Course.Name == this.Input.CourseName && s.Number == this.Input.SemesterNumber);
-                    this.dbContext.StudentSemesters.Add(new StudentSemester
-                    {
-                        Student = user,
-                        Semester = semester,
-                    });
+                    user.HasPayment = false;
                 }
                 else if (this.Input.Code != null)
                 {

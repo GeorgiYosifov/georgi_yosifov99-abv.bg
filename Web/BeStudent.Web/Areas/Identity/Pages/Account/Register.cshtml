@@ -51,11 +51,6 @@
                     <input asp-for="Input.CourseName" class="form-control" />
                     <span asp-validation-for="Input.CourseName" class="text-danger"></span>
                 </div>
-                <div id="SemesterNumberInput" class="form-group">
-                    <label asp-for="Input.SemesterNumber"></label>
-                    <input asp-for="Input.SemesterNumber" class="form-control" />
-                    <span asp-validation-for="Input.SemesterNumber" class="text-danger"></span>
-                </div>
 
                 <div id="CodeInput" class="form-group">
                     <label asp-for="Input.Code"></label>
@@ -66,7 +61,7 @@
                 <button id="btnSubmit" type="submit" class="btn btn-primary">Register</button>
             </form>
         </div>
-        <div class="col-md-6 col-md-offset-2">
+        @*<div class="col-md-6 col-md-offset-2">
             <section>
                 <h4>Use another service to register.</h4>
                 <hr />
@@ -95,7 +90,7 @@
                     }
                 }
             </section>
-        </div>
+        </div>*@
     </div>
 
     @section Scripts {
@@ -104,7 +99,6 @@
             $(document).ready(function () {
                 function hideAll() {
                     $('#CourseNameInput').hide();
-                    $('#SemesterNumberInput').hide();
                     $('#CodeInput').hide();
                     $('#btnSubmit').hide();
                 };
@@ -112,7 +106,6 @@
                 $('#btnStudent').click(function () {
                     hideAll();
                     $('#CourseNameInput').show();
-                    $('#SemesterNumberInput').show();
                     $('#btnSubmit').show();
                 });
                 $('#btnLector').click(function () {
