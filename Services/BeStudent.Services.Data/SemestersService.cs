@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
 
     using BeStudent.Data.Common.Repositories;
     using BeStudent.Data.Models;
@@ -14,6 +15,20 @@
         public SemestersService(IDeletableEntityRepository<Semester> semesterRepository)
         {
             this.semesterRepository = semesterRepository;
+        }
+
+        public async Task CreateAsync(int number, int year, string courseName, int courseId)
+        {
+            var semester = new Semester
+            {
+                Number = number,
+                Year = year,
+                CourseName = courseName,
+                CourseId = courseId,
+            };
+
+            await this.semesterRepository.AddAsync(semester);
+            await this.semesterRepository.SaveChangesAsync();
         }
 
         public IEnumerable<T> GetAll<T>(string courseName)

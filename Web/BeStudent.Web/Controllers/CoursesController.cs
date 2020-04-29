@@ -5,7 +5,6 @@
 
     using BeStudent.Services.Data;
     using BeStudent.Web.ViewModels.Course;
-    using BeStudent.Web.ViewModels.Home;
     using BeStudent.Web.ViewModels.Semester;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
@@ -21,22 +20,23 @@
             this.semestersService = semestersService;
         }
 
-        [Authorize]
-        [HttpGet("Courses/{name}")]
-        public IActionResult ByName(string name)
+        [Authorize(Roles = "Administrator")]
+        [HttpGet("Courses/{courseName}")]
+        public IActionResult ByName(string courseName, [FromQuery] int courseId)
         {
-            var semesters = this.semestersService.GetAll<SemesterViewModel>(name).OrderBy(s => s.Number);
+            var semesters = this.semestersService.GetAll<SemesterViewModel>(courseName).OrderBy(s => s.Number);
 
             var viewModel = new CourseWithSemestersViewModel
             {
-                Name = name,
+                Id = courseId,
+                Name = courseName,
                 Semesters = semesters,
             };
 
             return this.View(viewModel);
         }
 
-        [Authorize]
+        [Authorize(Roles = "Administrator")]
         public IActionResult All()
         {
             var viewModel = new CoursesListViewModel
@@ -47,13 +47,13 @@
             return this.View(viewModel);
         }
 
-        [Authorize]
+        [Authorize(Roles = "Administrator")]
         public IActionResult Create()
         {
             return this.View();
         }
 
-        [Authorize]
+        [Authorize(Roles = "Administrator")]
         [HttpPost]
         public async Task<IActionResult> Create(CourseCreateInputModel input)
         {

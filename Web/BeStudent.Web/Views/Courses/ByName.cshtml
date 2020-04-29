@@ -1,4 +1,5 @@
-﻿@{
+﻿@model BeStudent.Web.ViewModels.Course.CourseWithSemestersViewModel
+@{
     this.ViewData["Title"] = $"Course {Model.Name}";
 }
 
@@ -15,6 +16,8 @@
                 <a class="m-2" href="~/Semesters/Details/@semester.Id">@($"{semester.Year} / {remain} {semester.SemesterType} semester {semester.Number}")</a>
             </li>
         }
-        <button class="btn btn-secondary m-4 w-25" asp-action="Create">Add</button>
+        <a class="btn btn-secondary m-4 w-25" asp-controller="Semesters" asp-action="Create" asp-route-courseName="@Model.Name" asp-route-courseId="@Model.Id">
+            Add
+        </a>
     </ul>
 </div>

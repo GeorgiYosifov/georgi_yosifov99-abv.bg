@@ -1,4 +1,4 @@
-﻿namespace BeStudent.Web.ViewModels.Home
+﻿namespace BeStudent.Web.ViewModels.Course
 {
     using System.Collections.Generic;
 

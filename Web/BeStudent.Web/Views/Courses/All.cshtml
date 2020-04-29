@@ -1,4 +1,5 @@
-﻿@{
+﻿@model BeStudent.Web.ViewModels.Course.CoursesListViewModel
+@{
     this.ViewData["Title"] = "List of all courses";
 }
 
@@ -12,7 +13,9 @@
         {
             <li class="list-group-item">
                 <i class="fas fa-university"></i>
-                <a class="m-2" href="@course.Name">@course.Name</a>
+                <a class="m-2" asp-controller="Courses" asp-action="ByName" asp-route-courseName="@course.Name" asp-route-courseId="@course.Id">
+                    @course.Name
+                </a>
             </li>
         }
     </ul>
