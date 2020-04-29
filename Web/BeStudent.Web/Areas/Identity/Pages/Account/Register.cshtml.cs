@@ -110,7 +110,7 @@
                 {
                     user.CourseName = this.Input.CourseName;
                     user.Role = "User";
-                    user.HasPayment = false;
+                    user.SemesterNumber = 0;
                 }
                 else if (this.Input.Code != null)
                 {

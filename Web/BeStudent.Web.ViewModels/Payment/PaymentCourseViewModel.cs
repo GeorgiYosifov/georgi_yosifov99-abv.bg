@@ -1,12 +1,9 @@
 ﻿namespace BeStudent.Web.ViewModels.Payment
 {
-    using System.Collections.Generic;
-
-    using BeStudent.Data.Models;
-    using BeStudent.Services.Mapping;
-
-    public class PaymentCourseViewModel : IMapFrom<Course>
+    public class PaymentCourseViewModel
     {
-        public IEnumerable<PaymentSemesterViewModel> Semesters { get; set; }
+        public string Name { get; set; }
+
+        public PaymentSemesterViewModel Semester { get; set; }
     }
 }

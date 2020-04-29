@@ -4,8 +4,8 @@ namespace BeStudent.Data.Models
     using System;
     using System.Collections.Generic;
 
-    using Microsoft.AspNetCore.Identity;
     using BeStudent.Data.Common.Models;
+    using Microsoft.AspNetCore.Identity;
 
     public class ApplicationUser : IdentityUser, IAuditInfo, IDeletableEntity
     {
@@ -30,7 +30,7 @@ namespace BeStudent.Data.Models
 
         public string CourseName { get; set; }
 
-        public bool HasPayment { get; set; }
+        public int SemesterNumber { get; set; }
 
         public string Role { get; set; }
 

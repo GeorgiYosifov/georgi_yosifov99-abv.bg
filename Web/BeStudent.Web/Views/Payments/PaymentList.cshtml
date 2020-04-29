@@ -1,0 +1,22 @@
+﻿<div class="container">
+    <ul class="list-group list-group-flush mt-3">
+        @{
+            var total = 0.0m;
+        }
+        @foreach (var subject in Model)
+        {
+            total += subject.Price;
+            <li class="list-group-item">
+                <h3 class="ml-1">@subject.Name</h3>
+                <p class="ml-2">@subject.Price</p>
+            </li>
+        }
+        <li class="list-group-item">
+            <hr />
+            <h3 class="ml-2">Total price: @total</h3>
+        </li>
+    </ul>
+    <a class="btn btn-lg btn-primary m-4 w-auto" asp-controller="Payments" asp-action="Pay" asp-route-money="@total">
+        PayPal
+    </a>
+</div>

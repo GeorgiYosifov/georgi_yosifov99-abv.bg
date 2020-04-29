@@ -1,7 +1,7 @@
 ﻿namespace BeStudent.Services.Data
 {
-    using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
 
     using BeStudent.Data.Common.Repositories;
     using BeStudent.Data.Models;
@@ -11,13 +11,19 @@
     {
         private readonly IDeletableEntityRepository<Semester> semesterRepository;
         private readonly IDeletableEntityRepository<ApplicationUser> userRepository;
+        private readonly IDeletableEntityRepository<StudentSemester> studentSemesterRepository;
+        private readonly IDeletableEntityRepository<StudentSubject> studentSubjectRepository;
 
         public PaymentsService(
             IDeletableEntityRepository<Semester> semesterRepository,
-            IDeletableEntityRepository<ApplicationUser> userRepository)
+            IDeletableEntityRepository<ApplicationUser> userRepository,
+            IDeletableEntityRepository<StudentSemester> studentSemesterRepository,
+            IDeletableEntityRepository<StudentSubject> studentSubjectRepository)
         {
             this.semesterRepository = semesterRepository;
             this.userRepository = userRepository;
+            this.studentSemesterRepository = studentSemesterRepository;
+            this.studentSubjectRepository = studentSubjectRepository;
         }
 
         public T GetUser<T>(string userId)
@@ -29,13 +35,49 @@
                 .FirstOrDefault();
         }
 
-        public IEnumerable<T> GetSemesters<T>(string courseName, bool hasPayment, int year)
+        public T GetSemester<T>(string courseName, int nextNumber, int year)
         {
             return this.semesterRepository
                 .All()
-                .Where(s => hasPayment == true ? s.Number != 1 : s.Number == 1 && s.Year >= year && s.CourseName == courseName)
+                .Where(s => s.Year >= year && s.CourseName == courseName && s.Number == nextNumber)
                 .To<T>()
-                .ToList();
+                .FirstOrDefault();
+        }
+
+        public async Task RegisterUserAsync(string userId, Semester semester)
+        {
+            var userSemester = new StudentSemester
+            {
+                StudentId = userId,
+                SemesterId = semester.Id,
+            };
+
+            await this.studentSemesterRepository.AddAsync(userSemester);
+            await this.studentSemesterRepository.SaveChangesAsync();
+
+            foreach (var subject in semester.Subjects)
+            {
+                var userSubject = new StudentSubject
+                {
+                    StudentId = userId,
+                    SubjectId = subject.Id,
+                };
+
+                await this.studentSubjectRepository.AddAsync(userSubject);
+            }
+
+            await this.studentSubjectRepository.SaveChangesAsync();
+
+            var student = this.userRepository.All().FirstOrDefault(u => u.Id == userId);
+            student.SemesterNumber++;
+            await this.userRepository.SaveChangesAsync();
+        }
+
+        public Semester GetSemester(string courseName, int nextNumber, int year)
+        {
+            return this.semesterRepository
+                .All()
+                .FirstOrDefault(s => s.Year >= year && s.CourseName == courseName && s.Number == nextNumber);
         }
     }
 }

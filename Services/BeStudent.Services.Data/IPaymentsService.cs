@@ -1,13 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace BeStudent.Services.Data
+﻿namespace BeStudent.Services.Data
 {
+    using System.Threading.Tasks;
+
+    using BeStudent.Data.Models;
+
     public interface IPaymentsService
     {
+        Task RegisterUserAsync(string userId, Semester semester);
+
         T GetUser<T>(string userId);
 
-        IEnumerable<T> GetSemesters<T>(string courseName, bool hasPayment, int year);
+        T GetSemester<T>(string courseName, int nextNumber, int year);
+
+        Semester GetSemester(string courseName, int nextNumber, int year);
     }
 }

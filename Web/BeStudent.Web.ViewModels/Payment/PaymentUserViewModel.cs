@@ -7,6 +7,6 @@
     {
         public string CourseName { get; set; }
 
-        public bool HasPayment { get; set; }
+        public int SemesterNumber { get; set; }
     }
 }

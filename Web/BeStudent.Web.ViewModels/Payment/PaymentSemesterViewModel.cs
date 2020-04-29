@@ -7,6 +7,8 @@
 
     public class PaymentSemesterViewModel : IMapFrom<Semester>
     {
+        public int Id { get; set; }
+
         public int Number { get; set; }
 
         public int Year { get; set; }
@@ -26,6 +28,6 @@
             }
         }
 
-        public IEnumerable<Subject> Subjects { get; set; }
+        public IList<PaymentSubjectViewModel> Subjects { get; set; }
     }
 }
