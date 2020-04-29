@@ -120,7 +120,6 @@
                 <i class="fa fa-calendar fa-3x mr-3"></i>
                 <h2 class="month font-weight-bold mb-0 text-uppercase">@($"{month} {year}")</h2>
             </div>
-            @*<p class="font-italic text-muted mb-5">No events for this day.</p>*@
 
             <ol class="day-names list-unstyled">
                 <li class="font-weight-bold text-uppercase">Mon</li>
@@ -148,19 +147,22 @@
                         {
                             var diff = Math.Abs(homework.DeadLine.Day - homework.CreatedOn.Day - 1);
                             var width = diff * 100 + 100;
+                            var content = $"Closing time in {homework.DeadLine.Hour}:{homework.DeadLine.Minute}";
                             if (d == homework.CreatedOn.Day && d == homework.DeadLine.Day)
                             {
-                                <div class="event bg-warning">@homework.Title</div>
+                                <div class="event bg-warning" data-toggle="popover" title="Homework" data-content="@content">
+                                    @homework.Title
+                                </div>
                             }
                             else if (d == homework.CreatedOn.Day)
                             {
-                                <div style='width: @(width)%' class="event all-day begin bg-warning" data-toggle="popover" title="Homework" data-content="@($"Closing time in {homework.DeadLine.Hour}:{homework.DeadLine.Minute}")">
+                                <div style='width: @(width)%' class="event all-day begin bg-secondary" data-toggle="popover" title="Homework" data-content="@content">
                                     @homework.Title
                                 </div>
                             }
                             else if (d == homework.DeadLine.Day)
                             {
-                                <div class="event all-day end bg-warning" data-toggle="popover" title="Homework" data-content="@($"Closing time in {homework.DeadLine.Hour}:{homework.DeadLine.Minute}")"></div>
+                                <div class="event all-day end bg-secondary" data-toggle="popover" title="Homework" data-content="@content"></div>
                             }
                         }
                         @foreach (var exam in Model.Exams)
@@ -169,17 +171,20 @@
                             {
                                 var diff = Math.Abs(test.EndTime.Day - test.StartTime.Day - 1);
                                 var width = diff * 100 + 100;
+                                var content = $"{test.StartTime.Hour}:{test.StartTime.Minute} - {test.EndTime.Hour}:{test.EndTime.Minute}";
                                 if (d == test.StartTime.Day && d == test.EndTime.Day)
                                 {
-                                    <div class="event bg-warning">@exam.Title</div>
+                                    <div class="event bg-warning" data-toggle="popover" title="Exam" data-content="@content">@exam.Title</div>
                                 }
                                 else if (d == test.StartTime.Day)
                                 {
-                                    <div style='width: @(width)%' class="event all-day begin bg-warning">@exam.Title</div>
+                                    <div style='width: @(width)%' class="event all-day begin bg-warning" data-toggle="popover" title="Exam" data-content="@content">
+                                        @exam.Title
+                                    </div>
                                 }
                                 else if (d == test.EndTime.Day)
                                 {
-                                    <div class="event all-day end bg-warning"></div>
+                                    <div class="event all-day end bg-warning" data-toggle="popover" title="Exam" data-content="@content"></div>
                                 }
                             }
 
@@ -187,7 +192,6 @@
                     </li>
                 }
             </ol>
-
             <script>
                 $(document).ready(function () {
                     $('[data-toggle="popover"]').popover({

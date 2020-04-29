@@ -18,6 +18,9 @@
                 <p>Files for download:</p>
                 @foreach (var file in homework.Files)
                 {
+                    <span style="font-size: 1.5em;">
+                        <i class="fas fa-file-download"></i>
+                    </span>
                     <a class="ml-5" href="@file.CloudinaryFileUri" target="_blank">@file.FileDescription</a>
                 }
                 <div class="text-center">

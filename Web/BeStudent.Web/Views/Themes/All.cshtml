@@ -16,6 +16,9 @@
                 <p class="ml-2">@Html.Raw(theme.SanitizedDescription)</p>
                 @foreach (var file in theme.Files)
                 {
+                    <span style="font-size: 1.5em;">
+                        <i class="fas fa-file-download"></i>
+                    </span>
                     <a class="ml-3" href="@file.CloudinaryFileUri" target="_blank">@file.FileDescription</a>
                 }
             </li>
