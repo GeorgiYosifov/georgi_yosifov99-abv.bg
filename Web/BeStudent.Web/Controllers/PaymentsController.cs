@@ -5,7 +5,7 @@
     using System.Linq;
     using System.Security.Claims;
     using System.Threading.Tasks;
-    using BeStudent.Data.Models;
+
     using BeStudent.Services.Data;
     using BeStudent.Web.ViewModels.Payment;
     using BeStudent.Web.ViewModels.Semester;
@@ -121,7 +121,7 @@
             return this.View(viewModel);
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize(Roles = "User, Lector")]
         public async Task<IActionResult> Pay(decimal money)
         {
             money /= 100;
@@ -199,7 +199,7 @@
             }
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize(Roles = "User, Lector")]
         public async Task<IActionResult> Execute(string payerID, string paymentId)
         {
             var clientId = this.configuration.GetSection("PayPal").GetSection("clientId").Value;
@@ -226,8 +226,13 @@
                 var semester = this.paymentsService
                     .GetSemester(user.CourseName, user.SemesterNumber + 1, year);
 
-                await this.paymentsService.RegisterUserAsync(userId, semester);
+                await this.paymentsService.RegisterUserToSemesterAsync(userId, semester.Id);
+                foreach (var subject in semester.Subjects)
+                {
+                    await this.paymentsService.RegisterUserToSubjectAsync(userId, subject.Id);
+                }
 
+                this.TempData["message"] = $"Payment status code {statusCode}";
                 return this.RedirectToAction("Index", "Home");
             }
             else

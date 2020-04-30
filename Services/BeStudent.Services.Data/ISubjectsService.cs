@@ -5,7 +5,7 @@
 
     public interface ISubjectsService
     {
-        Task CreateAsync(int semesterId, string name, string emails);
+        Task CreateAsync(int semesterId, string name, decimal price, string emails);
 
         IEnumerable<T> GetAll<T>(string lectorId);
 

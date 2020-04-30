@@ -27,26 +27,31 @@
         }
 
         [Authorize(Roles = "Administrator")]
-        [HttpGet("Subjects/Create/{id}")]
-        public IActionResult Create()
+        [HttpGet("Subjects/Create")]
+        public IActionResult Create([FromQuery] int semesterId)
         {
-            return this.View();
+            var model = new SubjectCreateInputModel
+            {
+                SemesterId = semesterId,
+            };
+
+            return this.View(model);
         }
 
         [Authorize(Roles = "Administrator")]
-        [HttpPost("Subjects/Create/{id}")]
-        public async Task<IActionResult> Create(int id, SubjectCreateInputModel input)
+        [HttpPost("Subjects/Create")]
+        public async Task<IActionResult> Create([FromQuery] int semesterId, SubjectCreateInputModel input)
         {
             if (!this.ModelState.IsValid)
             {
                 return this.View(input);
             }
 
-            await this.subjectsService.CreateAsync(id, input.Name, input.Emails);
-            return this.Redirect($"/Semesters/Details/{id}");
+            await this.subjectsService.CreateAsync(semesterId, input.Name, input.Price, input.Emails);
+            return this.RedirectToAction("Details", "Semesters", new { semesterId });
         }
 
-        [Authorize(Roles = "Lector")]
+        [Authorize(Roles = "Lector, User")]
         public IActionResult All()
         {
             var lectorId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -60,7 +65,7 @@
             return this.View(viewModel);
         }
 
-        [Authorize(Roles = "Lector")]
+        [Authorize(Roles = "Lector, User")]
         public IActionResult Themes(string subjectName)
         {
             var subjectViewModel = this.subjectsService.GetThemes<SubjectGetThemesViewModel>(subjectName);

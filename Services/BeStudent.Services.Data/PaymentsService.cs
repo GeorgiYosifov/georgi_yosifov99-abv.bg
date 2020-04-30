@@ -44,40 +44,39 @@
                 .FirstOrDefault();
         }
 
-        public async Task RegisterUserAsync(string userId, Semester semester)
+        public Semester GetSemester(string courseName, int nextNumber, int year)
+        {
+            return this.semesterRepository
+                .All()
+                .FirstOrDefault(s => s.Year >= year && s.CourseName == courseName && s.Number == nextNumber);
+        }
+
+        public async Task RegisterUserToSemesterAsync(string userId, int semesterId)
         {
             var userSemester = new StudentSemester
             {
                 StudentId = userId,
-                SemesterId = semester.Id,
+                SemesterId = semesterId,
             };
 
             await this.studentSemesterRepository.AddAsync(userSemester);
             await this.studentSemesterRepository.SaveChangesAsync();
-
-            foreach (var subject in semester.Subjects)
-            {
-                var userSubject = new StudentSubject
-                {
-                    StudentId = userId,
-                    SubjectId = subject.Id,
-                };
-
-                await this.studentSubjectRepository.AddAsync(userSubject);
-            }
-
-            await this.studentSubjectRepository.SaveChangesAsync();
 
             var student = this.userRepository.All().FirstOrDefault(u => u.Id == userId);
             student.SemesterNumber++;
             await this.userRepository.SaveChangesAsync();
         }
 
-        public Semester GetSemester(string courseName, int nextNumber, int year)
+        public async Task RegisterUserToSubjectAsync(string userId, int subjectId)
         {
-            return this.semesterRepository
-                .All()
-                .FirstOrDefault(s => s.Year >= year && s.CourseName == courseName && s.Number == nextNumber);
+            var userSubject = new StudentSubject
+            {
+                StudentId = userId,
+                SubjectId = subjectId,
+            };
+
+            await this.studentSubjectRepository.AddAsync(userSubject);
+            await this.studentSubjectRepository.SaveChangesAsync();
         }
     }
 }

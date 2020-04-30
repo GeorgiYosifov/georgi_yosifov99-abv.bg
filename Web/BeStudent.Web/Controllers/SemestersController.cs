@@ -44,8 +44,8 @@
         }
 
         [Authorize(Roles = "Administrator")]
-        [HttpGet("Semesters/{semesterId}/Details")]
-        public IActionResult Details(int semesterId)
+        [HttpGet("Semesters/Details")]
+        public IActionResult Details([FromQuery] int semesterId)
         {
             var semesterViewModel = this.semestersService.GetDetails<SemesterDetailsViewModel>(semesterId);
             if (semesterViewModel == null)

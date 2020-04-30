@@ -12,35 +12,53 @@
     {
         private readonly IDeletableEntityRepository<Subject> subjectRepository;
         private readonly IDeletableEntityRepository<ApplicationUser> userRepository;
+        private readonly IDeletableEntityRepository<StudentSemester> studentSemesterRepository;
+        private readonly IDeletableEntityRepository<StudentSubject> studentSubjectRepository;
 
         public SubjectsService(
             IDeletableEntityRepository<Subject> subjectRepository,
-            IDeletableEntityRepository<ApplicationUser> userRepository)
+            IDeletableEntityRepository<ApplicationUser> userRepository,
+            IDeletableEntityRepository<StudentSemester> studentSemesterRepository,
+            IDeletableEntityRepository<StudentSubject> studentSubjectRepository)
         {
             this.subjectRepository = subjectRepository;
             this.userRepository = userRepository;
+            this.studentSemesterRepository = studentSemesterRepository;
+            this.studentSubjectRepository = studentSubjectRepository;
         }
 
-        public async Task CreateAsync(int semesterId, string name, string emails)
+        public async Task CreateAsync(int semesterId, string name, decimal price, string emails)
         {
             var subject = new Subject()
             {
                 Name = name,
+                Price = price,
                 SemesterId = semesterId,
             };
+            await this.subjectRepository.AddAsync(subject);
+            await this.subjectRepository.SaveChangesAsync();
 
             var lectorsEmail = emails.Split().ToList();
             foreach (var lectorEmail in lectorsEmail)
             {
-                subject.StudentSubjects.Add(new StudentSubject
+                var lector = this.userRepository.All().FirstOrDefault(l => l.Email == lectorEmail);
+                var lectorSubject = new StudentSubject
                 {
-                    Student = this.userRepository.All().FirstOrDefault(l => l.Email == lectorEmail),
+                    Student = lector,
                     Subject = subject,
-                });
+                };
+                await this.studentSubjectRepository.AddAsync(lectorSubject);
+
+                var lectorSemester = new StudentSemester
+                {
+                    Student = lector,
+                    SemesterId = semesterId,
+                };
+                await this.studentSemesterRepository.AddAsync(lectorSemester);
             }
 
-            await this.subjectRepository.AddAsync(subject);
-            await this.subjectRepository.SaveChangesAsync();
+            await this.studentSubjectRepository.SaveChangesAsync();
+            await this.studentSemesterRepository.SaveChangesAsync();
         }
 
         public T FillCalendar<T>(string name)

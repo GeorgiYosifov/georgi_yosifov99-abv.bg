@@ -1,6 +1,6 @@
 ﻿@{
     var count = 0;
-    var semesterId = 0;
+    var semesterId = int.Parse(Context.Request.Query["semesterId"]);
 }
 
 <table class="table">
@@ -12,7 +12,7 @@
         </tr>
     </thead>
     @foreach (var subject in Model)
-    {count++; semesterId = subject.SemesterId;
+    {count++;
         <tbody>
             <tr>
                 <th scope="row">@count</th>
@@ -27,6 +27,6 @@
         </tbody>
     }
 </table>
-<a href="~/Subjects/Create/@semesterId" class="btn btn-secondary m-4 w-auto">
+<a asp-controller="Subjects" asp-action="Create"  asp-route-semesterId="@semesterId" class="btn btn-secondary m-4 w-auto">
     Create
 </a>

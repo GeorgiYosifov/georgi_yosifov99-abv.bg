@@ -5,11 +5,16 @@
 <div class="container">
     <h1 class="mb-2">@this.ViewData["Title"]</h1>
 
-    <form method="post" asp-action="Create">
+    <form method="post" asp-action="Create" asp-route-semesterId="@Model.SemesterId">
         <div class="form-group">
             <label asp-for="Name"></label>
             <input asp-for="Name" class="form-control" />
             <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Price"></label>
+            <input asp-for="Price" class="form-control" />
+            <span asp-validation-for="Price" class="text-danger"></span>
         </div>
         <div class="form-group">
             <br />

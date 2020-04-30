@@ -6,7 +6,9 @@
 
     public interface IPaymentsService
     {
-        Task RegisterUserAsync(string userId, Semester semester);
+        Task RegisterUserToSemesterAsync(string userId, int semesterId);
+
+        Task RegisterUserToSubjectAsync(string userId, int subjectId);
 
         T GetUser<T>(string userId);
 
