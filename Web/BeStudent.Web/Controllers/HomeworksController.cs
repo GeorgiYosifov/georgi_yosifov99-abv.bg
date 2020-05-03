@@ -5,6 +5,7 @@
     using System.Threading.Tasks;
 
     using BeStudent.Services.Data;
+    using BeStudent.Web.ViewModels.File;
     using BeStudent.Web.ViewModels.Grade;
     using BeStudent.Web.ViewModels.Homework;
     using BeStudent.Web.ViewModels.SendFile;
@@ -24,7 +25,7 @@
             this.homeworksService = homeworksService;
         }
 
-        [Authorize(Roles = "User, Lector")]
+        [Authorize(Roles = "User")]
         [HttpGet("Subjects/{subjectName}/Homeworks/{homeworkId}/Send")]
         public IActionResult Send(string subjectName, [FromQuery] DateTime deadline)
         {
@@ -38,7 +39,7 @@
             return this.View();
         }
 
-        [Authorize(Roles = "User, Lector")]
+        [Authorize(Roles = "User")]
         [HttpPost("Subjects/{subjectName}/Homeworks/{homeworkId}/Send")]
         public async Task<IActionResult> Send(string subjectName, int homeworkId, HomeworkSendInputModel input)
         {
@@ -102,6 +103,44 @@
             }
 
             await this.homeworksService.CreateAsync(subjectName, input.Title, input.Description, fileUri, input.FileDescription, input.Deadline);
+
+            return this.RedirectToAction("Themes", "Subjects", new { subjectName });
+        }
+
+        [Authorize(Roles = "Lector")]
+        [HttpGet("Subjects/{subjectName}/Homeworks/{homeworkId}/AddNewFile")]
+        public IActionResult AddNewFile(string subjectName, int homeworkId)
+        {
+            var model = new AddNewFileInputModel
+            {
+                SubjectName = subjectName,
+                HomeworkId = homeworkId,
+            };
+
+            return this.View(model);
+        }
+
+        [Authorize(Roles = "Lector")]
+        [HttpGet("Subjects/{subjectName}/Homeworks/{homeworkId}/AddNewFile")]
+        public async Task<IActionResult> AddNewFile(string subjectName, int homeworkId, AddNewFileInputModel input)
+        {
+            if (!this.ModelState.IsValid)
+            {
+                return this.View(input);
+            }
+
+            var fileUri = string.Empty;
+            if (input.File != null)
+            {
+                fileUri = this.themesService
+                    .UploadFileToCloudinary(input.File.FileName, input.File.OpenReadStream());
+                if (input.FileDescription == null)
+                {
+                    input.FileDescription = "document";
+                }
+            }
+
+            await this.homeworksService.AddNewFileAsync(homeworkId, fileUri, input.FileDescription);
 
             return this.RedirectToAction("Themes", "Subjects", new { subjectName });
         }

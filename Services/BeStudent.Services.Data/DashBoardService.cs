@@ -22,14 +22,13 @@
         {
             var code = new Code
             {
-                ExpiresOn = DateTime.UtcNow.AddMinutes(5),
+                ExpiresOn = DateTime.UtcNow.AddHours(5),
                 SendTo = email,
                 IsUsed = false,
             };
 
-            //Trqbva da napravq georgi_yosifov99@abv.bg admin
-            await this.sender.SendEmailAsync("georgi_yosifov99@abv.bg", "Georgi", email, "Zdraveite",
-                $"<p>S tozi kod {code.Id} mojete da se registrirate kato lector v nashata stydentska sistema.</p>");
+            await this.sender.SendEmailAsync("georgi_yosifov99@abv.bg", "Georgi", email, "Hello!",
+                $"<p>Use this code to register in our system as lector: {code.Id}</p>");
 
             await this.codeRepository.AddAsync(code);
             await this.codeRepository.SaveChangesAsync();

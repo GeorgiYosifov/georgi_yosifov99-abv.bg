@@ -1,7 +1,6 @@
 ﻿namespace BeStudent.Web.Controllers
 {
     using System.Linq;
-    using System.Security.Claims;
     using System.Threading.Tasks;
 
     using BeStudent.Data.Models;
@@ -52,14 +51,16 @@
         }
 
         [Authorize(Roles = "Lector, User")]
-        public IActionResult All()
+        public async Task<IActionResult> All()
         {
-            var lectorId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = await this.userManager.GetUserAsync(this.User);
+            var role = user.Role;
+            var userId = user.Id;
 
             var viewModel = new SubjectsListViewModel
             {
-                Subjects = this.subjectsService
-                    .GetAll<SubjectForAllViewModel>(lectorId),
+                Role = role,
+                Subjects = this.subjectsService.GetAll<SubjectForAllViewModel>(userId),
             };
 
             return this.View(viewModel);

@@ -8,16 +8,13 @@
 
     public class GradesService : IGradesService
     {
-        private readonly IDeletableEntityRepository<Grade> gradeRepository;
         private readonly IDeletableEntityRepository<Semester> semesterRepository;
         private readonly IDeletableEntityRepository<ApplicationUser> studentRepository;
 
         public GradesService(
-            IDeletableEntityRepository<Grade> gradeRepository,
             IDeletableEntityRepository<Semester> semesterRepository,
             IDeletableEntityRepository<ApplicationUser> studentRepository)
         {
-            this.gradeRepository = gradeRepository;
             this.semesterRepository = semesterRepository;
             this.studentRepository = studentRepository;
         }

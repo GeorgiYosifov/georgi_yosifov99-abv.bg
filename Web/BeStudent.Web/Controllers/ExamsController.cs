@@ -361,7 +361,7 @@
             return this.RedirectToAction("SendedTests", "Exams", new { onlineTestId });
         }
 
-        [Authorize(Roles = "User, Lector")]
+        [Authorize(Roles = "User")]
         [HttpGet("Subjects/{subjectName}/Exams/{examId}/SendSolution")]
         public IActionResult SendSolution(string subjectName, int examId)
         {
@@ -389,7 +389,7 @@
             return this.View(sendSolutionModel);
         }
 
-        [Authorize(Roles = "User, Lector")]
+        [Authorize(Roles = "User")]
         [HttpPost("Subjects/{subjectName}/Exams/{examId}/SendSolution")]
         public async Task<IActionResult> SendSolution(string subjectName, int examId, ExamSendSolutionInputModel input)
         {
@@ -427,7 +427,7 @@
 
         [Authorize(Roles = "Lector")]
         [HttpGet("Subjects/{subjectName}/Exams/{examId}/SetGrade")]
-        public IActionResult SetGrade(string subjectName, int examId, [FromQuery] string studentId, int sendFileId)
+        public IActionResult SetGrade(string subjectName, int examId, [FromQuery] string studentId, int? sendFileId)
         {
             var gradeModel = new GradeSetInputModel
             {
@@ -442,7 +442,7 @@
 
         [Authorize(Roles = "Lector")]
         [HttpPost("Subjects/{subjectName}/Exams/{examId}/SetGrade")]
-        public async Task<IActionResult> SetGrade(string subjectName, int examId, string studentId, int sendFileId, GradeSetInputModel input)
+        public async Task<IActionResult> SetGrade(string subjectName, int examId, string studentId, int? sendFileId, GradeSetInputModel input)
         {
             if (!this.ModelState.IsValid)
             {
@@ -451,7 +451,14 @@
 
             await this.examsService.SetGradeAsync(input.Mark, input.Description, examId, studentId, sendFileId);
 
-            return this.RedirectToAction("SendedSolutions", "Exams", new { subjectName, examId });
+            if (sendFileId != null)
+            {
+                return this.RedirectToAction("SendedSolutions", "Exams", new { subjectName, examId });
+            }
+            else
+            {
+                return this.RedirectToAction("AllStudents", "Exams", new { subjectName, examId });
+            }
         }
 
         [Authorize(Roles = "Lector")]
@@ -459,6 +466,16 @@
         public IActionResult SendedTests(int onlineTestId)
         {
             var viewModel = this.examsService.GetTest<OnlineTestSendedTestsViewModel>(onlineTestId);
+
+            return this.View(viewModel);
+        }
+
+        [Authorize(Roles = "Lector")]
+        [HttpGet("Exams/{examId}/AllStudents")]
+        public IActionResult AllStudents(int examId, [FromQuery] string subjectName)
+        {
+            var viewModel = this.examsService.GetExam<ExamForAllStudentsViewModel>(examId);
+            viewModel.SubjectName = subjectName;
 
             return this.View(viewModel);
         }

@@ -14,6 +14,8 @@ namespace BeStudent.Services.Data
 
         Task SetGradeAsync(double mark, string description, int homeworkId, string studentId, int sendFileId);
 
+        Task AddNewFileAsync(int homeworkId, string fileUri, string fileDescription);
+
         IEnumerable<T> GetAllSendedFiles<T>(int homeworkId);
     }
 }

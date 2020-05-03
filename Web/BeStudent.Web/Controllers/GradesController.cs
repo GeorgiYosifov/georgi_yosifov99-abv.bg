@@ -18,7 +18,7 @@
             this.gradesService = gradesService;
         }
 
-        [Authorize(Roles = "User, Lector")]
+        [Authorize(Roles = "User")]
         public IActionResult All()
         {
             var studentId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);

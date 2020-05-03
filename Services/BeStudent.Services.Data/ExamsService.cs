@@ -66,21 +66,27 @@
                 });
             }
 
+            if (type.ToString() == "PresentExam")
+            {
+                exam.Students = this.studentRepository
+                    .All()
+                    .Where(s => s.StudentSubjects.FirstOrDefault(x => x.Subject.Name == subjectName) != null)
+                    .ToHashSet<ApplicationUser>();
+            }
+
             await this.examRepository.AddAsync(exam);
             await this.examRepository.SaveChangesAsync();
         }
 
         public async Task<int> CreateOnlineTestAsync(int examId, double minFor3, double range, double maxPoints, DateTime start, DateTime end, int duration, int count)
         {
-            var exam = this.examRepository.All().FirstOrDefault(e => e.Id == examId);
-
             var onlineTest = new OnlineTest
             {
                 QuestionsCount = count,
                 StartTime = start,
                 EndTime = end,
                 Duration = duration,
-                Exam = exam,
+                ExamId = examId,
                 MinPointsFor3 = minFor3,
                 Range = range,
                 MaxPoints = maxPoints,
@@ -94,12 +100,10 @@
 
         public async Task<string> CreateQuestionAsync(int onlineTestId, string condition, string imageUri)
         {
-            var onlineTest = this.onlineTestRepository.All().FirstOrDefault(t => t.Id == onlineTestId);
-
             var question = new Question
             {
                 Condition = condition,
-                OnlineTest = onlineTest,
+                OnlineTestId = onlineTestId,
             };
 
             if (imageUri != string.Empty)
@@ -119,12 +123,10 @@
 
         public async Task CreateQuestionWithAnswerAsync(int onlineTestId, string condition, string imageUri, AnswerType type)
         {
-            var onlineTest = this.onlineTestRepository.All().FirstOrDefault(t => t.Id == onlineTestId);
-
             var question = new Question
             {
                 Condition = condition,
-                OnlineTest = onlineTest,
+                OnlineTestId = onlineTestId,
             };
 
             if (imageUri != string.Empty)
@@ -148,14 +150,12 @@
 
         public async Task CreateAnswerAsync(string questionId, AnswerType type, string text, double points)
         {
-            var question = this.questionRepository.All().FirstOrDefault(q => q.Id == questionId);
-
             var answer = new Answer
             {
                 Text = text,
                 Points = points,
                 Type = type,
-                Question = question,
+                QuestionId = questionId,
             };
 
             await this.answerRepository.AddAsync(answer);
@@ -164,7 +164,10 @@
 
         public int FindQuestionsCount(int onlineTestId)
         {
-            return this.onlineTestRepository.All().FirstOrDefault(t => t.Id == onlineTestId).QuestionsCount;
+            return this.onlineTestRepository
+                .All()
+                .FirstOrDefault(t => t.Id == onlineTestId)
+                .QuestionsCount;
         }
 
         public T GetTest<T>(int onlineTestId)
@@ -187,8 +190,6 @@
 
         public async Task CreateDecisionAsync(string questionId, string studentId, int answerId, string content, string type)
         {
-            var question = this.questionRepository.All().FirstOrDefault(q => q.Id == questionId);
-            var student = this.studentRepository.All().FirstOrDefault(s => s.Id == studentId);
             var answer = this.answerRepository.All().FirstOrDefault(a => a.Id == answerId);
             var points = 0.0;
             if (answer != null)
@@ -201,8 +202,8 @@
                 Content = content,
                 Points = points,
                 Type = type,
-                Question = question,
-                Student = student,
+                QuestionId = questionId,
+                StudentId = studentId,
             };
 
             await this.decisionRepository.AddAsync(decision);
@@ -272,22 +273,19 @@
 
         public async Task SendSolutionAsync(string studentId, int examId, string fileUri, string fileDescription)
         {
-            var exam = this.examRepository.All().FirstOrDefault(e => e.Id == examId);
-            var student = this.studentRepository.All().FirstOrDefault(s => s.Id == studentId);
-
             var sendFile = new SendFile
             {
                 CloudinaryFileUri = fileUri,
                 FileDescription = fileDescription,
-                Exam = exam,
-                Student = student,
+                ExamId = examId,
+                StudentId = studentId,
             };
-            exam.SendFiles.Add(sendFile);
 
-            await this.examRepository.SaveChangesAsync();
+            await this.sendFileRepository.AddAsync(sendFile);
+            await this.sendFileRepository.SaveChangesAsync();
         }
 
-        public async Task SetGradeAsync(double mark, string description, int examId, string studentId, int sendFileId)
+        public async Task SetGradeAsync(double mark, string description, int examId, string studentId, int? sendFileId)
         {
             var grade = new Grade
             {
@@ -300,8 +298,11 @@
             await this.gradeRepository.AddAsync(grade);
             await this.gradeRepository.SaveChangesAsync();
 
-            this.sendFileRepository.All().FirstOrDefault(f => f.Id == sendFileId).Grade = grade;
-            await this.sendFileRepository.SaveChangesAsync();
+            if (sendFileId != null)
+            {
+                this.sendFileRepository.All().FirstOrDefault(f => f.Id == sendFileId).Grade = grade;
+                await this.sendFileRepository.SaveChangesAsync();
+            }
         }
     }
 }

@@ -18,7 +18,7 @@ namespace BeStudent.Web.ViewModels.Grade
 
         public int ExamId { get; set; }
 
-        public int SendFileId { get; set; }
+        public int? SendFileId { get; set; }
 
         public string SubjectName { get; set; }
     }

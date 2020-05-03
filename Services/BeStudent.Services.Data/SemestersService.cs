@@ -1,6 +1,5 @@
 ﻿namespace BeStudent.Services.Data
 {
-    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
 
@@ -27,15 +26,22 @@
             this.userSemesterRepository = userSemesterRepository;
         }
 
-        public async Task AddLectorAsync(int subjectId, int semesterId, string email)
+        public async Task<bool> AddLectorAsync(int subjectId, int semesterId, string email)
         {
-            var lector = this.userRepository.All().FirstOrDefault(u => u.Email == email);
+            var lector = this.userRepository
+                .All()
+                .FirstOrDefault(u => u.Email == email && u.Role == "Lector");
+
+            if (lector == null)
+            {
+                return false;
+            }
+
             var userSubject = new StudentSubject
             {
                 StudentId = lector.Id,
                 SubjectId = subjectId,
             };
-
             await this.userSubjectRepository.AddAsync(userSubject);
             await this.userSubjectRepository.SaveChangesAsync();
 
@@ -44,9 +50,10 @@
                 StudentId = lector.Id,
                 SemesterId = semesterId,
             };
-
             await this.userSemesterRepository.AddAsync(userSemester);
             await this.userSemesterRepository.SaveChangesAsync();
+
+            return true;
         }
 
         public async Task CreateAsync(int number, int year, string courseName, int courseId)
@@ -61,15 +68,6 @@
 
             await this.semesterRepository.AddAsync(semester);
             await this.semesterRepository.SaveChangesAsync();
-        }
-
-        public IEnumerable<T> GetAll<T>(string courseName)
-        {
-            return this.semesterRepository
-                .All()
-                .Where(s => s.CourseName == courseName)
-                .To<T>()
-                .ToList();
         }
 
         public T GetDetails<T>(int id)

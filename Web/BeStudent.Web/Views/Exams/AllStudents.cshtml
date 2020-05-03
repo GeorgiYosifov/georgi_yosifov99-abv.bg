@@ -1,0 +1,38 @@
+﻿@model BeStudent.Web.ViewModels.Exam.ExamForAllStudentsViewModel
+@{
+    this.ViewData["Title"] = "All students";
+}
+
+<div class="container">
+    <div class="text-center">
+        <h1 class="display-4">@this.ViewData["Title"]</h1>
+    </div>
+
+    <ul class="list-group list-group-flush mt-3">
+        @foreach (var student in Model.Students)
+        {
+            <li class="list-group-item">
+                @{
+                    var hasGrade = false;
+                    foreach (var grade in Model.Grades)
+                    {
+                        if (grade.StudentId == student.Id)
+                        {
+                            <p>@($"Name: {student.FirstName} {student.LastName}")</p>
+                            <p>@($"Grade: {grade.Mark}")</p>
+                            @Html.Raw(grade.SanitizedDescription)
+                            hasGrade = true;
+                            break;
+                        }
+                    }
+                }
+                @if (hasGrade == false)
+                {
+                    <a class="btn btn-secondary w-auto" asp-action="SetGrade" asp-route-subjectName="@Model.SubjectName" asp-route-studentId="@student.Id" asp-route-examId="@Model.Id">
+                        @($"Name: {student.FirstName} {student.LastName}")
+                    </a>
+                }
+            </li>
+        }
+    </ul>
+</div>

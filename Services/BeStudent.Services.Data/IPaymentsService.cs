@@ -13,7 +13,5 @@
         T GetUser<T>(string userId);
 
         T GetSemester<T>(string courseName, int nextNumber, int year);
-
-        Semester GetSemester(string courseName, int nextNumber, int year);
     }
 }

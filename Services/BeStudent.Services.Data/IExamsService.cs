@@ -36,6 +36,6 @@
 
         Task SendSolutionAsync(string studentId, int examId, string fileUri, string fileDescription);
 
-        Task SetGradeAsync(double mark, string description, int examId, string studentId, int sendFileId);
+        Task SetGradeAsync(double mark, string description, int examId, string studentId, int? sendFileId);
     }
 }

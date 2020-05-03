@@ -41,7 +41,14 @@
             var lectorsEmail = emails.Split().ToList();
             foreach (var lectorEmail in lectorsEmail)
             {
-                var lector = this.userRepository.All().FirstOrDefault(l => l.Email == lectorEmail);
+                var lector = this.userRepository
+                    .All()
+                    .FirstOrDefault(l => l.Email == lectorEmail && l.Role == "Lector");
+                if (lector == null)
+                {
+                    continue;
+                }
+
                 var lectorSubject = new StudentSubject
                 {
                     Student = lector,
@@ -70,13 +77,23 @@
                  .FirstOrDefault();
         }
 
-        public IEnumerable<T> GetAll<T>(string lectorId)
+        public IEnumerable<T> GetAll<T>(string userId)
         {
-            return this.subjectRepository
-                .All()
-                .Where(s => s.Id == s.StudentSubjects.FirstOrDefault(l => l.StudentId == lectorId).SubjectId)
-                .To<T>()
-                .ToList();
+            var user = this.userRepository.All().FirstOrDefault(u => u.Id == userId);
+            var subjects = this.subjectRepository.All();
+
+            if (user.Role == "User")
+            {
+                subjects.Where(s => s.Id == s.StudentSubjects
+                    .FirstOrDefault(x => x.StudentId == userId && x.Subject.Semester.CourseName == user.CourseName).SubjectId);
+            }
+            else if (user.Role == "Lector")
+            {
+                subjects.Where(s => s.Id == s.StudentSubjects
+                    .FirstOrDefault(u => u.StudentId == userId).SubjectId);
+            }
+
+            return subjects.To<T>().ToList();
         }
 
         public T GetThemes<T>(string name)

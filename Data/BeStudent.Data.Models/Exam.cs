@@ -10,6 +10,8 @@
         public Exam()
         {
             this.SendFiles = new HashSet<SendFile>();
+            this.OnlineTests = new HashSet<OnlineTest>();
+            this.Students = new HashSet<ApplicationUser>();
             this.Files = new HashSet<File>();
             this.Grades = new HashSet<Grade>();
         }
@@ -31,6 +33,8 @@
         public virtual ICollection<File> Files { get; set; }
 
         public virtual ICollection<SendFile> SendFiles { get; set; }
+
+        public virtual ICollection<ApplicationUser> Students { get; set; }
 
         public virtual ICollection<OnlineTest> OnlineTests { get; set; }
 

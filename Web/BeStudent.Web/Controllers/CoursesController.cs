@@ -1,37 +1,26 @@
 ﻿namespace BeStudent.Web.Controllers
 {
-    using System.Linq;
     using System.Threading.Tasks;
 
     using BeStudent.Services.Data;
     using BeStudent.Web.ViewModels.Course;
-    using BeStudent.Web.ViewModels.Semester;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
 
     public class CoursesController : BaseController
     {
         private readonly ICoursesService coursesService;
-        private readonly ISemestersService semestersService;
 
-        public CoursesController(ICoursesService coursesService, ISemestersService semestersService)
+        public CoursesController(ICoursesService coursesService)
         {
             this.coursesService = coursesService;
-            this.semestersService = semestersService;
         }
 
         [Authorize(Roles = "Administrator")]
         [HttpGet("Courses/{courseName}")]
-        public IActionResult ByName(string courseName, [FromQuery] int courseId)
+        public IActionResult ByName(string courseName)
         {
-            var semesters = this.semestersService.GetAll<SemesterViewModel>(courseName).OrderBy(s => s.Number);
-
-            var viewModel = new CourseWithSemestersViewModel
-            {
-                Id = courseId,
-                Name = courseName,
-                Semesters = semesters,
-            };
+            var viewModel = this.coursesService.ByName<CourseViewModel>(courseName);
 
             return this.View(viewModel);
         }

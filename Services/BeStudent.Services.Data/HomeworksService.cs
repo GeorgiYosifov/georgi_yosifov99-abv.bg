@@ -13,22 +13,35 @@
     {
         private readonly IDeletableEntityRepository<Subject> subjectRepository;
         private readonly IDeletableEntityRepository<Homework> homeworkRepository;
-        private readonly IDeletableEntityRepository<ApplicationUser> userRepository;
         private readonly IRepository<SendFile> sendFileRepository;
+        private readonly IRepository<File> fileRepository;
         private readonly IDeletableEntityRepository<Grade> gradeRepository;
 
         public HomeworksService(
             IDeletableEntityRepository<Subject> subjectRepository,
             IDeletableEntityRepository<Homework> homeworkRepository,
-            IDeletableEntityRepository<ApplicationUser> userRepository,
             IRepository<SendFile> sendFileRepository,
+            IRepository<File> fileRepository,
             IDeletableEntityRepository<Grade> gradeRepository)
         {
             this.subjectRepository = subjectRepository;
             this.homeworkRepository = homeworkRepository;
-            this.userRepository = userRepository;
             this.sendFileRepository = sendFileRepository;
+            this.fileRepository = fileRepository;
             this.gradeRepository = gradeRepository;
+        }
+
+        public async Task AddNewFileAsync(int homeworkId, string fileUri, string fileDescription)
+        {
+            var file = new File
+            {
+                CloudinaryFileUri = fileUri,
+                FileDescription = fileDescription,
+                HomeworkId = homeworkId,
+            };
+
+            await this.fileRepository.AddAsync(file);
+            await this.fileRepository.SaveChangesAsync();
         }
 
         public async Task CreateAsync(string subjectName, string title, string description, string fileUri, string fileDescription, DateTime deadline)
@@ -43,18 +56,21 @@
                 Deadline = deadline,
             };
 
+            await this.homeworkRepository.AddAsync(homework);
+            await this.homeworkRepository.SaveChangesAsync();
+
             if (fileUri != string.Empty)
             {
-                homework.Files.Add(new BeStudent.Data.Models.File()
+                var file = new File()
                 {
                     CloudinaryFileUri = fileUri,
                     FileDescription = fileDescription,
                     Homework = homework,
-                });
-            }
+                };
 
-            await this.homeworkRepository.AddAsync(homework);
-            await this.homeworkRepository.SaveChangesAsync();
+                await this.fileRepository.AddAsync(file);
+                await this.fileRepository.SaveChangesAsync();
+            }
         }
 
         public IEnumerable<T> GetAllSendedFiles<T>(int homeworkId)
@@ -68,19 +84,16 @@
 
         public async Task SendAsync(string userId, int homeworkId, string fileUri, string fileDescription)
         {
-            var homework = this.homeworkRepository.All().FirstOrDefault(h => h.Id == homeworkId);
-            var user = this.userRepository.All().FirstOrDefault(u => u.Id == userId);
-
             var sendFile = new SendFile
             {
                 CloudinaryFileUri = fileUri,
                 FileDescription = fileDescription,
-                Homework = homework,
-                Student = user,
+                HomeworkId = homeworkId,
+                StudentId = userId,
             };
-            homework.SendFiles.Add(sendFile);
 
-            await this.homeworkRepository.SaveChangesAsync();
+            await this.sendFileRepository.AddAsync(sendFile);
+            await this.sendFileRepository.SaveChangesAsync();
         }
 
         public async Task SetGradeAsync(double mark, string description, int homeworkId, string studentId, int sendFileId)

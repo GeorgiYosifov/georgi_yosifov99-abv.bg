@@ -32,7 +32,7 @@
             this.gradesService = gradesService;
         }
 
-        [Authorize(Roles = "User, Lector")]
+        [Authorize(Roles = "User")]
         public IActionResult ChooseCourse()
         {
             var now = DateTime.Now;
@@ -121,7 +121,7 @@
             return this.View(viewModel);
         }
 
-        [Authorize(Roles = "User, Lector")]
+        [Authorize(Roles = "User")]
         public async Task<IActionResult> Pay(decimal money)
         {
             money /= 100;
@@ -199,7 +199,7 @@
             }
         }
 
-        [Authorize(Roles = "User, Lector")]
+        [Authorize(Roles = "User")]
         public async Task<IActionResult> Execute(string payerID, string paymentId)
         {
             var clientId = this.configuration.GetSection("PayPal").GetSection("clientId").Value;
@@ -224,7 +224,7 @@
                 var year = DateTime.Now.Year;
 
                 var semester = this.paymentsService
-                    .GetSemester(user.CourseName, user.SemesterNumber + 1, year);
+                    .GetSemester<PaymentSemesterViewModel>(user.CourseName, user.SemesterNumber + 1, year);
 
                 await this.paymentsService.RegisterUserToSemesterAsync(userId, semester.Id);
                 foreach (var subject in semester.Subjects)

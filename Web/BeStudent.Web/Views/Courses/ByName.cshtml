@@ -1,4 +1,4 @@
-﻿@model BeStudent.Web.ViewModels.Course.CourseWithSemestersViewModel
+﻿@model BeStudent.Web.ViewModels.Course.CourseViewModel
 @{
     this.ViewData["Title"] = $"Course {Model.Name}";
 }
@@ -9,7 +9,7 @@
     </div>
 
     <ul class="list-group list-group-flush mt-3">
-        @foreach (var semester in Model.Semesters)
+        @foreach (var semester in Model.Semesters.OrderBy(x => x.Number))
         {
             var remain = (semester.Year % 100) + 1;
             <li class="list-group-item">

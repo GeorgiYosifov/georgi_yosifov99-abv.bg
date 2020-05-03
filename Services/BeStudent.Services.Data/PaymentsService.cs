@@ -44,13 +44,6 @@
                 .FirstOrDefault();
         }
 
-        public Semester GetSemester(string courseName, int nextNumber, int year)
-        {
-            return this.semesterRepository
-                .All()
-                .FirstOrDefault(s => s.Year >= year && s.CourseName == courseName && s.Number == nextNumber);
-        }
-
         public async Task RegisterUserToSemesterAsync(string userId, int semesterId)
         {
             var userSemester = new StudentSemester

@@ -1,6 +1,7 @@
 ﻿@{
     this.ViewData["Title"] = "Exams";
     var subjectName = Context.Request.Query["subjectName"];
+    var role = Context.Request.Query["role"];
 }
 
 <div class="container">
@@ -30,38 +31,65 @@
                     </span>
                     <a class="ml-3" href="@file.CloudinaryFileUri" target="_blank">@file.FileDescription</a>
                 }
-            </li>
-            @if (exam.Type == "OnlineTest")
-            {
-                <a class="btn btn-primary m-4 ml-5 w-25" asp-controller="Exams" asp-action="CreateOnlineTest" asp-route-subjectName="@subjectName" asp-route-examId="@exam.Id">
-                    Create Test
-                </a>
-                foreach (var test in exam.OnlineTests)
-                {
-                    <a class="btn btn-primary mb-2 ml-5 w-25" asp-controller="Exams" asp-action="StartTest" asp-route-onlineTestId="@test.Id">
-                        Start Test
-                    </a>
-                    <a class="btn btn-primary m-4 ml-5 w-25" asp-controller="Exams" asp-action="SendedTests" asp-route-onlineTestId="@test.Id">
-                        Sended Tests
-                    </a>
-                }
-            }
-            else if (exam.Type == "OnlineExam")
-            {
+
                 <div class="text-center">
-                    <p>Open: @exam.Open</p>
-                    <p>Close: @exam.Close</p>
-                    <a class="btn btn-secondary m-1 w-auto" asp-controller="Exams" asp-action="SendSolution" asp-route-subjectName="@subjectName" asp-route-examId="@exam.Id">
-                        Send Solution
-                    </a>
-                    <a class="btn btn-secondary m-1 w-auto" asp-controller="Exams" asp-action="SendedSolutions" asp-route-subjectName="@subjectName" asp-route-examId="@exam.Id">
-                        Sended Homeworks
-                    </a>
+                    @if (exam.Type == "OnlineTest")
+                    {
+                        @if (role == "Lector")
+                        {
+                            <a class="btn btn-primary m-4 ml-5 w-25" asp-controller="Exams" asp-action="CreateOnlineTest" asp-route-subjectName="@subjectName" asp-route-examId="@exam.Id">
+                                Create Test
+                            </a>
+                        }
+                        foreach (var test in exam.OnlineTests)
+                        {
+                            <a class="btn btn-primary mb-2 ml-5 w-25" asp-controller="Exams" asp-action="StartTest" asp-route-onlineTestId="@test.Id">
+                                Start Test
+                            </a>
+                            @if (role == "Lector")
+                            {
+                                <a class="btn btn-primary m-4 ml-5 w-25" asp-controller="Exams" asp-action="SendedTests" asp-route-onlineTestId="@test.Id">
+                                    Sended Tests
+                                </a>
+                            }
+                        }
+                    }
+                    else if (exam.Type == "OnlineExam")
+                    {
+
+                        <p>Open: @exam.Open</p>
+                        <p>Close: @exam.Close</p>
+                        @if (role == "User")
+                        {
+                            <a class="btn btn-secondary m-1 w-auto" asp-controller="Exams" asp-action="SendSolution" asp-route-subjectName="@subjectName" asp-route-examId="@exam.Id">
+                                Send Solution
+                            </a>
+                        }
+                        else if (role == "Lector")
+                        {
+                            <a class="btn btn-secondary m-1 w-auto" asp-controller="Exams" asp-action="SendedSolutions" asp-route-subjectName="@subjectName" asp-route-examId="@exam.Id">
+                                Sended Solutions
+                            </a>
+                        }
+                    }
+                    else if (exam.Type == "PresentExam")
+                    {
+                        if (role == "Lector")
+                        {
+                            <a class="btn btn-secondary m-1 w-auto" asp-controller="Exams" asp-action="AllStudents" asp-route-subjectName="@subjectName" asp-route-examId="@exam.Id">
+                                List of students
+                            </a>
+                        }
+                    }
                 </div>
-            }
+            </li>
         }
     </ul>
-    <a class="btn btn-secondary m-4 w-auto" asp-controller="Exams" asp-action="Create" asp-route-subjectName="@subjectName">
-        Create New Exam
-    </a>
+
+    @if (role == "Lector")
+    {
+        <a class="btn btn-secondary m-4 w-auto" asp-controller="Exams" asp-action="Create" asp-route-subjectName="@subjectName">
+            Create New Exam
+        </a>
+    }
 </div>

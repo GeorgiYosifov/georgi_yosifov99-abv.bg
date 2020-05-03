@@ -7,7 +7,7 @@
     {
         Task CreateAsync(int semesterId, string name, decimal price, string emails);
 
-        IEnumerable<T> GetAll<T>(string lectorId);
+        IEnumerable<T> GetAll<T>(string userId);
 
         T GetThemes<T>(string name);
 

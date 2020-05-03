@@ -40,7 +40,7 @@
             }
 
             await this.semestersService.CreateAsync(input.Number, input.Year, courseName, courseId);
-            return this.RedirectToAction("ByName", "Courses", new { courseName, courseId });
+            return this.RedirectToAction("ByName", "Courses", new { courseName });
         }
 
         [Authorize(Roles = "Administrator")]
@@ -78,7 +78,12 @@
                 return this.View(input);
             }
 
-            await this.semestersService.AddLectorAsync(subjectId, semesterId, input.Email);
+            var hasCreated = await this.semestersService.AddLectorAsync(subjectId, semesterId, input.Email);
+            if (hasCreated == false)
+            {
+                this.TempData["message"] = "The test has already closed!";
+                return this.View(input);
+            }
 
             return this.RedirectToAction("Details", "Semesters", new { semesterId });
         }
