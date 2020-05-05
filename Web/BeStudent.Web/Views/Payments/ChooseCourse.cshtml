@@ -9,12 +9,25 @@
 <div class="container">
     <div class="text-center">
         <h2 class="display-4">@this.ViewData["Title"]</h2>
-
         <h3>@semesterName</h3>
+
         <div id="Partials" class="p-2 flex-grow-1 w-100 flex-fill bd-highlight">
-            <div>
-                <partial name="~/Views/Payments/PaymentList.cshtml" model="@semester.Subjects.ToList()" />
-            </div>
+            <ul class="list-group list-group-flush mt-3">
+                @foreach (var subject in Model.Semester.Subjects)
+                {
+                    <li class="list-group-item">
+                        <h3 class="ml-1">@subject.Name</h3>
+                        <p class="ml-2">@subject.Price</p>
+                    </li>
+                }
+                <li class="list-group-item">
+                    <hr />
+                    <h3 class="ml-2">Total price: @Model.Price</h3>
+                </li>
+            </ul>
+            <a class="btn btn-lg btn-primary m-4 w-auto" asp-controller="Payments" asp-action="Pay" asp-route-attemptId="@Model.PaymentAttemptId">
+                PayPal
+            </a>
         </div>
     </div>
 </div>

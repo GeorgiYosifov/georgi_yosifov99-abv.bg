@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Linq;
     using System.Security.Claims;
     using System.Threading.Tasks;
@@ -33,7 +34,7 @@
         }
 
         [Authorize(Roles = "User")]
-        public IActionResult ChooseCourse()
+        public async Task<IActionResult> ChooseCourse()
         {
             var now = DateTime.Now;
             var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -111,20 +112,32 @@
                 nextSemester = user.SemesterNumber + 1;
             }
 
+            var semester = this.paymentsService
+                .GetSemester<PaymentSemesterViewModel>(user.CourseName, nextSemester, now.Year);
+            var price = 0.0m;
+            foreach (var subject in semester.Subjects)
+            {
+                price += subject.Price;
+            }
+
+            var paymentAttemptId = await this.paymentsService.CreatePaymentAttemptAsync(userId, semester.Id, price);
+
             var viewModel = new PaymentCourseViewModel
             {
                 Name = user.CourseName,
-                Semester = this.paymentsService
-                    .GetSemester<PaymentSemesterViewModel>(user.CourseName, nextSemester, now.Year),
+                Price = price,
+                PaymentAttemptId = paymentAttemptId,
+                Semester = semester,
             };
 
             return this.View(viewModel);
         }
 
         [Authorize(Roles = "User")]
-        public async Task<IActionResult> Pay(decimal money)
+        public async Task<IActionResult> Pay([FromQuery] string attemptId)
         {
-            money /= 100;
+            var attempt = this.paymentsService.GetPaymentAttempt(attemptId);
+
             var clientId = this.configuration.GetSection("PayPal").GetSection("clientId").Value;
             var secret = this.configuration.GetSection("PayPal").GetSection("secret").Value;
 
@@ -134,7 +147,7 @@
             var portocol = this.HttpContext.Request.Scheme;
             var host = this.HttpContext.Request.Host;
 
-            var returnUrl = $"{portocol}://{host}/Payments/Execute";
+            var returnUrl = $"{portocol}://{host}/Payments/Execute/{attempt.Id}";
             var cancelUrl = $"{portocol}://{host}/Homes/Index";
 
             var payment = new PayPal.v1.Payments.Payment()
@@ -146,7 +159,7 @@
                     {
                         Amount = new Amount()
                         {
-                            Total = money.ToString(),
+                            Total = attempt.Price.ToString("G", CultureInfo.InvariantCulture),
                             Currency = "USD",
                         },
                     },
@@ -200,7 +213,8 @@
         }
 
         [Authorize(Roles = "User")]
-        public async Task<IActionResult> Execute(string payerID, string paymentId)
+        [HttpGet("Payments/Execute/{attemptId}")]
+        public async Task<IActionResult> Execute(string attemptId, [FromQuery] string payerID, string paymentId)
         {
             var clientId = this.configuration.GetSection("PayPal").GetSection("clientId").Value;
             var secret = this.configuration.GetSection("PayPal").GetSection("secret").Value;
@@ -219,24 +233,27 @@
 
             if (statusCode.ToString() == "OK")
             {
-                var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
-                var user = this.paymentsService.GetUser<PaymentUserViewModel>(userId);
-                var year = DateTime.Now.Year;
+                var attempt = this.paymentsService.GetPaymentAttempt(attemptId);
 
+                var userId = attempt.StudentId;
+                var semesterId = attempt.SemesterId;
                 var semester = this.paymentsService
-                    .GetSemester<PaymentSemesterViewModel>(user.CourseName, user.SemesterNumber + 1, year);
+                    .GetSemester<PaymentSemesterViewModel>(semesterId);
 
-                await this.paymentsService.RegisterUserToSemesterAsync(userId, semester.Id);
+                await this.paymentsService.RegisterUserToSemesterAsync(userId, semesterId);
                 foreach (var subject in semester.Subjects)
                 {
                     await this.paymentsService.RegisterUserToSubjectAsync(userId, subject.Id);
                 }
+
+                await this.paymentsService.CreatePaymentAsync(userId, semesterId);
 
                 this.TempData["message"] = $"Payment status code {statusCode}";
                 return this.RedirectToAction("Index", "Home");
             }
             else
             {
+                // Delete paymentAttmept
                 this.TempData["message"] = $"Payment status code {statusCode}";
                 return this.RedirectToAction("Index", "Home");
             }

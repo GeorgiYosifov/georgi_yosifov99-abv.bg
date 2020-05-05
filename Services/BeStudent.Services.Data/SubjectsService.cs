@@ -14,17 +14,20 @@
         private readonly IDeletableEntityRepository<ApplicationUser> userRepository;
         private readonly IDeletableEntityRepository<StudentSemester> studentSemesterRepository;
         private readonly IDeletableEntityRepository<StudentSubject> studentSubjectRepository;
+        private readonly IDeletableEntityRepository<Payment> paymentRepository;
 
         public SubjectsService(
             IDeletableEntityRepository<Subject> subjectRepository,
             IDeletableEntityRepository<ApplicationUser> userRepository,
             IDeletableEntityRepository<StudentSemester> studentSemesterRepository,
-            IDeletableEntityRepository<StudentSubject> studentSubjectRepository)
+            IDeletableEntityRepository<StudentSubject> studentSubjectRepository,
+            IDeletableEntityRepository<Payment> paymentRepository)
         {
             this.subjectRepository = subjectRepository;
             this.userRepository = userRepository;
             this.studentSemesterRepository = studentSemesterRepository;
             this.studentSubjectRepository = studentSubjectRepository;
+            this.paymentRepository = paymentRepository;
         }
 
         public async Task CreateAsync(int semesterId, string name, decimal price, string emails)
@@ -38,34 +41,37 @@
             await this.subjectRepository.AddAsync(subject);
             await this.subjectRepository.SaveChangesAsync();
 
-            var lectorsEmail = emails.Split().ToList();
-            foreach (var lectorEmail in lectorsEmail)
+            if (emails != null)
             {
-                var lector = this.userRepository
-                    .All()
-                    .FirstOrDefault(l => l.Email == lectorEmail && l.Role == "Lector");
-                if (lector == null)
+                var lectorsEmail = emails.Split().ToList();
+                foreach (var lectorEmail in lectorsEmail)
                 {
-                    continue;
+                    var lector = this.userRepository
+                        .All()
+                        .FirstOrDefault(l => l.Email == lectorEmail && l.Role == "Lector");
+                    if (lector == null)
+                    {
+                        continue;
+                    }
+
+                    var lectorSubject = new StudentSubject
+                    {
+                        Student = lector,
+                        Subject = subject,
+                    };
+                    await this.studentSubjectRepository.AddAsync(lectorSubject);
+
+                    var lectorSemester = new StudentSemester
+                    {
+                        Student = lector,
+                        SemesterId = semesterId,
+                    };
+                    await this.studentSemesterRepository.AddAsync(lectorSemester);
                 }
 
-                var lectorSubject = new StudentSubject
-                {
-                    Student = lector,
-                    Subject = subject,
-                };
-                await this.studentSubjectRepository.AddAsync(lectorSubject);
-
-                var lectorSemester = new StudentSemester
-                {
-                    Student = lector,
-                    SemesterId = semesterId,
-                };
-                await this.studentSemesterRepository.AddAsync(lectorSemester);
+                await this.studentSubjectRepository.SaveChangesAsync();
+                await this.studentSemesterRepository.SaveChangesAsync();
             }
-
-            await this.studentSubjectRepository.SaveChangesAsync();
-            await this.studentSemesterRepository.SaveChangesAsync();
         }
 
         public T FillCalendar<T>(string name)
@@ -84,12 +90,23 @@
 
             if (user.Role == "User")
             {
-                subjects.Where(s => s.Id == s.StudentSubjects
-                    .FirstOrDefault(x => x.StudentId == userId && x.Subject.Semester.CourseName == user.CourseName).SubjectId);
+                var lastPayment = this.paymentRepository
+                    .All()
+                    .Where(p => p.StudentId == userId)
+                    .OrderByDescending(p => p.CreatedOn)
+                    .ToList()
+                    .FirstOrDefault();
+
+                if (lastPayment == null)
+                {
+                    return new List<T>();
+                }
+
+                subjects = subjects.Where(s => s.SemesterId == lastPayment.SemesterId);
             }
             else if (user.Role == "Lector")
             {
-                subjects.Where(s => s.Id == s.StudentSubjects
+                subjects = subjects.Where(s => s.Id == s.StudentSubjects
                     .FirstOrDefault(u => u.StudentId == userId).SubjectId);
             }
 

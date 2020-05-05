@@ -1,6 +1,7 @@
 ﻿namespace BeStudent.Web.ViewModels.Subject
 {
     using System.ComponentModel.DataAnnotations;
+    using System.ComponentModel.DataAnnotations.Schema;
 
     public class SubjectCreateInputModel
     {
@@ -11,7 +12,7 @@
         public string Name { get; set; }
 
         [Required]
-        [Display(Name = "Price")]
+        [Display(Name = "Price in lev")]
         public decimal Price { get; set; }
 
         public string Emails { get; set; }

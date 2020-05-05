@@ -10,7 +10,15 @@
 
         Task RegisterUserToSubjectAsync(string userId, int subjectId);
 
+        Task<string> CreatePaymentAttemptAsync(string userId, int semesterId, decimal price);
+
+        Task CreatePaymentAsync(string userId, int semesterId);
+
+        PaymentAttempt GetPaymentAttempt(string id);
+
         T GetUser<T>(string userId);
+
+        T GetSemester<T>(int semesterId);
 
         T GetSemester<T>(string courseName, int nextNumber, int year);
     }

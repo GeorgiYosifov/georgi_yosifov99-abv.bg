@@ -18,6 +18,7 @@ namespace BeStudent.Data.Models
 
             this.StudentSubjects = new HashSet<StudentSubject>();
             this.StudentSemesters = new HashSet<StudentSemester>();
+            this.Payments = new HashSet<Payment>();
         }
 
         public string FirstName { get; set; }
@@ -37,6 +38,8 @@ namespace BeStudent.Data.Models
         public virtual ICollection<StudentSemester> StudentSemesters { get; set; }
 
         public virtual ICollection<StudentSubject> StudentSubjects { get; set; }
+
+        public virtual ICollection<Payment> Payments { get; set; }
 
         // Audit info
         public DateTime CreatedOn { get; set; }

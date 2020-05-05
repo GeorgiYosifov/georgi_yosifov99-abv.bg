@@ -13,35 +13,23 @@
         private readonly IDeletableEntityRepository<ApplicationUser> userRepository;
         private readonly IDeletableEntityRepository<StudentSemester> studentSemesterRepository;
         private readonly IDeletableEntityRepository<StudentSubject> studentSubjectRepository;
+        private readonly IRepository<PaymentAttempt> paymentAttemptRepository;
+        private readonly IDeletableEntityRepository<Payment> paymentRepository;
 
         public PaymentsService(
             IDeletableEntityRepository<Semester> semesterRepository,
             IDeletableEntityRepository<ApplicationUser> userRepository,
             IDeletableEntityRepository<StudentSemester> studentSemesterRepository,
-            IDeletableEntityRepository<StudentSubject> studentSubjectRepository)
+            IDeletableEntityRepository<StudentSubject> studentSubjectRepository,
+            IRepository<PaymentAttempt> paymentAttemptRepository,
+            IDeletableEntityRepository<Payment> paymentRepository)
         {
             this.semesterRepository = semesterRepository;
             this.userRepository = userRepository;
             this.studentSemesterRepository = studentSemesterRepository;
             this.studentSubjectRepository = studentSubjectRepository;
-        }
-
-        public T GetUser<T>(string userId)
-        {
-            return this.userRepository
-                .All()
-                .Where(u => u.Id == userId)
-                .To<T>()
-                .FirstOrDefault();
-        }
-
-        public T GetSemester<T>(string courseName, int nextNumber, int year)
-        {
-            return this.semesterRepository
-                .All()
-                .Where(s => s.Year >= year && s.CourseName == courseName && s.Number == nextNumber)
-                .To<T>()
-                .FirstOrDefault();
+            this.paymentAttemptRepository = paymentAttemptRepository;
+            this.paymentRepository = paymentRepository;
         }
 
         public async Task RegisterUserToSemesterAsync(string userId, int semesterId)
@@ -70,6 +58,67 @@
 
             await this.studentSubjectRepository.AddAsync(userSubject);
             await this.studentSubjectRepository.SaveChangesAsync();
+        }
+
+        public async Task<string> CreatePaymentAttemptAsync(string userId, int semesterId, decimal price)
+        {
+            var attempt = new PaymentAttempt
+            {
+                StudentId = userId,
+                SemesterId = semesterId,
+                Price = price,
+            };
+
+            await this.paymentAttemptRepository.AddAsync(attempt);
+            await this.paymentAttemptRepository.SaveChangesAsync();
+
+            return attempt.Id;
+        }
+
+        public async Task CreatePaymentAsync(string userId, int semesterId)
+        {
+            var payment = new Payment
+            {
+                StudentId = userId,
+                SemesterId = semesterId,
+            };
+
+            await this.paymentRepository.AddAsync(payment);
+            await this.paymentRepository.SaveChangesAsync();
+        }
+
+        public PaymentAttempt GetPaymentAttempt(string id)
+        {
+            return this.paymentAttemptRepository
+                .All()
+                .FirstOrDefault(a => a.Id == id);
+        }
+
+        public T GetUser<T>(string userId)
+        {
+            return this.userRepository
+                .All()
+                .Where(u => u.Id == userId)
+                .To<T>()
+                .FirstOrDefault();
+        }
+
+        public T GetSemester<T>(int semesterId)
+        {
+            return this.semesterRepository
+                .All()
+                .Where(s => s.Id == semesterId)
+                .To<T>()
+                .FirstOrDefault();
+        }
+
+        public T GetSemester<T>(string courseName, int nextNumber, int year)
+        {
+            return this.semesterRepository
+                .All()
+                .Where(s => s.Year >= year && s.CourseName == courseName && s.Number == nextNumber)
+                .To<T>()
+                .FirstOrDefault();
         }
     }
 }

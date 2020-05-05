@@ -6,10 +6,10 @@
     using System.Threading;
     using System.Threading.Tasks;
 
-    using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-    using Microsoft.EntityFrameworkCore;
     using BeStudent.Data.Common.Models;
     using BeStudent.Data.Models;
+    using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+    using Microsoft.EntityFrameworkCore;
 
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, string>
     {
@@ -56,6 +56,10 @@
         public DbSet<StudentSubject> StudentSubjects { get; set; }
 
         public DbSet<StudentSemester> StudentSemesters { get; set; }
+
+        public DbSet<PaymentAttempt> PaymentAttempts { get; set; }
+
+        public DbSet<Payment> Payments { get; set; }
 
         public override int SaveChanges() => this.SaveChanges(true);
 

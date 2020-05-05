@@ -22,12 +22,17 @@
         public IActionResult All()
         {
             var studentId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var semesterId = this.gradesService
+            var currStudentSemester = this.gradesService
                 .GetStudent<StudentForGradesViewModel>(studentId)
                 .StudentSemesters
-                .LastOrDefault()
-                .SemesterId;
+                .LastOrDefault();
 
+            if (currStudentSemester == null)
+            {
+                return this.Json("You dont have paid semester!");
+            }
+
+            var semesterId = currStudentSemester.SemesterId;
             var viewModel = this.gradesService.GetAll<SemesterForGradesViewModel>(semesterId);
 
             var studentSubjects = viewModel.Subjects

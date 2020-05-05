@@ -10,6 +10,7 @@
         {
             this.Subjects = new HashSet<Subject>();
             this.StudentSemesters = new HashSet<StudentSemester>();
+            this.Payments = new HashSet<Payment>();
         }
 
         public int Number { get; set; }
@@ -27,5 +28,7 @@
         public virtual ICollection<StudentSemester> StudentSemesters { get; set; }
 
         public virtual ICollection<Subject> Subjects { get; set; }
+
+        public virtual ICollection<Payment> Payments { get; set; }
     }
 }
