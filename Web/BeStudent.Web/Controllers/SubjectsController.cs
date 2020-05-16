@@ -54,6 +54,12 @@
         public async Task<IActionResult> All()
         {
             var user = await this.userManager.GetUserAsync(this.User);
+            if (user.SemesterNumber == 0)
+            {
+                this.TempData["message"] = "You can pay your first semester now!";
+                return this.RedirectToAction("ChooseCourse", "Payments");
+            }
+
             var role = user.Role;
             var userId = user.Id;
 

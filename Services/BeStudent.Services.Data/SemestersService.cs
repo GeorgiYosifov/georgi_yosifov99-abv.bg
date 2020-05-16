@@ -13,17 +13,20 @@
         private readonly IDeletableEntityRepository<ApplicationUser> userRepository;
         private readonly IDeletableEntityRepository<StudentSubject> userSubjectRepository;
         private readonly IDeletableEntityRepository<StudentSemester> userSemesterRepository;
+        private readonly IDeletableEntityRepository<Chat> chatRepository;
 
         public SemestersService(
             IDeletableEntityRepository<Semester> semesterRepository,
             IDeletableEntityRepository<ApplicationUser> userRepository,
             IDeletableEntityRepository<StudentSubject> userSubjectRepository,
-            IDeletableEntityRepository<StudentSemester> userSemesterRepository)
+            IDeletableEntityRepository<StudentSemester> userSemesterRepository,
+            IDeletableEntityRepository<Chat> chatRepository)
         {
             this.semesterRepository = semesterRepository;
             this.userRepository = userRepository;
             this.userSubjectRepository = userSubjectRepository;
             this.userSemesterRepository = userSemesterRepository;
+            this.chatRepository = chatRepository;
         }
 
         public async Task<bool> AddLectorAsync(int subjectId, int semesterId, string email)
@@ -68,6 +71,14 @@
 
             await this.semesterRepository.AddAsync(semester);
             await this.semesterRepository.SaveChangesAsync();
+
+            var chat = new Chat
+            {
+                SemesterId = semester.Id,
+            };
+
+            await this.chatRepository.AddAsync(chat);
+            await this.chatRepository.SaveChangesAsync();
         }
 
         public T GetDetails<T>(int id)

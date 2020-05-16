@@ -31,7 +31,7 @@ namespace BeStudent.Data.Models
 
         public string CourseName { get; set; }
 
-        public int SemesterNumber { get; set; }
+        public int? SemesterNumber { get; set; }
 
         public string Role { get; set; }
 

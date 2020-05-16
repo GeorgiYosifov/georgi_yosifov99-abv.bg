@@ -114,6 +114,12 @@
 
             var semester = this.paymentsService
                 .GetSemester<PaymentSemesterViewModel>(user.CourseName, nextSemester, now.Year);
+            if (semester == null)
+            {
+                this.TempData["message"] = "Your course dont have more semesters than these up to now.";
+                return this.RedirectToAction("Index", "Home");
+            }
+
             var price = 0.0m;
             foreach (var subject in semester.Subjects)
             {

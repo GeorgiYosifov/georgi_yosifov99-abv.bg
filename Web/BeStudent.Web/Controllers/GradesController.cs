@@ -18,7 +18,7 @@
             this.gradesService = gradesService;
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize(Roles = "Lector, User")]
         public IActionResult All()
         {
             var studentId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -29,7 +29,8 @@
 
             if (currStudentSemester == null)
             {
-                return this.Json("You dont have paid semester!");
+                this.TempData["message"] = "You can pay your first semester now!";
+                return this.RedirectToAction("ChooseCourse", "Payments");
             }
 
             var semesterId = currStudentSemester.SemesterId;

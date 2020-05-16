@@ -1,7 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace BeStudent.Web.ViewModels.Grade
+﻿namespace BeStudent.Web.ViewModels.Grade
 {
+    using System.ComponentModel.DataAnnotations;
+
     public class GradeSetInputModel
     {
         [Required]

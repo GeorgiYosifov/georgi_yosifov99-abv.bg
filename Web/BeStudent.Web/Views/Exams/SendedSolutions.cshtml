@@ -17,7 +17,7 @@
                 @if (sendFile.Grade != null)
                 {
                     <p>@($"Grade: {sendFile.Grade.Mark}")</p>
-                    @Html.Raw(sendFile.Grade.SanitizedDescription)
+                    <p>@sendFile.Grade.Description</p>
                 }
                 else
                 {

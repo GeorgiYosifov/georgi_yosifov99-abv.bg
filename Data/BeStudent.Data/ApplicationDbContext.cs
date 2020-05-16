@@ -39,6 +39,10 @@
 
         public DbSet<Grade> Grades { get; set; }
 
+        public DbSet<Chat> Chats { get; set; }
+
+        public DbSet<Message> Messages { get; set; }
+
         public DbSet<Course> Courses { get; set; }
 
         public DbSet<Semester> Semesters { get; set; }

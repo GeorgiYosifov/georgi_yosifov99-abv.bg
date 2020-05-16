@@ -12,6 +12,7 @@
     using BeStudent.Services.Data;
     using BeStudent.Services.Mapping;
     using BeStudent.Services.Messaging;
+    using BeStudent.Web.Hubs;
     using BeStudent.Web.ViewModels;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
@@ -39,6 +40,11 @@
 
             services.AddDefaultIdentity<ApplicationUser>(IdentityOptionsProvider.GetIdentityOptions)
                 .AddRoles<ApplicationRole>().AddEntityFrameworkStores<ApplicationDbContext>();
+
+            services.AddSignalR(options =>
+            {
+                options.EnableDetailedErrors = true;
+            });
 
             services.AddDistributedMemoryCache();
             services.AddSession(options =>
@@ -83,6 +89,7 @@
             services.AddTransient<IExamsService, ExamsService>();
             services.AddTransient<IGradesService, GradesService>();
             services.AddTransient<IPaymentsService, PaymentsService>();
+            services.AddTransient<IChatsService, ChatsService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -127,6 +134,7 @@
             app.UseEndpoints(
                 endpoints =>
                     {
+                        endpoints.MapHub<ChatHub>("/chat");
                         //endpoints.MapControllerRoute("sendSubject", "{subjectName}/{homeworkId}/Send", new { controller = "Homeworks", action = "Send" });
                         endpoints.MapControllerRoute("areaRoute", "{area:exists}/{controller=Home}/{action=Index}/{id?}");
                         endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");

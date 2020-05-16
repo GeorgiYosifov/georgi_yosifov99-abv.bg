@@ -16,6 +16,7 @@
     using Microsoft.AspNetCore.Identity.UI.Services;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.AspNetCore.Mvc.RazorPages;
+    using Microsoft.AspNetCore.Mvc.Rendering;
     using Microsoft.AspNetCore.WebUtilities;
     using Microsoft.Extensions.Logging;
 
@@ -48,6 +49,8 @@
         public string ReturnUrl { get; set; }
 
         public IList<AuthenticationScheme> ExternalLogins { get; set; }
+
+        public IList<SelectListItem> Courses { get; set; }
 
         public class InputModel
         {
@@ -84,6 +87,15 @@
 
         public async Task OnGetAsync(string returnUrl = null)
         {
+            this.Courses = this.dbContext.Courses
+                .Select(
+                    c => new SelectListItem
+                    {
+                        Value = c.Name,
+                        Text = c.Name,
+                    })
+                .ToList();
+
             this.ReturnUrl = returnUrl;
             this.ExternalLogins = (await this._signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
         }

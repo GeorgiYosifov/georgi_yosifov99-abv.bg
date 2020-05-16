@@ -11,7 +11,6 @@
     using BeStudent.Web.ViewModels.Exam;
     using BeStudent.Web.ViewModels.Grade;
     using BeStudent.Web.ViewModels.SendFile;
-    using BeStudent.Web.ViewModels.Student;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
 

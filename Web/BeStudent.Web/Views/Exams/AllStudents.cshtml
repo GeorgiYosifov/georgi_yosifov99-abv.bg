@@ -20,7 +20,7 @@
                         {
                             <p>@($"Name: {student.FirstName} {student.LastName}")</p>
                             <p>@($"Grade: {grade.Mark}")</p>
-                            @Html.Raw(grade.SanitizedDescription)
+                            <p>@grade.Description</p>
                             hasGrade = true;
                             break;
                         }

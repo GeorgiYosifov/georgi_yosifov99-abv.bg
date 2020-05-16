@@ -25,6 +25,10 @@
 
         public virtual Course Course { get; set; }
 
+        public string ChatId { get; set; }
+
+        public virtual Chat Chat { get; set; }
+
         public virtual ICollection<StudentSemester> StudentSemesters { get; set; }
 
         public virtual ICollection<Subject> Subjects { get; set; }

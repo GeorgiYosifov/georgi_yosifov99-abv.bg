@@ -49,6 +49,9 @@
                                 <a class="nav-link text-dark" asp-controller="Grades" asp-action="All">Grades</a>
                             </li>
                             <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Chats" asp-action="Chat">Chat</a>
+                            </li>
+                            <li class="nav-item">
                                 <a class="nav-link text-dark" asp-controller="Payments" asp-action="ChooseCourse">Payments</a>
                             </li>
                         }
@@ -73,6 +76,7 @@
 
     <environment names="Development">
         <script src="~/lib/jquery/dist/jquery.js" asp-append-version="true"></script>
+        <script src="~/lib/signalr//dist//browser//signalr.min.js" asp-append-version="true"></script>
         <script src="~/lib/jquery-validation/dist/jquery.validate.js" asp-append-version="true"></script>
         <script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.js" asp-append-version="true"></script>
         <script src="~/lib/bootstrap/dist/js/bootstrap.js" asp-append-version="true"></script>
@@ -80,6 +84,7 @@
     </environment>
     <environment names="Staging,Production">
         <script src="~/lib/jquery/dist/jquery.min.js" asp-append-version="true"></script>
+        <script src="~/lib/signalr//dist//browser//signalr.min.js" asp-append-version="true"></script>
         <script src="~/lib/jquery-validation/dist/jquery.validate.min.js" asp-append-version="true"></script>
         <script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.js" asp-append-version="true"></script>
         <script src="~/lib/bootstrap/dist/js/bootstrap.min.js" asp-append-version="true"></script>
