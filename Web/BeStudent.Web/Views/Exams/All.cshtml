@@ -1,7 +1,6 @@
 ﻿@{
     this.ViewData["Title"] = "Exams";
     var subjectName = Context.Request.Query["subjectName"];
-    var role = Context.Request.Query["role"];
 }
 
 <div class="container">
@@ -35,7 +34,7 @@
                 <div class="text-center">
                     @if (exam.Type == "OnlineTest")
                     {
-                        @if (role == "Lector")
+                        @if (this.User.IsInRole("Lector"))
                         {
                             <a class="btn btn-primary m-4 ml-5 w-25" asp-controller="Exams" asp-action="CreateOnlineTest" asp-route-subjectName="@subjectName" asp-route-examId="@exam.Id">
                                 Create Test
@@ -46,7 +45,7 @@
                             <a class="btn btn-primary mb-2 ml-5 w-25" asp-controller="Exams" asp-action="StartTest" asp-route-onlineTestId="@test.Id">
                                 Start Test
                             </a>
-                            @if (role == "Lector")
+                            @if (this.User.IsInRole("Lector"))
                             {
                                 <a class="btn btn-primary m-4 ml-5 w-25" asp-controller="Exams" asp-action="SendedTests" asp-route-onlineTestId="@test.Id">
                                     Sended Tests
@@ -59,13 +58,13 @@
 
                         <p>Open: @exam.Open</p>
                         <p>Close: @exam.Close</p>
-                        @if (role == "User")
+                        @if (this.User.IsInRole("User"))
                         {
                             <a class="btn btn-secondary m-1 w-auto" asp-controller="Exams" asp-action="SendSolution" asp-route-subjectName="@subjectName" asp-route-examId="@exam.Id">
                                 Send Solution
                             </a>
                         }
-                        else if (role == "Lector")
+                        else if (this.User.IsInRole("Lector"))
                         {
                             <a class="btn btn-secondary m-1 w-auto" asp-controller="Exams" asp-action="SendedSolutions" asp-route-subjectName="@subjectName" asp-route-examId="@exam.Id">
                                 Sended Solutions
@@ -74,7 +73,7 @@
                     }
                     else if (exam.Type == "PresentExam")
                     {
-                        if (role == "Lector")
+                        if (this.User.IsInRole("Lector"))
                         {
                             <a class="btn btn-secondary m-1 w-auto" asp-controller="Exams" asp-action="AllStudents" asp-route-subjectName="@subjectName" asp-route-examId="@exam.Id">
                                 List of students
@@ -86,7 +85,7 @@
         }
     </ul>
 
-    @if (role == "Lector")
+    @if (this.User.IsInRole("Lector"))
     {
         <a class="btn btn-secondary m-4 w-auto" asp-controller="Exams" asp-action="Create" asp-route-subjectName="@subjectName">
             Create New Exam

@@ -1,9 +1,11 @@
 ﻿namespace BeStudent.Services.Data
 {
+    using System.Threading.Tasks;
+
     public interface IGradesService
     {
-        T GetStudent<T>(string studentId);
+        Task<T> GetStudent<T>(string studentId);
 
-        T GetAll<T>(int semesterId);
+        Task<T> GetAll<T>(int semesterId);
     }
 }

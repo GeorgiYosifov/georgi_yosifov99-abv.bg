@@ -1,6 +1,5 @@
 ﻿namespace BeStudent.Services.Data
 {
-    using System.Collections.Generic;
     using System.IO;
     using System.Threading.Tasks;
 
@@ -8,6 +7,6 @@
     {
         Task CreateAsync(string subjectName, string title, string description, string fileUri, string fileDescription);
 
-        string UploadFileToCloudinary(string name, Stream fileStream);
+        Task<string> UploadFileToCloudinary(string name, Stream fileStream);
     }
 }

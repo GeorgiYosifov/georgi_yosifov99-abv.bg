@@ -7,6 +7,7 @@
     using BeStudent.Data.Common.Repositories;
     using BeStudent.Data.Models;
     using BeStudent.Services.Mapping;
+    using Microsoft.EntityFrameworkCore;
 
     public class CoursesService : ICoursesService
     {
@@ -17,13 +18,13 @@
             this.courseRepository = courseRepository;
         }
 
-        public T ByName<T>(string name)
+        public async Task<T> ByName<T>(string name)
         {
-            return this.courseRepository
+            return await this.courseRepository
                 .All()
                 .Where(c => c.Name == name)
                 .To<T>()
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
         }
 
         public async Task CreateAsync(string name)
@@ -37,9 +38,12 @@
             await this.courseRepository.SaveChangesAsync();
         }
 
-        public IEnumerable<T> GetAll<T>()
+        public async Task<IEnumerable<T>> GetAll<T>()
         {
-            return this.courseRepository.All().To<T>().ToList();
+            return await this.courseRepository
+                .All()
+                .To<T>()
+                .ToListAsync();
         }
     }
 }

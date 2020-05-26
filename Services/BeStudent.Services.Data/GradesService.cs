@@ -1,10 +1,12 @@
 ﻿namespace BeStudent.Services.Data
 {
     using System.Linq;
+    using System.Threading.Tasks;
 
     using BeStudent.Data.Common.Repositories;
     using BeStudent.Data.Models;
     using BeStudent.Services.Mapping;
+    using Microsoft.EntityFrameworkCore;
 
     public class GradesService : IGradesService
     {
@@ -19,22 +21,22 @@
             this.studentRepository = studentRepository;
         }
 
-        public T GetStudent<T>(string studentId)
+        public async Task<T> GetStudent<T>(string studentId)
         {
-            return this.studentRepository
+            return await this.studentRepository
                 .All()
                 .Where(s => s.Id == studentId)
                 .To<T>()
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
         }
 
-        public T GetAll<T>(int semesterId)
+        public async Task<T> GetAll<T>(int semesterId)
         {
-            return this.semesterRepository
+            return await this.semesterRepository
                 .All()
                 .Where(s => s.Id == semesterId)
                 .To<T>()
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
         }
     }
 }

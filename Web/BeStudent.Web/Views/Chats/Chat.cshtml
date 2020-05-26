@@ -1,35 +1,169 @@
-﻿@{
+﻿@using BeStudent.Web.ViewModels.Chat;
+@model ChatViewModel;
+
+@{
     this.ViewBag.Title = "Chat";
 }
 
-<h1>@this.ViewBag.Title</h1>
+<head>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" type="text/css" rel="stylesheet" />
+    <link rel="stylesheet" type="text/css" href="~/css/chat.css">
+</head>
 
 <div class="container">
-    <div id="message-holder" class="mt-3 d-flex justify-content-start">
-        <h4>Message</h4>
-        <input class="w-75 ml-4 pl-3" type="text" id="messageInput" placeholder="Message..." />
-        <button id="sendButton" class="ml-4 btn btn-dark btn-lg">Send</button>
-    </div>
-    <hr style="height: 5px;" class="bg-dark" />
-    <div id="messagesList" style="font-size: 28px;">
+    <h1 class="text-center">@this.ViewBag.Title</h1>
+
+    <div class="messaging">
+        <div class="inbox_msg">
+            <div class="inbox_people">
+                <div class="headind_srch">
+                    <div class="recent_heading">
+                        <h4>Recent Active</h4>
+                    </div>
+                </div>
+                <div id="activeList" class="inbox_chat">
+                    @foreach (var user in Model.Users)
+                    {
+                        <div id="@user.Id" class="chat_list active_chat">
+                            <div class="chat_people">
+                                <div class="chat_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
+                                <div class="chat_ib">
+                                    <h5>@user.FirstName @user.LastName</h5>
+                                    <p>@user.Email</p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="mesgs">
+                <div id="messagesList" class="msg_history">
+                    @foreach (var message in Model.Messages)
+                    {
+                        @if (message.UserId == Model.UserId)
+                        {
+                            <div class="outgoing_msg">
+                                <div class="sent_msg">
+                                    <p>@message.SanitizedText</p>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="incoming_msg">
+                                <div class="incoming_msg_img">
+                                    <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil">
+                                </div>
+                                <div class="received_msg">
+                                    <div class="received_withd_msg">
+                                        <span class="msg_name">@message.UserFirstName @message.UserLastName</span>
+                                        <p>@message.SanitizedText</p>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+                <div class="type_msg">
+                    <div class="input_msg_write">
+                        <input id="messageInput" type="text" class="write_msg" placeholder="Type a message" />
+                        <button id="sendButton" class="msg_send_btn" type="button">
+                            <i class="fa fa-paper-plane-o" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
 @section Scripts {
     <script>
-        var connection =
-            new signalR.HubConnectionBuilder()
-                .withUrl("/chat")
-                .build();
-        connection.on("NewMessage",
+        var connection = new signalR.HubConnectionBuilder().withUrl("/chat").build();
+
+        function getLastMessages() {
+            let div = $("#messagesList");
+            div.scrollTop(div.prop('scrollHeight'));
+        }
+        async function start() {
+            try {
+                await connection.start();
+                connection.invoke("Active");
+                getLastMessages();
+                console.log("connected");
+            } catch (err) {
+                console.log(err);
+                setTimeout(() => start(), 5000);
+            }
+        };
+        connection.onclose(async () => {
+            await start();
+        });
+
+        connection.on("ActiveStudent",
+            function (user) {
+                let activeInfo =
+                    `<div id="${user.id}" class="chat_list active_chat">
+                        <div class="chat_people">
+                            <div class="chat_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
+                            <div class="chat_ib">
+                                <h5>${user.firstName} ${user.lastName}</h5>
+                                <p>${user.email}</p>
+                            </div>
+                        </div>
+                    </div>`;
+                $("#activeList").append(activeInfo);
+            });
+        connection.on("InActiveStudent",
+            function (userId) {
+                $(`#${userId}`).empty();
+                $(`#${userId}`).remove();
+            });
+        connection.on("NewMessageToCaller",
             function (message) {
-                var chatInfo = `<div>[${message.name}] ${message.text}</div>`;
+                let chatInfo =
+                    `<div class="outgoing_msg">
+                        <div class="sent_msg">
+                            <p>${message.sanitizedText}</p>
+                        </div>
+                    </div>`;
+                $("#messagesList").append(chatInfo);
+                getLastMessages();
+            });
+        connection.on("NewMessageToOthers",
+            function (message) {
+                let chatInfo =
+                    `<div class="incoming_msg">
+                        <div class="incoming_msg_img">
+                            <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil">
+                        </div>
+                        <div class="received_msg">
+                            <div class="received_withd_msg">
+                                <span class="msg_name">${message.userFirstName} ${message.userLastName}</span>
+                                <p>${message.sanitizedText}</p>
+                            </div>
+                        </div>
+                    </div>`;
                 $("#messagesList").append(chatInfo);
             });
-        $("#sendButton").click(function() {
+
+        start();
+        window.addEventListener("beforeunload", function () {
+            connection.invoke("InActive");
+            console.log("disconnected");
+        });
+
+        $("#messageInput").keyup(function(event) {
+            if (event.keyCode === 13) {
+                $("#sendButton").click();
+            }
+        });
+        $("#sendButton").click(function () {
             var message = $("#messageInput").val();
+            $("#messageInput").val('');
             connection.invoke("Send", message);
         });
+
         connection.start().catch(function (err) {
             return console.error(err.toString());
         });

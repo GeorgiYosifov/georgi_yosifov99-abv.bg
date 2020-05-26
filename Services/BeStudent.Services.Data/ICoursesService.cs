@@ -3,13 +3,11 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
-    using BeStudent.Data.Models;
-
     public interface ICoursesService
     {
-        T ByName<T>(string name);
+        Task<T> ByName<T>(string name);
 
-        IEnumerable<T> GetAll<T>();
+        Task<IEnumerable<T>> GetAll<T>();
 
         Task CreateAsync(string name);
     }

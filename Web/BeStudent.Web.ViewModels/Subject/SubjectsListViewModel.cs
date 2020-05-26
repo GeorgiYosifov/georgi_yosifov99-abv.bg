@@ -4,8 +4,6 @@
 
     public class SubjectsListViewModel
     {
-        public string Role { get; set; }
-
         public IEnumerable<SubjectForAllViewModel> Subjects { get; set; }
     }
 }

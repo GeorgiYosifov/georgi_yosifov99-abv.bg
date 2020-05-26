@@ -1,13 +1,13 @@
 ﻿namespace BeStudent.Services.Data
 {
     using System.IO;
-    using System.Linq;
     using System.Threading.Tasks;
 
     using BeStudent.Data.Common.Repositories;
     using BeStudent.Data.Models;
     using CloudinaryDotNet;
     using CloudinaryDotNet.Actions;
+    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
 
     public class ThemesService : IThemesService
@@ -28,7 +28,7 @@
 
         public async Task CreateAsync(string subjectName, string title, string description, string fileUri, string fileDescription)
         {
-            var subject = this.subjectRepository.All().FirstOrDefault(s => s.Name == subjectName);
+            var subject = await this.subjectRepository.All().FirstOrDefaultAsync(s => s.Name == subjectName);
 
             var theme = new Theme()
             {
@@ -51,7 +51,7 @@
             await this.themeRepository.SaveChangesAsync();
         }
 
-        public string UploadFileToCloudinary(string name, Stream fileStream)
+        public async Task<string> UploadFileToCloudinary(string name, Stream fileStream)
         {
             Account account = new Account
             {
@@ -69,7 +69,7 @@
                 File = new FileDescription(name, fileStream),
             };
 
-            var uploadResult = cloudinary.Upload(uploadParams);
+            var uploadResult = await cloudinary.UploadAsync(uploadParams);
             return uploadResult.SecureUri.AbsoluteUri;
         }
     }

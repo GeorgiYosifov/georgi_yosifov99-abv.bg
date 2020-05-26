@@ -20,19 +20,23 @@
 
         Task CreateDecisionAsync(string questionId, string studentId, int answerId, string content, string type);
 
-        int FindQuestionsCount(int onlineTestId);
+        Task<int> FindQuestionsCount(int onlineTestId);
 
-        T GetQuestion<T>(string questionId);
+        Task<T> GetQuestion<T>(string questionId);
 
-        T GetTest<T>(int onlineTestId);
+        Task<T> GetTest<T>(int onlineTestId);
 
-        T GetExam<T>(int examId);
+        Task<T> GetExam<T>(int examId);
 
         Task AddStudentInTest(int onlineTestId, string studentId);
 
+        Task<bool> IsTestWithClosedAnswers(int onlineTestId);
+
+        Task<double> EarnedPoints(int onlineTestId, string studentId);
+
         Task<double> CalculateGradeAsync(int onlineTestId, string studentId, double points);
 
-        IEnumerable<T> GetAllSendedSolutions<T>(int examId);
+        Task<IEnumerable<T>> GetAllSendedSolutions<T>(int examId);
 
         Task SendSolutionAsync(string studentId, int examId, string fileUri, string fileDescription);
 

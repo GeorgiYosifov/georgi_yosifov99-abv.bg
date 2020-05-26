@@ -95,6 +95,8 @@
                         Text = c.Name,
                     })
                 .ToList();
+            var none = new SelectListItem(null, null, false);
+            this.Courses.Insert(0, none);
 
             this.ReturnUrl = returnUrl;
             this.ExternalLogins = (await this._signInManager.GetExternalAuthenticationSchemesAsync()).ToList();

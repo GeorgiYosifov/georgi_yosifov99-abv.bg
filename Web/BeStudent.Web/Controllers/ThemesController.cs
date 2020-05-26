@@ -35,7 +35,7 @@
             var fileUri = string.Empty;
             if (input.File != null)
             {
-                fileUri = this.themesService
+                fileUri = await this.themesService
                     .UploadFileToCloudinary(input.File.FileName, input.File.OpenReadStream());
                 if (input.FileDescription == null)
                 {

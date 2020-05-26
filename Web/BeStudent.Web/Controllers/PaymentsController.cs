@@ -10,7 +10,6 @@
     using BeStudent.Services.Data;
     using BeStudent.Web.ViewModels.Payment;
     using BeStudent.Web.ViewModels.Semester;
-    using BeStudent.Web.ViewModels.Student;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Configuration;
@@ -34,25 +33,22 @@
         }
 
         [Authorize(Roles = "User")]
-        public async Task<IActionResult> ChooseCourse()
+        public async Task<IActionResult> ShowNewSemester()
         {
             var now = DateTime.Now;
             var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var user = this.paymentsService.GetUser<PaymentUserViewModel>(userId);
+            var user = await this.paymentsService.GetUser<PaymentUserViewModel>(userId);
             var nextSemester = 0;
+
             if (user.SemesterNumber == 0)
             {
                 nextSemester = user.SemesterNumber + 1;
             }
             else
             {
-                var semesterId = this.gradesService
-                .GetStudent<StudentForGradesViewModel>(userId)
-                .StudentSemesters
-                .LastOrDefault()
-                .SemesterId;
+                var semesterId = user.StudentSemesters.LastOrDefault().SemesterId;
 
-                var model = this.gradesService.GetAll<SemesterForGradesViewModel>(semesterId);
+                var model = await this.gradesService.GetAll<SemesterForGradesViewModel>(semesterId);
 
                 var studentSubjects = model.Subjects
                     .Where(s => s.StudentSubjects.FirstOrDefault(x => x.StudentId == userId) != null)
@@ -112,7 +108,7 @@
                 nextSemester = user.SemesterNumber + 1;
             }
 
-            var semester = this.paymentsService
+            var semester = await this.paymentsService
                 .GetSemester<PaymentSemesterViewModel>(user.CourseName, nextSemester, now.Year);
             if (semester == null)
             {
@@ -142,7 +138,7 @@
         [Authorize(Roles = "User")]
         public async Task<IActionResult> Pay([FromQuery] string attemptId)
         {
-            var attempt = this.paymentsService.GetPaymentAttempt(attemptId);
+            var attempt = await this.paymentsService.GetPaymentAttempt(attemptId);
 
             var clientId = this.configuration.GetSection("PayPal").GetSection("clientId").Value;
             var secret = this.configuration.GetSection("PayPal").GetSection("secret").Value;
@@ -239,11 +235,11 @@
 
             if (statusCode.ToString() == "OK")
             {
-                var attempt = this.paymentsService.GetPaymentAttempt(attemptId);
+                var attempt = await this.paymentsService.GetPaymentAttempt(attemptId);
 
                 var userId = attempt.StudentId;
                 var semesterId = attempt.SemesterId;
-                var semester = this.paymentsService
+                var semester = await this.paymentsService
                     .GetSemester<PaymentSemesterViewModel>(semesterId);
 
                 await this.paymentsService.RegisterUserToSemesterAsync(userId, semesterId);

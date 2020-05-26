@@ -45,9 +45,9 @@
 
         [Authorize(Roles = "Administrator")]
         [HttpGet("Semesters/Details")]
-        public IActionResult Details([FromQuery] int semesterId)
+        public async Task<IActionResult> Details([FromQuery] int semesterId)
         {
-            var semesterViewModel = this.semestersService.GetDetails<SemesterDetailsViewModel>(semesterId);
+            var semesterViewModel = await this.semestersService.GetDetails<SemesterDetailsViewModel>(semesterId);
             if (semesterViewModel == null)
             {
                 return this.NotFound();

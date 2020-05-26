@@ -8,6 +8,8 @@
     using BeStudent.Data.Common.Repositories;
     using BeStudent.Data.Models;
     using BeStudent.Services.Mapping;
+    using BeStudent.Web.ViewModels.Exam;
+    using Microsoft.EntityFrameworkCore;
 
     public class ExamsService : IExamsService
     {
@@ -45,7 +47,7 @@
 
         public async Task CreateAsync(string subjectName, string title, string description, string fileUri, string fileDescription, ExamType type, DateTime? open, DateTime? close)
         {
-            var subject = this.subjectRepository.All().FirstOrDefault(s => s.Name == subjectName);
+            var subject = await this.subjectRepository.All().FirstOrDefaultAsync(s => s.Name == subjectName);
 
             var exam = new Exam
             {
@@ -162,35 +164,36 @@
             await this.answerRepository.SaveChangesAsync();
         }
 
-        public int FindQuestionsCount(int onlineTestId)
+        public async Task<int> FindQuestionsCount(int onlineTestId)
         {
-            return this.onlineTestRepository
+            var onlineTest = await this.onlineTestRepository
                 .All()
-                .FirstOrDefault(t => t.Id == onlineTestId)
-                .QuestionsCount;
+                .FirstOrDefaultAsync(t => t.Id == onlineTestId);
+
+            return onlineTest.QuestionsCount;
         }
 
-        public T GetTest<T>(int onlineTestId)
+        public async Task<T> GetTest<T>(int onlineTestId)
         {
-            return this.onlineTestRepository
+            return await this.onlineTestRepository
                 .All()
                 .Where(s => s.Id == onlineTestId)
                 .To<T>()
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
         }
 
-        public T GetQuestion<T>(string questionId)
+        public async Task<T> GetQuestion<T>(string questionId)
         {
-            return this.questionRepository
+            return await this.questionRepository
                 .All()
                 .Where(q => q.Id == questionId)
                 .To<T>()
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
         }
 
         public async Task CreateDecisionAsync(string questionId, string studentId, int answerId, string content, string type)
         {
-            var answer = this.answerRepository.All().FirstOrDefault(a => a.Id == answerId);
+            var answer = await this.answerRepository.All().FirstOrDefaultAsync(a => a.Id == answerId);
             var points = 0.0;
             if (answer != null)
             {
@@ -212,8 +215,8 @@
 
         public async Task AddStudentInTest(int onlineTestId, string studentId)
         {
-            var test = this.onlineTestRepository.All().FirstOrDefault(t => t.Id == onlineTestId);
-            var student = this.studentRepository.All().FirstOrDefault(s => s.Id == studentId);
+            var test = await this.onlineTestRepository.All().FirstOrDefaultAsync(t => t.Id == onlineTestId);
+            var student = await this.studentRepository.All().FirstOrDefaultAsync(s => s.Id == studentId);
             test.Students.Add(student);
 
             await this.onlineTestRepository.SaveChangesAsync();
@@ -221,7 +224,7 @@
 
         public async Task<double> CalculateGradeAsync(int onlineTestId, string studentId, double points)
         {
-            var test = this.onlineTestRepository.All().FirstOrDefault(t => t.Id == onlineTestId);
+            var test = await this.onlineTestRepository.All().FirstOrDefaultAsync(t => t.Id == onlineTestId);
             var examId = test.ExamId;
 
             var mark = 0.0;
@@ -253,22 +256,22 @@
             return mark;
         }
 
-        public IEnumerable<T> GetAllSendedSolutions<T>(int examId)
+        public async Task<IEnumerable<T>> GetAllSendedSolutions<T>(int examId)
         {
-            return this.sendFileRepository
+            return await this.sendFileRepository
                 .All()
                 .Where(s => s.ExamId == examId)
                 .To<T>()
-                .ToList();
+                .ToListAsync();
         }
 
-        public T GetExam<T>(int examId)
+        public async Task<T> GetExam<T>(int examId)
         {
-            return this.examRepository
+            return await this.examRepository
                 .All()
                 .Where(e => e.Id == examId)
                 .To<T>()
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
         }
 
         public async Task SendSolutionAsync(string studentId, int examId, string fileUri, string fileDescription)
@@ -300,9 +303,50 @@
 
             if (sendFileId != null)
             {
-                this.sendFileRepository.All().FirstOrDefault(f => f.Id == sendFileId).Grade = grade;
+                this.sendFileRepository.All().FirstOrDefaultAsync(f => f.Id == sendFileId).GetAwaiter().GetResult().Grade = grade;
                 await this.sendFileRepository.SaveChangesAsync();
             }
+        }
+
+        public async Task<bool> IsTestWithClosedAnswers(int onlineTestId)
+        {
+            var test = await this.onlineTestRepository
+                .AllAsNoTracking()
+                .Where(t => t.Id == onlineTestId)
+                .To<OnlineTestSolveViewModel>()
+                .FirstOrDefaultAsync();
+
+            foreach (var question in test.Questions)
+            {
+                var answerType = question.Answers.FirstOrDefault().Type.ToString();
+                if (answerType == "InputFieldUp20Chars" || answerType == "InputFieldTiny")
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public async Task<double> EarnedPoints(int onlineTestId, string studentId)
+        {
+            var test = await this.onlineTestRepository
+               .AllAsNoTracking()
+               .Where(t => t.Id == onlineTestId)
+               .To<OnlineTestSolveViewModel>()
+               .FirstOrDefaultAsync();
+
+            var points = 0.0;
+            foreach (var question in test.Questions)
+            {
+                var decision = question.Decisions.FirstOrDefault(d => d.StudentId == studentId);
+                if (decision != null)
+                {
+                    points += decision.Points;
+                }
+            }
+
+            return points;
         }
     }
 }

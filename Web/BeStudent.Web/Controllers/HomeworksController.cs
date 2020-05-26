@@ -51,7 +51,7 @@
             var fileUri = string.Empty;
             if (input.File != null)
             {
-                fileUri = this.themesService
+                fileUri = await this.themesService
                     .UploadFileToCloudinary(input.File.FileName, input.File.OpenReadStream());
             }
 
@@ -63,13 +63,13 @@
 
         [Authorize(Roles = "Lector")]
         [HttpGet("Subjects/{subjectName}/Homeworks/{homeworkId}/Sended")]
-        public IActionResult Sended(string subjectName, int homeworkId)
+        public async Task<IActionResult> Sended(string subjectName, int homeworkId)
         {
             var viewModel = new SendFilesListViewModel
             {
                 HomeworkId = homeworkId,
                 SubjectName = subjectName,
-                SendFiles = this.homeworksService.GetAllSendedFiles<SendFileViewModel>(homeworkId),
+                SendFiles = await this.homeworksService.GetAllSendedFiles<SendFileViewModel>(homeworkId),
             };
 
             return this.View(viewModel);
@@ -94,7 +94,7 @@
             var fileUri = string.Empty;
             if (input.File != null)
             {
-                fileUri = this.themesService
+                fileUri = await this.themesService
                     .UploadFileToCloudinary(input.File.FileName, input.File.OpenReadStream());
                 if (input.FileDescription == null)
                 {
@@ -132,7 +132,7 @@
             var fileUri = string.Empty;
             if (input.File != null)
             {
-                fileUri = this.themesService
+                fileUri = await this.themesService
                     .UploadFileToCloudinary(input.File.FileName, input.File.OpenReadStream());
                 if (input.FileDescription == null)
                 {

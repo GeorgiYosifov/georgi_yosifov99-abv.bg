@@ -1,7 +1,6 @@
 ﻿@{
     this.ViewData["Title"] = "Homeworks";
     var subjectName = Context.Request.Query["subjectName"];
-    var role = Context.Request.Query["role"];
 }
 
 <div class="container">
@@ -24,7 +23,7 @@
                     </span>
                     <a class="ml-5" href="@file.CloudinaryFileUri" target="_blank">@file.FileDescription</a>
                 }
-                @if (role == "Lector")
+                @if (this.User.IsInRole("Lector"))
                 {
                     <a class="ml-lg-5" asp-controller="Homeworks" asp-action="AddNewFile" asp-route-subjectName="@subjectName" asp-route-homeworkId="@homework.Id" style="font-size: 1.5em;">
                         <i class="fas fa-plus"></i>
@@ -35,13 +34,13 @@
                 <div class="text-center">
                     <p class="text-center mt-2">@($"End time: {homework.Deadline}!")</p>
 
-                    @if (role == "User")
+                    @if (this.User.IsInRole("User"))
                     {
                         <a class="btn btn-secondary m-1 w-auto" asp-controller="Homeworks" asp-action="Send" asp-route-subjectName="@subjectName" asp-route-homeworkId="@homework.Id" asp-route-deadline="@homework.Deadline">
                             Send Homework
                         </a>
                     }
-                    else if (role == "Lector")
+                    else if (this.User.IsInRole("Lector"))
                     {
                         <a class="btn btn-secondary m-1 w-auto" asp-controller="Homeworks" asp-action="Sended" asp-route-subjectName="@subjectName" asp-route-homeworkId="@homework.Id">
                             Sended Homeworks
@@ -52,7 +51,7 @@
         }
     </ul>
 
-    @if (role == "Lector")
+    @if (this.User.IsInRole("Lector"))
     {
         <a class="btn btn-secondary m-4 w-auto" asp-controller="Homeworks" asp-action="Create" asp-route-subjectName="@subjectName">
             Create

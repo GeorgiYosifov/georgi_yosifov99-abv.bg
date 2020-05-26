@@ -6,17 +6,21 @@
     using BeStudent.Data.Common.Repositories;
     using BeStudent.Data.Models;
     using BeStudent.Services.Mapping;
+    using Microsoft.EntityFrameworkCore;
 
     public class ChatsService : IChatsService
     {
         private readonly IDeletableEntityRepository<Chat> chatRepository;
+        private readonly IDeletableEntityRepository<ApplicationUser> studentRepository;
         private readonly IRepository<Message> messageRepository;
 
         public ChatsService(
             IDeletableEntityRepository<Chat> chatRepository,
+            IDeletableEntityRepository<ApplicationUser> studentRepository,
             IRepository<Message> messageRepository)
         {
             this.chatRepository = chatRepository;
+            this.studentRepository = studentRepository;
             this.messageRepository = messageRepository;
         }
 
@@ -34,22 +38,58 @@
             return newMessage.Id;
         }
 
-        public T GetChat<T>(int semesterId)
+        public async Task<T> GetChat<T>(int semesterId)
         {
-            return this.chatRepository
+            return await this.chatRepository
                 .All()
                 .Where(c => c.SemesterId == semesterId)
                 .To<T>()
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
         }
 
-        public T GetMessage<T>(int messageId)
+        public async Task<Chat> GetChat(int semesterId)
         {
-            return this.messageRepository
+            return await this.chatRepository
+                .All()
+                .Where(c => c.SemesterId == semesterId)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<T> GetMessage<T>(int messageId)
+        {
+            return await this.messageRepository
                 .All()
                 .Where(m => m.Id == messageId)
                 .To<T>()
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<T> GetStudent<T>(string email)
+        {
+            return await this.studentRepository
+                .All()
+                .Where(s => s.Email == email)
+                .To<T>()
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task SetUserToActiveOrInActive(string userId, int semesterId, string command)
+        {
+            var user = await this.studentRepository
+                .All()
+                .FirstOrDefaultAsync(s => s.Id == userId);
+
+            var chat = await this.GetChat(semesterId);
+            if (command == "Add")
+            {
+                chat.Users.Add(user);
+            }
+            else if (command == "Remove")
+            {
+                chat.Users.Remove(user);
+            }
+
+            await this.chatRepository.SaveChangesAsync();
         }
     }
 }

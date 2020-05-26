@@ -1,7 +1,6 @@
 ﻿@{
     this.ViewData["Title"] = "Themes";
     var subjectName = Context.Request.Query["subjectName"];
-    var role = Context.Request.Query["role"];
 }
 
 <div class="container">
@@ -25,7 +24,7 @@
             </li>
         }
     </ul>
-    @if (role == "Lector")
+    @if (this.User.IsInRole("Lector"))
     {
         <a class="btn btn-secondary m-4 w-auto" asp-controller="Themes" asp-action="Create" asp-route-subjectName="@subjectName">
             Create

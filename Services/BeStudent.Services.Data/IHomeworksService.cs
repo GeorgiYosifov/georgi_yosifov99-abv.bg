@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace BeStudent.Services.Data
+﻿namespace BeStudent.Services.Data
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+
     public interface IHomeworksService
     {
         Task CreateAsync(string subjectName, string title, string description, string fileUri, string fileDescription, DateTime deadline);
@@ -16,6 +14,6 @@ namespace BeStudent.Services.Data
 
         Task AddNewFileAsync(int homeworkId, string fileUri, string fileDescription);
 
-        IEnumerable<T> GetAllSendedFiles<T>(int homeworkId);
+        Task<IEnumerable<T>> GetAllSendedFiles<T>(int homeworkId);
     }
 }

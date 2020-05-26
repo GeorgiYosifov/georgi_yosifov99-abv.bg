@@ -7,10 +7,10 @@
     {
         Task CreateAsync(int semesterId, string name, decimal price, string emails);
 
-        IEnumerable<T> GetAll<T>(string userId);
+        Task<IEnumerable<T>> GetAll<T>(string userId);
 
-        T GetThemes<T>(string name);
+        Task<T> GetThemesAsync<T>(string name);
 
-        T FillCalendar<T>(string name);
+        Task<T> FillCalendar<T>(string name);
     }
 }

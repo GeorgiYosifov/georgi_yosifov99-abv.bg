@@ -23,8 +23,12 @@
 
         public DateTime OnlineTestEndTime { get; set; }
 
+        public int OnlineTestDuration { get; set; }
+
         public string Value { get; set; }
 
-        public int RemainSeconds { get; set; }
+        public long RemainSeconds { get; set; }
+
+        public long SecondsBefore { get; set; }
     }
 }

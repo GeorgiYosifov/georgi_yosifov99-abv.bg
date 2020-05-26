@@ -5,6 +5,8 @@
 
     public class StudentSemesterViewModel : IMapFrom<StudentSemester>
     {
+        public int SemesterId { get; set; }
+
         public StudentViewModel Student { get; set; }
     }
 }

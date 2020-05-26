@@ -1,9 +1,11 @@
 ﻿namespace BeStudent.Web.ViewModels.Student
 {
+    using System.Collections.Generic;
+
     using BeStudent.Data.Models;
     using BeStudent.Services.Mapping;
 
-    public class StudentForSubjectViewModel : IMapFrom<ApplicationUser>
+    public class StudentForChatViewModel : IMapFrom<ApplicationUser>
     {
         public string Id { get; set; }
 
@@ -13,6 +15,8 @@
 
         public string Email { get; set; }
 
-        public string Role { get; set; }
+        public int SemesterNumber { get; set; }
+
+        public IEnumerable<StudentSemesterViewModel> StudentSemesters { get; set; }
     }
 }

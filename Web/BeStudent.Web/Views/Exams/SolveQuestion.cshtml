@@ -11,7 +11,6 @@
 }
 
 <script src="/lib/tinymce/tinymce.min.js" type="text/javascript"></script>
-
 <script type="text/javascript">
     tinymce.init({
         selector: "textarea",
@@ -20,15 +19,15 @@
         ]
     });
 </script>
-@*<span>&#8470;</span>*@
+
 <div class="container">
     <div class="text-center">
         <h3>Question @number</h3>
     </div>
+
     <input type="hidden" id="seconds" value="@Model.RemainSeconds">
     <input type="hidden" id="path" value="@path">
     <p class="Timer"></p>
-
     <br />
     <div class="card mb-3">
         <div class="card-body text-white bg-secondary">
@@ -38,7 +37,7 @@
                 <img src="@Model.File.CloudinaryFileUri" alt="@Model.File.FileDescription" style="width:500px;height:200px;">
                 <br />
             }
-            <form method="post" asp-action="SolveQuestion" asp-route-onlineTestId="@Model.OnlineTestId" asp-route-type="@type" asp-route-answerId="@answerId" enctype="multipart/form-data">
+            <form method="post" asp-action="SolveQuestion" asp-route-onlineTestId="@Model.OnlineTestId" asp-route-type="@type" asp-route-answerId="@answerId" asp-route-remainSeconds="@Model.RemainSeconds" asp-route-secondsBefore="@Model.SecondsBefore" enctype="multipart/form-data">
                 @if (isRadioButtons == true)
                 {
                     <div class="content">

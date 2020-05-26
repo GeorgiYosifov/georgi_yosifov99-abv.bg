@@ -1,7 +1,6 @@
 ﻿@model BeStudent.Web.ViewModels.Exam.OnlineTestReviewViewModel
 @{
     this.ViewData["Title"] = "Review";
-    var role = Context.Request.Query["role"];
     var counter = 1;
     var counterForPointsField = 0;
 }
@@ -79,7 +78,7 @@
                     else
                     {
                         <p>@Html.Raw(decision.SanitizedContent)</p>
-                        @if (role == "Lector" && Model.HasOpenAnswers == true)
+                        @if (this.User.IsInRole("Lector") && Model.HasOpenAnswers == true)
                         {
                             <div class="form-group">
                                 <label asp-for="SetPoints[counterForPointsField].Points"></label>
@@ -93,7 +92,7 @@
             </div>
         }
 
-        @if (role == "Lector" && Model.HasOpenAnswers == true)
+        @if (this.User.IsInRole("Lector") && Model.HasOpenAnswers == true)
         {
             <input type="submit" class="btn btn-primary" value="Create grade" />
         }

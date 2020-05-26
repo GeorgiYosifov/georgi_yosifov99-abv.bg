@@ -6,6 +6,7 @@
     using BeStudent.Data.Common.Repositories;
     using BeStudent.Data.Models;
     using BeStudent.Services.Mapping;
+    using Microsoft.EntityFrameworkCore;
 
     public class PaymentsService : IPaymentsService
     {
@@ -43,7 +44,7 @@
             await this.studentSemesterRepository.AddAsync(userSemester);
             await this.studentSemesterRepository.SaveChangesAsync();
 
-            var student = this.userRepository.All().FirstOrDefault(u => u.Id == userId);
+            var student = await this.userRepository.All().FirstOrDefaultAsync(u => u.Id == userId);
             student.SemesterNumber++;
             await this.userRepository.SaveChangesAsync();
         }
@@ -87,38 +88,38 @@
             await this.paymentRepository.SaveChangesAsync();
         }
 
-        public PaymentAttempt GetPaymentAttempt(string id)
+        public async Task<PaymentAttempt> GetPaymentAttempt(string id)
         {
-            return this.paymentAttemptRepository
+            return await this.paymentAttemptRepository
                 .All()
-                .FirstOrDefault(a => a.Id == id);
+                .FirstOrDefaultAsync(a => a.Id == id);
         }
 
-        public T GetUser<T>(string userId)
+        public async Task<T> GetUser<T>(string userId)
         {
-            return this.userRepository
+            return await this.userRepository
                 .All()
                 .Where(u => u.Id == userId)
                 .To<T>()
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
         }
 
-        public T GetSemester<T>(int semesterId)
+        public async Task<T> GetSemester<T>(int semesterId)
         {
-            return this.semesterRepository
+            return await this.semesterRepository
                 .All()
                 .Where(s => s.Id == semesterId)
                 .To<T>()
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
         }
 
-        public T GetSemester<T>(string courseName, int nextNumber, int year)
+        public async Task<T> GetSemester<T>(string courseName, int nextNumber, int year)
         {
-            return this.semesterRepository
+            return await this.semesterRepository
                 .All()
                 .Where(s => s.Year >= year && s.CourseName == courseName && s.Number == nextNumber)
                 .To<T>()
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
         }
     }
 }

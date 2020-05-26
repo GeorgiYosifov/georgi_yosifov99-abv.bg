@@ -4,14 +4,16 @@ using BeStudent.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BeStudent.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200516004331_CreateChat")]
+    partial class CreateChat
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -111,9 +113,6 @@ namespace BeStudent.Data.Migrations
                     b.Property<int?>("AnswerId")
                         .HasColumnType("int");
 
-                    b.Property<string>("ChatId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("CodeForRegister")
                         .HasColumnType("nvarchar(max)");
 
@@ -200,8 +199,6 @@ namespace BeStudent.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AnswerId");
-
-                    b.HasIndex("ChatId");
 
                     b.HasIndex("ExamId");
 
@@ -1086,10 +1083,6 @@ namespace BeStudent.Data.Migrations
                     b.HasOne("BeStudent.Data.Models.Answer", null)
                         .WithMany("Students")
                         .HasForeignKey("AnswerId");
-
-                    b.HasOne("BeStudent.Data.Models.Chat", null)
-                        .WithMany("Users")
-                        .HasForeignKey("ChatId");
 
                     b.HasOne("BeStudent.Data.Models.Exam", null)
                         .WithMany("Students")

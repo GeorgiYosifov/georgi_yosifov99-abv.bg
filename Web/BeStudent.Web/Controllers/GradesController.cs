@@ -2,6 +2,7 @@
 {
     using System.Linq;
     using System.Security.Claims;
+    using System.Threading.Tasks;
 
     using BeStudent.Services.Data;
     using BeStudent.Web.ViewModels.Semester;
@@ -19,22 +20,20 @@
         }
 
         [Authorize(Roles = "Lector, User")]
-        public IActionResult All()
+        public async Task<IActionResult> All()
         {
             var studentId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var currStudentSemester = this.gradesService
-                .GetStudent<StudentForGradesViewModel>(studentId)
-                .StudentSemesters
-                .LastOrDefault();
+            var student = await this.gradesService.GetStudent<StudentForGradesViewModel>(studentId);
+            var lastStudentSemester = student.StudentSemesters.LastOrDefault();
 
-            if (currStudentSemester == null)
+            if (lastStudentSemester == null)
             {
                 this.TempData["message"] = "You can pay your first semester now!";
                 return this.RedirectToAction("ChooseCourse", "Payments");
             }
 
-            var semesterId = currStudentSemester.SemesterId;
-            var viewModel = this.gradesService.GetAll<SemesterForGradesViewModel>(semesterId);
+            var semesterId = lastStudentSemester.SemesterId;
+            var viewModel = await this.gradesService.GetAll<SemesterForGradesViewModel>(semesterId);
 
             var studentSubjects = viewModel.Subjects
                 .Where(s => s.StudentSubjects.FirstOrDefault(x => x.StudentId == studentId) != null)

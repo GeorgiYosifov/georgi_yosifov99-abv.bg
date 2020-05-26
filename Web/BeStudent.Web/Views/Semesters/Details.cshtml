@@ -1,11 +1,11 @@
 ﻿@using BeStudent.Web.ViewModels.Semester
 @model SemesterDetailsViewModel
-<script src="~/js/site.js"></script>
 
 @{
     this.ViewData["Title"] = $"Semester {Model.SemesterType}";
 }
 
+<script src="~/js/site.js"></script>
 <div class="text-center">
     <h1 class="display-4">@($"{Model.CourseName} {Model.SemesterType} {Model.Number}")</h1>
 </div>

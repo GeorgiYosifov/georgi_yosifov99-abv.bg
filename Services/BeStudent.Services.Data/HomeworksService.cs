@@ -8,6 +8,7 @@
     using BeStudent.Data.Common.Repositories;
     using BeStudent.Data.Models;
     using BeStudent.Services.Mapping;
+    using Microsoft.EntityFrameworkCore;
 
     public class HomeworksService : IHomeworksService
     {
@@ -46,7 +47,7 @@
 
         public async Task CreateAsync(string subjectName, string title, string description, string fileUri, string fileDescription, DateTime deadline)
         {
-            var subject = this.subjectRepository.All().FirstOrDefault(s => s.Name == subjectName);
+            var subject = await this.subjectRepository.All().FirstOrDefaultAsync(s => s.Name == subjectName);
 
             var homework = new Homework()
             {
@@ -73,13 +74,13 @@
             }
         }
 
-        public IEnumerable<T> GetAllSendedFiles<T>(int homeworkId)
+        public async Task<IEnumerable<T>> GetAllSendedFiles<T>(int homeworkId)
         {
-            return this.sendFileRepository
+            return await this.sendFileRepository
                 .All()
                 .Where(s => s.HomeworkId == homeworkId)
                 .To<T>()
-                .ToList();
+                .ToListAsync();
         }
 
         public async Task SendAsync(string userId, int homeworkId, string fileUri, string fileDescription)
@@ -109,7 +110,7 @@
             await this.gradeRepository.AddAsync(grade);
             await this.gradeRepository.SaveChangesAsync();
 
-            this.sendFileRepository.All().FirstOrDefault(f => f.Id == sendFileId).Grade = grade;
+            this.sendFileRepository.All().FirstOrDefaultAsync(f => f.Id == sendFileId).GetAwaiter().GetResult().Grade = grade;
             await this.sendFileRepository.SaveChangesAsync();
         }
     }

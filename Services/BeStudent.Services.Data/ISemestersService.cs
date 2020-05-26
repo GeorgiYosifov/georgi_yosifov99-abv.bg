@@ -8,6 +8,6 @@
 
         Task<bool> AddLectorAsync(int subjectId, int semesterId, string email);
 
-        T GetDetails<T>(int id);
+        Task<T> GetDetails<T>(int id);
     }
 }

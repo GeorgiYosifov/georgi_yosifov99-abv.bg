@@ -7,6 +7,7 @@
     using BeStudent.Data.Common.Repositories;
     using BeStudent.Data.Models;
     using BeStudent.Services.Mapping;
+    using Microsoft.EntityFrameworkCore;
 
     public class SubjectsService : ISubjectsService
     {
@@ -74,52 +75,52 @@
             }
         }
 
-        public T FillCalendar<T>(string name)
+        public async Task<T> FillCalendar<T>(string name)
         {
-            return this.subjectRepository
+            return await this.subjectRepository
                  .All()
                  .Where(s => s.Name == name)
                  .To<T>()
-                 .FirstOrDefault();
+                 .FirstOrDefaultAsync();
         }
 
-        public IEnumerable<T> GetAll<T>(string userId)
+        public async Task<IEnumerable<T>> GetAll<T>(string userId)
         {
-            var user = this.userRepository.All().FirstOrDefault(u => u.Id == userId);
+            var user = await this.userRepository.All().FirstOrDefaultAsync(u => u.Id == userId);
             var subjects = this.subjectRepository.All();
 
             if (user.Role == "User")
             {
-                var lastPayment = this.paymentRepository
+                var lastPayment = await this.paymentRepository
                     .All()
                     .Where(p => p.StudentId == userId)
                     .OrderByDescending(p => p.CreatedOn)
-                    .ToList()
-                    .FirstOrDefault();
+                    .FirstOrDefaultAsync();
 
                 if (lastPayment == null)
                 {
                     return new List<T>();
                 }
 
-                subjects = subjects.Where(s => s.SemesterId == lastPayment.SemesterId);
+                subjects = subjects
+                    .Where(s => s.SemesterId == lastPayment.SemesterId);
             }
             else if (user.Role == "Lector")
             {
-                subjects = subjects.Where(s => s.Id == s.StudentSubjects
-                    .FirstOrDefault(u => u.StudentId == userId).SubjectId);
+                subjects = subjects
+                    .Where(s => s.Id == s.StudentSubjects.FirstOrDefault(u => u.StudentId == userId).SubjectId);
             }
 
-            return subjects.To<T>().ToList();
+            return await subjects.To<T>().ToListAsync();
         }
 
-        public T GetThemes<T>(string name)
+        public async Task<T> GetThemesAsync<T>(string name)
         {
-            return this.subjectRepository
-                .All()
+            return await this.subjectRepository
+                .AllAsNoTracking()
                 .Where(s => s.Name == name)
                 .To<T>()
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
         }
     }
 }

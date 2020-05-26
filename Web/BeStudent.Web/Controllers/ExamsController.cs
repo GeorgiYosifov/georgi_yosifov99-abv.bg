@@ -12,19 +12,23 @@
     using BeStudent.Web.ViewModels.Grade;
     using BeStudent.Web.ViewModels.SendFile;
     using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
 
     public class ExamsController : BaseController
     {
         private readonly IExamsService examsService;
         private readonly IThemesService themesService;
+        private readonly UserManager<ApplicationUser> userManager;
 
         public ExamsController(
             IExamsService examsService,
-            IThemesService themesService)
+            IThemesService themesService,
+            UserManager<ApplicationUser> userManager)
         {
             this.examsService = examsService;
             this.themesService = themesService;
+            this.userManager = userManager;
         }
 
         [Authorize(Roles = "Lector")]
@@ -48,7 +52,7 @@
             var fileUri = string.Empty;
             if (input.File != null)
             {
-                fileUri = this.themesService
+                fileUri = await this.themesService
                     .UploadFileToCloudinary(input.File.FileName, input.File.OpenReadStream());
                 if (input.FileDescription == null)
                 {
@@ -90,9 +94,9 @@
 
         [Authorize(Roles = "Lector")]
         [HttpGet("Exams/{onlineTestId}/CreateQuestion/{currQuestion}")]
-        public IActionResult CreateQuestion(int onlineTestId, int currQuestion)
+        public async Task<IActionResult> CreateQuestion(int onlineTestId, int currQuestion)
         {
-            var numbers = this.examsService.FindQuestionsCount(onlineTestId);
+            var numbers = await this.examsService.FindQuestionsCount(onlineTestId);
             if (currQuestion == numbers)
             {
                 return this.RedirectToAction("StartTest", "Exams", new { onlineTestId });
@@ -117,7 +121,7 @@
             var imageUri = string.Empty;
             if (input.Image != null)
             {
-                imageUri = this.themesService
+                imageUri = await this.themesService
                     .UploadFileToCloudinary(input.Image.FileName, input.Image.OpenReadStream());
             }
 
@@ -178,7 +182,7 @@
         [HttpGet("Exams/{onlineTestId}/StartTest")]
         public async Task<IActionResult> StartTest(int onlineTestId)
         {
-            var onlineTestModel = this.examsService.GetTest<OnlineTestStartViewModel>(onlineTestId);
+            var onlineTestModel = await this.examsService.GetTest<OnlineTestStartViewModel>(onlineTestId);
             if (onlineTestModel == null)
             {
                 return this.NotFound();
@@ -190,10 +194,8 @@
                 return this.RedirectToAction("FinishTest", "Exams", new { onlineTestId });
             }
 
-            await this.examsService.AddStudentInTest(onlineTestId, studentId);
-
             var questionNumber = 0;
-            var test = this.examsService.GetTest<OnlineTestSolveViewModel>(onlineTestId);
+            var test = await this.examsService.GetTest<OnlineTestSolveViewModel>(onlineTestId);
             onlineTestModel.QuestionId = test.Questions[questionNumber].Id;
             onlineTestModel.QuestionNumber = questionNumber;
             return this.View(onlineTestModel);
@@ -201,19 +203,31 @@
 
         [Authorize(Roles = "Lector, User")]
         [HttpGet("Exams/{onlineTestId}/SolveQuestion/{questionId}/{questionNumber}")]
-        public IActionResult SolveQuestion(int onlineTestId, string questionId, int questionNumber)
+        public async Task<IActionResult> SolveQuestion(int onlineTestId, string questionId, int questionNumber, [FromQuery] long remainSeconds)
         {
-            var questionModel = this.examsService.GetQuestion<QuestionViewModel>(questionId);
-            var onlineTestModel = this.examsService.GetTest<OnlineTestStartViewModel>(onlineTestId);
+            var questionModel = await this.examsService.GetQuestion<QuestionViewModel>(questionId);
+            var onlineTestModel = await this.examsService.GetTest<OnlineTestStartViewModel>(onlineTestId);
             if (questionModel == null || onlineTestModel == null)
             {
                 return this.NotFound();
             }
 
             var now = DateTime.Now;
-            var theDate = questionModel.OnlineTestEndTime;
-            var remain = theDate.Subtract(now);
-            var remainSeconds = (int)remain.TotalMinutes * 60;
+            if (questionNumber == 0)
+            {
+                var endTimeOfTest = questionModel.OnlineTestEndTime;
+                var remain = new TimeSpan();
+                if (now.AddMinutes(questionModel.OnlineTestDuration) < endTimeOfTest)
+                {
+                    remain = TimeSpan.FromMinutes(questionModel.OnlineTestDuration - 1);
+                }
+                else
+                {
+                    remain = endTimeOfTest.Subtract(now);
+                }
+
+                remainSeconds = (long)remain.TotalSeconds;
+            }
 
             if (onlineTestModel.StartTime > now)
             {
@@ -227,6 +241,11 @@
                 return this.RedirectToAction("StartTest", "Exams", new { onlineTestId });
             }
 
+            var studentId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            await this.examsService.AddStudentInTest(onlineTestId, studentId);
+
+            var secondsNow = now.Subtract(DateTime.MinValue).TotalSeconds;
+            questionModel.SecondsBefore = (long)secondsNow;
             questionModel.RemainSeconds = remainSeconds;
             return this.View(questionModel);
         }
@@ -234,7 +253,7 @@
         [Authorize(Roles = "Lector, User")]
         [HttpPost("Exams/{onlineTestId}/SolveQuestion/{questionId}/{questionNumber}")]
         public async Task<IActionResult> SolveQuestion
-            (int onlineTestId, string questionId, QuestionViewModel input, int questionNumber, [FromQuery] string type, int answerId)
+            (int onlineTestId, string questionId, QuestionViewModel input, int questionNumber, [FromQuery] string type, int answerId, long remainSeconds, long secondsBefore)
         {
             if (!this.ModelState.IsValid)
             {
@@ -243,7 +262,7 @@
 
             if (type == "RadioButtons")
             {
-                var onlineTestModel = this.examsService.GetQuestion<QuestionViewModel>(questionId);
+                var onlineTestModel = await this.examsService.GetQuestion<QuestionViewModel>(questionId);
                 var answer = onlineTestModel.Answers.FirstOrDefault(a => a.Text == input.Value);
                 if (answer != null)
                 {
@@ -259,50 +278,44 @@
             await this.examsService.CreateDecisionAsync(questionId, studentId, answerId, input.Value, type);
 
             questionNumber++;
-            var count = this.examsService.FindQuestionsCount(onlineTestId);
+            var count = await this.examsService.FindQuestionsCount(onlineTestId);
             if (questionNumber == count)
             {
                 return this.RedirectToAction("FinishTest", "Exams", new { onlineTestId });
             }
 
-            var test = this.examsService.GetTest<OnlineTestSolveViewModel>(onlineTestId);
+            var test = await this.examsService.GetTest<OnlineTestSolveViewModel>(onlineTestId);
             questionId = test.Questions[questionNumber].Id;
 
-            return this.RedirectToAction("SolveQuestion", "Exams", new { onlineTestId, questionId, questionNumber });
+            var secondsNow = DateTime.Now.Subtract(DateTime.MinValue).TotalSeconds;
+            remainSeconds = remainSeconds - ((long)secondsNow - secondsBefore);
+
+            return this.RedirectToAction("SolveQuestion", "Exams", new { onlineTestId, questionId, questionNumber, remainSeconds });
         }
 
         [Authorize(Roles = "Lector, User")]
         [HttpGet("Exams/{onlineTestId}/FinishTest")]
         public async Task<IActionResult> FinishTest(int onlineTestId)
         {
-            var onlineTestModel = this.examsService.GetTest<OnlineTestFinishViewModel>(onlineTestId);
+            var onlineTestModel = await this.examsService.GetTest<OnlineTestFinishViewModel>(onlineTestId);
             if (onlineTestModel == null)
             {
                 return this.NotFound();
             }
 
-            var isTest = true;
-            foreach (var question in onlineTestModel.Questions)
-            {
-                var answerType = question.Answers.FirstOrDefault().Type.ToString();
-                if (answerType == "InputFieldUp20Chars" || answerType == "InputFieldTiny")
-                {
-                    isTest = false;
-                    break;
-                }
-            }
-
             var studentId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var points = 0.0;
-            foreach (var question in onlineTestModel.Questions)
-            {
-                var decision = question.Decisions.FirstOrDefault(d => d.StudentId == studentId);
-                if (decision != null)
-                {
-                    points += decision.Points;
-                }
-            }
 
+            //DONT WORK
+            //var isTestTask = this.examsService.IsTestWithClosedAnswers(onlineTestId);
+            //var pointsTask = this.examsService.EarnedPoints(onlineTestId, studentId);
+
+            //await Task.WhenAll(isTestTask, pointsTask);
+
+            //var isTest = await isTestTask;
+            //var points = await pointsTask;
+
+            var isTest = await this.examsService.IsTestWithClosedAnswers(onlineTestId);
+            var points = await this.examsService.EarnedPoints(onlineTestId, studentId);
             if (isTest == true)
             {
                 onlineTestModel.Mark = await this.examsService.CalculateGradeAsync(onlineTestId, studentId, points);
@@ -315,16 +328,17 @@
 
         [Authorize(Roles = "Lector, User")]
         [HttpGet("Exams/{onlineTestId}/ReviewTest/{studentId}")]
-        public IActionResult ReviewTest(int onlineTestId, string studentId, [FromQuery] string role)
+        public async Task<IActionResult> ReviewTest(int onlineTestId, string studentId)
         {
-            var onlineTestModel = this.examsService.GetTest<OnlineTestReviewViewModel>(onlineTestId);
+            var onlineTestModel = await this.examsService.GetTest<OnlineTestReviewViewModel>(onlineTestId);
             if (onlineTestModel == null)
             {
                 return this.NotFound();
             }
 
+            var user = await this.userManager.GetUserAsync(this.User);
             onlineTestModel.HasOpenAnswers = false;
-            if (role == "Lector")
+            if (user.Role == "Lector")
             {
                 var count = onlineTestModel
                     .Questions
@@ -341,8 +355,8 @@
                 }
             }
 
-            var student = onlineTestModel.Students.FirstOrDefault(s => s.Id == studentId);
-            onlineTestModel.Student = student;
+            var studentToReview = onlineTestModel.Students.FirstOrDefault(s => s.Id == studentId);
+            onlineTestModel.Student = studentToReview;
             return this.View(onlineTestModel);
         }
 
@@ -362,9 +376,9 @@
 
         [Authorize(Roles = "User")]
         [HttpGet("Subjects/{subjectName}/Exams/{examId}/SendSolution")]
-        public IActionResult SendSolution(string subjectName, int examId)
+        public async Task<IActionResult> SendSolution(string subjectName, int examId)
         {
-            var examModel = this.examsService.GetExam<ExamViewModel>(examId);
+            var examModel = await this.examsService.GetExam<ExamViewModel>(examId);
 
             var now = DateTime.Now;
             if (examModel.Open > now)
@@ -400,7 +414,7 @@
             var fileUri = string.Empty;
             if (input.File != null)
             {
-                fileUri = this.themesService
+                fileUri = await this.themesService
                     .UploadFileToCloudinary(input.File.FileName, input.File.OpenReadStream());
             }
 
@@ -412,13 +426,13 @@
 
         [Authorize(Roles = "Lector")]
         [HttpGet("Subjects/{subjectName}/Exams/{examId}/SendedSolutions")]
-        public IActionResult SendedSolutions(string subjectName, int examId)
+        public async Task<IActionResult> SendedSolutions(string subjectName, int examId)
         {
             var viewModel = new SendFilesListViewModel
             {
                 ExamId = examId,
                 SubjectName = subjectName,
-                SendFiles = this.examsService.GetAllSendedSolutions<SendFileViewModel>(examId),
+                SendFiles = await this.examsService.GetAllSendedSolutions<SendFileViewModel>(examId),
             };
 
             return this.View(viewModel);
@@ -462,18 +476,18 @@
 
         [Authorize(Roles = "Lector")]
         [HttpGet("Exams/{onlineTestId}/SendedTests")]
-        public IActionResult SendedTests(int onlineTestId)
+        public async Task<IActionResult> SendedTests(int onlineTestId)
         {
-            var viewModel = this.examsService.GetTest<OnlineTestSendedTestsViewModel>(onlineTestId);
+            var viewModel = await this.examsService.GetTest<OnlineTestSendedTestsViewModel>(onlineTestId);
 
             return this.View(viewModel);
         }
 
         [Authorize(Roles = "Lector")]
         [HttpGet("Exams/{examId}/AllStudents")]
-        public IActionResult AllStudents(int examId, [FromQuery] string subjectName)
+        public async Task<IActionResult> AllStudents(int examId, [FromQuery] string subjectName)
         {
-            var viewModel = this.examsService.GetExam<ExamForAllStudentsViewModel>(examId);
+            var viewModel = await this.examsService.GetExam<ExamForAllStudentsViewModel>(examId);
             viewModel.SubjectName = subjectName;
 
             return this.View(viewModel);

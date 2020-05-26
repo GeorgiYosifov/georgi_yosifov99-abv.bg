@@ -14,12 +14,12 @@
 
         Task CreatePaymentAsync(string userId, int semesterId);
 
-        PaymentAttempt GetPaymentAttempt(string id);
+        Task<PaymentAttempt> GetPaymentAttempt(string id);
 
-        T GetUser<T>(string userId);
+        Task<T> GetUser<T>(string userId);
 
-        T GetSemester<T>(int semesterId);
+        Task<T> GetSemester<T>(int semesterId);
 
-        T GetSemester<T>(string courseName, int nextNumber, int year);
+        Task<T> GetSemester<T>(string courseName, int nextNumber, int year);
     }
 }

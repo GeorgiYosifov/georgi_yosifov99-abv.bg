@@ -6,6 +6,7 @@
     using BeStudent.Data.Common.Repositories;
     using BeStudent.Data.Models;
     using BeStudent.Services.Mapping;
+    using Microsoft.EntityFrameworkCore;
 
     public class SemestersService : ISemestersService
     {
@@ -81,13 +82,13 @@
             await this.chatRepository.SaveChangesAsync();
         }
 
-        public T GetDetails<T>(int id)
+        public async Task<T> GetDetails<T>(int id)
         {
-            return this.semesterRepository
+            return await this.semesterRepository
                 .All()
                 .Where(s => s.Id == id)
                 .To<T>()
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
         }
     }
 }

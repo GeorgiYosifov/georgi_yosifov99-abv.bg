@@ -12,7 +12,7 @@
         @foreach (var student in Model.Students)
         {
             <li class="list-group-item text-center">
-                <a class="ml-2 w-25" asp-controller="Exams" asp-action="ReviewTest" asp-route-onlineTestId="@Model.Id" asp-route-studentId="@student.Id" asp-route-role="Lector">
+                <a class="ml-2 w-25" asp-controller="Exams" asp-action="ReviewTest" asp-route-onlineTestId="@Model.Id" asp-route-studentId="@student.Id">
                     @($"Test by {student.FirstName} {student.LastName}")
                 </a>
             </li>

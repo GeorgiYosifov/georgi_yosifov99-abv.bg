@@ -22,6 +22,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Data\BeStudent.Data.Common\BeStudent.Data.Common.csproj" />
     <ProjectReference Include="..\..\Data\BeStudent.Data.Models\BeStudent.Data.Models.csproj" />
+    <ProjectReference Include="..\..\Web\BeStudent.Web.ViewModels\BeStudent.Web.ViewModels.csproj" />
     <ProjectReference Include="..\BeStudent.Services.Mapping\BeStudent.Services.Mapping.csproj" />
     <ProjectReference Include="..\BeStudent.Services.Messaging\BeStudent.Services.Messaging.csproj" />
   </ItemGroup>

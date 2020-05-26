@@ -60,22 +60,18 @@
                 return this.RedirectToAction("ChooseCourse", "Payments");
             }
 
-            var role = user.Role;
-            var userId = user.Id;
-
             var viewModel = new SubjectsListViewModel
             {
-                Role = role,
-                Subjects = this.subjectsService.GetAll<SubjectForAllViewModel>(userId),
+                Subjects = await this.subjectsService.GetAll<SubjectForAllViewModel>(user.Id),
             };
 
             return this.View(viewModel);
         }
 
         [Authorize(Roles = "Lector, User")]
-        public IActionResult Themes(string subjectName)
+        public async Task<IActionResult> Themes(string subjectName)
         {
-            var subjectViewModel = this.subjectsService.GetThemes<SubjectGetThemesViewModel>(subjectName);
+            var subjectViewModel = await this.subjectsService.GetThemesAsync<SubjectGetThemesViewModel>(subjectName);
             if (subjectViewModel == null)
             {
                 return this.NotFound();
@@ -86,9 +82,9 @@
 
         [Authorize(Roles = "User, Lector")]
         [HttpGet("Subjects/{subjectName}/Calendar")]
-        public IActionResult Calendar(string subjectName, [FromQuery] int month)
+        public async Task<IActionResult> Calendar(string subjectName, [FromQuery] int month)
         {
-            var calendarViewModel = this.subjectsService.FillCalendar<CalendarViewModel>(subjectName);
+            var calendarViewModel = await this.subjectsService.FillCalendar<CalendarViewModel>(subjectName);
             if (calendarViewModel == null)
             {
                 return this.NotFound();
@@ -99,7 +95,8 @@
                 Name = calendarViewModel.Name,
                 Homeworks = calendarViewModel.Homeworks.Where(h => h.CreatedOn.Month == month).ToList(),
                 Exams = calendarViewModel.Exams
-                        .Select(e => new ExamForCalendarViewModel {
+                        .Select(e => new ExamForCalendarViewModel
+                        {
                             Title = e.Title,
                             OnlineTests = e.OnlineTests.Where(t => t.StartTime.Month == month).ToList(),
                         }).ToList(),

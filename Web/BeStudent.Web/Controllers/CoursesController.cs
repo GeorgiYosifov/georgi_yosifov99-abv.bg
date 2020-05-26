@@ -18,19 +18,19 @@
 
         [Authorize(Roles = "Administrator")]
         [HttpGet("Courses/{courseName}")]
-        public IActionResult ByName(string courseName)
+        public async Task<IActionResult> ByName(string courseName)
         {
-            var viewModel = this.coursesService.ByName<CourseViewModel>(courseName);
+            var viewModel = await this.coursesService.ByName<CourseViewModel>(courseName);
 
             return this.View(viewModel);
         }
 
         [Authorize(Roles = "Administrator")]
-        public IActionResult All()
+        public async Task<IActionResult> All()
         {
             var viewModel = new CoursesListViewModel
             {
-                Courses = this.coursesService.GetAll<CourseViewModel>(),
+                Courses = await this.coursesService.GetAll<CourseViewModel>(),
             };
 
             return this.View(viewModel);
