@@ -29,7 +29,7 @@
             if (lastStudentSemester == null)
             {
                 this.TempData["message"] = "You can pay your first semester now!";
-                return this.RedirectToAction("ChooseCourse", "Payments");
+                return this.RedirectToAction("ShowNewSemester", "Payments");
             }
 
             var semesterId = lastStudentSemester.SemesterId;
